@@ -9,6 +9,7 @@ import com.cookingrecipe.cookingrecipe.exception.UserNotFoundException;
 import com.cookingrecipe.cookingrecipe.repository.UserRepository;
 import com.cookingrecipe.cookingrecipe.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +21,7 @@ import java.util.Optional;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     // User Entity 생성
     @Override
@@ -30,6 +32,10 @@ public class UserServiceImpl implements UserService {
     // UserSignupDto 사용해 회원 가입
     @Override
     public User join(UserSignupDto userSignupDto) {
+
+        // 비밀번호 암호화
+        String encodedPassword = passwordEncoder.encode(userSignupDto.getPassword());
+
         User user = User.builder()
                 .loginId(userSignupDto.getLoginId())
                 .nickname(userSignupDto.getNickname())
@@ -77,11 +83,13 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new UserNotFoundException("해당 유저를 찾을 수 없습니다."));
 
         // 현재 비밀번호 확인
-        if (!user.getPassword().equals(currentPassword)) {
+        if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
             throw new BadRequestException("현재 비밀번호가 올바르지 않습니다.");
         }
 
-        user.updatePassword(newPassword);
+        // 새로운 비밀번호 암호화 후 변경
+        String encodedNewPassword = passwordEncoder.encode(newPassword);
+        user.updatePassword(encodedNewPassword);
     }
 
     // 아이디 찾기 - 이메일, 전화번호 사용
