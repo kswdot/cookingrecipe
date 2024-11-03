@@ -1,6 +1,7 @@
 package com.cookingrecipe.cookingrecipe.service.Impl;
 
 import com.cookingrecipe.cookingrecipe.domain.Birth;
+import com.cookingrecipe.cookingrecipe.domain.Role;
 import com.cookingrecipe.cookingrecipe.domain.User;
 import com.cookingrecipe.cookingrecipe.dto.UserSignupDto;
 import com.cookingrecipe.cookingrecipe.dto.UserUpdateDto;
@@ -43,6 +44,7 @@ public class UserServiceImpl implements UserService {
                 .email(userSignupDto.getEmail())
                 .number(userSignupDto.getNumber())
                 .birth(userSignupDto.getBirth())
+                .role(Role.ROLE_USER)
                 .build();
         return joinEntity(user);
 

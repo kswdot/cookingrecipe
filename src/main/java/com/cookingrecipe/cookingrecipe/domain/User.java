@@ -22,28 +22,25 @@ public class User extends BaseTimeEntity {
     @Column(name = "user_id")
     private Long id;
 
-    @NotNull
     private String loginId; // 로그인 시 사용하는 아이디
-    @NotNull
     private String nickname; // 게시글, 댓글 작성 시 다른 사용자들에게 보여지는 닉네임
-    @NotNull
     private String password; // 로그인 시 사용하는 비밀번호
-    @NotNull
     private String email;
-    @NotNull
     private String number; // 아이디, 비밀번호 찾기 시 사용되는 이메일
-    @NotNull
     @Embedded
     private Birth birth; // 아이디, 비밀번호 찾기 시 사용되는 생년월일
+    @Enumerated(EnumType.STRING)
+    private Role role;
 
     @Builder
-    private User(String loginId, String nickname, String password, String email, String number, Birth birth) {
+    private User(String loginId, String nickname, String password, String email, String number, Birth birth, Role role) {
         this.loginId = loginId;
         this.nickname = nickname;
         this.password = password;
         this.email = email;
         this.number = number;
         this.birth = birth;
+        this.role = role;
     }
 
     public void updateUser(String nickname, String email, String number) {
