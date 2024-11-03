@@ -15,7 +15,7 @@ import static jakarta.persistence.FetchType.*;
 @Table(name = "likes")
 public class Like extends BaseTimeEntity {
 
-    @Id @GeneratedValue
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "like_id")
     private Long id;
 

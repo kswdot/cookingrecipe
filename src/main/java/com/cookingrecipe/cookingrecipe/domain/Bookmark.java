@@ -14,7 +14,7 @@ import static jakarta.persistence.FetchType.*;
 @ToString(of = {"id", "status"})
 public class Bookmark extends BaseTimeEntity {
 
-    @Id @GeneratedValue
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "bookmark_id")
     private Long id;
 

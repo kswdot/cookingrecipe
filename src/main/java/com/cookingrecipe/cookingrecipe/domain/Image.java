@@ -13,7 +13,7 @@ import static jakarta.persistence.FetchType.*;
 @ToString(of = {"id"})
 public class Image {
 
-    @Id @GeneratedValue
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotNull

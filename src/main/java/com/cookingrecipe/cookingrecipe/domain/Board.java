@@ -18,7 +18,7 @@ import static jakarta.persistence.FetchType.*;
 @ToString(of = {"title", "writer", "category", "material", "content", "view"})
 public class Board extends BaseTimeEntity {
 
-    @Id @GeneratedValue
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "board_id")
     private Long id;
 

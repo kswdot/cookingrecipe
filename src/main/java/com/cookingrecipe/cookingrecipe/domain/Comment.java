@@ -14,7 +14,7 @@ import static jakarta.persistence.FetchType.*;
 @ToString(of = {"id","comment"})
 public class Comment extends BaseTimeEntity {
 
-    @Id @GeneratedValue
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "comment_id")
     private Long id;
 
@@ -22,11 +22,11 @@ public class Comment extends BaseTimeEntity {
     private String comment;
 
     @ManyToOne(fetch = LAZY)
-    @JoinColumn(name = "comment_id")
+    @JoinColumn(name = "user_id")
     private User user;
 
     @ManyToOne(fetch = LAZY)
-    @JoinColumn(name = "comment_id")
+    @JoinColumn(name = "board_id")
     private Board board;
 
 }
