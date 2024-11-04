@@ -1,6 +1,5 @@
 package com.cookingrecipe.cookingrecipe.service.Impl;
 
-import com.cookingrecipe.cookingrecipe.domain.Birth;
 import com.cookingrecipe.cookingrecipe.domain.Role;
 import com.cookingrecipe.cookingrecipe.domain.User;
 import com.cookingrecipe.cookingrecipe.dto.UserSignupDto;
@@ -10,10 +9,16 @@ import com.cookingrecipe.cookingrecipe.exception.UserNotFoundException;
 import com.cookingrecipe.cookingrecipe.repository.UserRepository;
 import com.cookingrecipe.cookingrecipe.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -40,15 +45,33 @@ public class UserServiceImpl implements UserService {
         User user = User.builder()
                 .loginId(userSignupDto.getLoginId())
                 .nickname(userSignupDto.getNickname())
-                .password(userSignupDto.getPassword())
+                .password(encodedPassword)
                 .email(userSignupDto.getEmail())
                 .number(userSignupDto.getNumber())
                 .birth(userSignupDto.getBirth())
                 .role(Role.ROLE_USER)
                 .build();
-        return joinEntity(user);
 
+        // User 엔티티 저장
+        joinEntity(user);
 
+        // 자동 로그인 처리
+        autoLogin(user);
+
+        return user;
+    }
+
+    // 자동 로그인 처리 메서드
+    private void autoLogin(User user) {
+
+        // 권한 리스트 호출
+        List<SimpleGrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(user.getRole().name()));
+
+        // User 객체와 권한 리스트 기반 인증 객체 생성
+        Authentication authentication = new UsernamePasswordAuthenticationToken(user, null, authorities);
+
+        // SecurityContext 권한 설정 (로그인 처리)
+        SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 
     // 회원 가입 시 아이디 중복 검사 - 이미 존재하는 경우 true / 그렇지 않은 경우 false 반환
@@ -96,7 +119,7 @@ public class UserServiceImpl implements UserService {
 
     // 아이디 찾기 - 이메일, 전화번호 사용
     @Override
-    public String findLoginIdByNumberAndBirth(String number, Birth birth) {
+    public String findLoginIdByNumberAndBirth(String number, LocalDate birth) {
         return userRepository.findByNumberAndBirth(number, birth)
                 .map(User::getLoginId) // 호출한 쪽에서 exception 다루도록 설정
                 .orElseThrow(() -> new UserNotFoundException("해당 유저를 찾을 수 없습니다. 입력한 정보를 다시 확인해주세요."));

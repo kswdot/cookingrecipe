@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,13 +28,12 @@ public class User extends BaseTimeEntity {
     private String password; // 로그인 시 사용하는 비밀번호
     private String email;
     private String number; // 아이디, 비밀번호 찾기 시 사용되는 이메일
-    @Embedded
-    private Birth birth; // 아이디, 비밀번호 찾기 시 사용되는 생년월일
+    private LocalDate birth; // 아이디, 비밀번호 찾기 시 사용되는 생년월일
     @Enumerated(EnumType.STRING)
     private Role role;
 
     @Builder
-    private User(String loginId, String nickname, String password, String email, String number, Birth birth, Role role) {
+    private User(String loginId, String nickname, String password, String email, String number, LocalDate birth, Role role) {
         this.loginId = loginId;
         this.nickname = nickname;
         this.password = password;

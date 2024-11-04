@@ -1,6 +1,5 @@
 package com.cookingrecipe.cookingrecipe.dto;
 
-import com.cookingrecipe.cookingrecipe.domain.Birth;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -8,18 +7,20 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.LocalDate;
+
 @Getter
 @Builder
 @AllArgsConstructor
 public class UserSignupDto {
 
-    @NotNull(message = "로그인 아이디를 입력하세요")
+    @NotBlank(message = "사용할 아이디를 입력하세요")
     @Pattern(regexp = "^[a-zA-Z0-9]{5,20}$",
             message = "아이디는 특수 문자를 제외한 5자 이상이어야 합니다")
     private String loginId;
 
 
-    @NotNull(message = "닉네임을 입력하세요")
+    @NotBlank(message = "사용할 닉네임을 입력하세요")
     @Pattern(regexp = "^[a-zA-Z0-9가-힣]{2,20}$",
             message = "닉네임은 특수문자를 제외한 2자 이상이어야 합니다")
     private String nickname;
@@ -42,7 +43,7 @@ public class UserSignupDto {
     @Pattern(regexp = "^010-\\d{4}-\\d{4}$", message = "올바른 전화번호를 입력하세요")
     private String number;
 
-    @NotBlank(message = "생년월일을 입력하세요")
-    private Birth birth;
+    @NotNull(message = "생년월일을 입력하세요")
+    private LocalDate birth;
 
 }

@@ -1,21 +1,18 @@
 package com.cookingrecipe.cookingrecipe.service;
 
-import com.cookingrecipe.cookingrecipe.domain.Birth;
 import com.cookingrecipe.cookingrecipe.domain.User;
 import com.cookingrecipe.cookingrecipe.dto.UserSignupDto;
 import com.cookingrecipe.cookingrecipe.dto.UserUpdateDto;
 import com.cookingrecipe.cookingrecipe.exception.BadRequestException;
 import com.cookingrecipe.cookingrecipe.exception.UserNotFoundException;
-import com.cookingrecipe.cookingrecipe.repository.UserRepository;
-import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
+import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -28,6 +25,9 @@ class UserServiceImplTest {
     @Autowired
     UserService userService;
 
+    @Autowired
+    PasswordEncoder passwordEncoder;
+
 
     @Test
     public void isDuplicatedId() {
@@ -38,7 +38,7 @@ class UserServiceImplTest {
                 .password("!tester")
                 .email("test@example.com")
                 .number("010-1111-1111")
-                .birth(new Birth(1998, 7, 2))
+                .birth(LocalDate.of(1998,7,2))
                 .build();
 
         User savedUser = userService.join(userSignupDto);
@@ -60,7 +60,7 @@ class UserServiceImplTest {
                 .password("!tester")
                 .email("test@example.com")
                 .number("010-1111-1111")
-                .birth(new Birth(1998, 7, 2))
+                .birth(LocalDate.of(1998,7,2))
                 .build();
 
         User savedUser = userService.join(userSignupDto);
@@ -82,7 +82,7 @@ class UserServiceImplTest {
                 .password("!tester")
                 .email("test@example.com")
                 .number("010-1111-1111")
-                .birth(new Birth(1998, 7, 2))
+                .birth(LocalDate.of(1998,7,2))
                 .build();
 
         User savedUser = userService.join(userSignupDto);
@@ -111,19 +111,22 @@ class UserServiceImplTest {
                 .password("!tester")
                 .email("test@example.com")
                 .number("010-1111-1111")
-                .birth(new Birth(1998, 7, 2))
+                .birth(LocalDate.of(1998,7,2))
                 .build();
 
         User savedUser = userService.join(userSignupDto);
         Long savedId = savedUser.getId();
 
         //when
+        String currentPassword = "!tester";
         String newPassword = "@tester";
-        userService.updatePassword(savedId, savedUser.getPassword(),newPassword);
+        userService.updatePassword(savedId, currentPassword, newPassword);
 
         //then
-        assertThat(savedUser.getPassword()).isEqualTo(newPassword);
+        User updatedUser = userService.findById(savedId).orElseThrow(() -> new IllegalArgumentException("User not found"));
+        assertThat(passwordEncoder.matches(newPassword, updatedUser.getPassword())).isTrue();
     }
+
 
 
     @Test
@@ -135,7 +138,7 @@ class UserServiceImplTest {
                 .password("!tester")
                 .email("test@example.com")
                 .number("010-1111-1111")
-                .birth(new Birth(1998, 7, 2))
+                .birth(LocalDate.of(1998,7,2))
                 .build();
 
         User savedUser = userService.join(userSignupDto);
@@ -161,7 +164,7 @@ class UserServiceImplTest {
                 .password("!tester")
                 .email("test@example.com")
                 .number("010-1111-1111")
-                .birth(new Birth(1998, 7, 2))
+                .birth(LocalDate.of(1998,7,2))
                 .build();
 
         User savedUser = userService.join(userSignupDto);
@@ -184,7 +187,7 @@ class UserServiceImplTest {
                 .password("!tester")
                 .email("test@example.com")
                 .number("010-1111-1111")
-                .birth(new Birth(1998, 7, 2))
+                .birth(LocalDate.of(1998,7,2))
                 .build();
 
         User savedUser = userService.join(userSignupDto);
@@ -209,7 +212,7 @@ class UserServiceImplTest {
                 .password("!tester")
                 .email("test@example.com")
                 .number("010-1111-1111")
-                .birth(new Birth(1998, 7, 2))
+                .birth(LocalDate.of(1998,7,2))
                 .build();
 
         User savedUser = userService.join(userSignupDto);

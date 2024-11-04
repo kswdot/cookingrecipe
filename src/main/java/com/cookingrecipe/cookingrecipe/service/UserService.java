@@ -1,10 +1,10 @@
 package com.cookingrecipe.cookingrecipe.service;
 
-import com.cookingrecipe.cookingrecipe.domain.Birth;
 import com.cookingrecipe.cookingrecipe.domain.User;
 import com.cookingrecipe.cookingrecipe.dto.UserSignupDto;
 import com.cookingrecipe.cookingrecipe.dto.UserUpdateDto;
 
+import java.time.LocalDate;
 import java.util.Optional;
 
 public interface UserService {
@@ -31,7 +31,7 @@ public interface UserService {
     void updatePassword(Long id, String currentPassword, String newPassword);
 
     // 아이디 찾기 - 이메일, 전화번호 사용
-    String findLoginIdByNumberAndBirth(String number, Birth birth);
+    String findLoginIdByNumberAndBirth(String number, LocalDate birth);
 
     // 회원 탈퇴
     void deleteUser(Long id);

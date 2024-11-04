@@ -6,6 +6,8 @@ spring:
     properties:
       hibernate:
         format_sql: true  # (3) SQL pretty print
+  messages:
+    basename: message, errors
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver

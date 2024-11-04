@@ -1,10 +1,10 @@
 package com.cookingrecipe.cookingrecipe.repository;
 
-import com.cookingrecipe.cookingrecipe.domain.Birth;
 import com.cookingrecipe.cookingrecipe.domain.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.Optional;
 
 @Repository
@@ -14,7 +14,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findByEmail(String email);
 
-    Optional<User> findByNumberAndBirth(String number, Birth birth);
+    Optional<User> findByNumberAndBirth(String number, LocalDate birth);
 
     void deleteByLoginId(String loginId);
 }
