@@ -53,6 +53,10 @@ dependencies {
 	// Spring Security 추가
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 
+	// thymeleaf-extras-springsecurity6 추가
+	implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
+
+
 }
 
 tasks.named('test') {

@@ -24,6 +24,9 @@ public interface UserService {
     // 시스템 ID를 이용하여 회원 조회
     Optional<User> findById(Long id);
 
+    // 로그인 ID를 이용하여 회원 조회
+    Optional<User> findByLoginId(String loginId);
+
     // 회원 정보 변경
     void updateUser(Long id, UserUpdateDto userUpdateDto);
 

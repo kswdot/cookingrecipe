@@ -16,3 +16,9 @@ spring:
     password: 0309
   thymeleaf:
     cache: false
+
+logging:
+  level:
+    org:
+      springframework:
+        security: DEBUG

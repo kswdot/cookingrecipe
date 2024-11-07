@@ -1,4 +1,4 @@
-package com.cookingrecipe.cookingrecipe.service.Impl;
+package com.cookingrecipe.cookingrecipe.service;
 
 import com.cookingrecipe.cookingrecipe.domain.Role;
 import com.cookingrecipe.cookingrecipe.domain.User;
@@ -7,18 +7,12 @@ import com.cookingrecipe.cookingrecipe.dto.UserUpdateDto;
 import com.cookingrecipe.cookingrecipe.exception.BadRequestException;
 import com.cookingrecipe.cookingrecipe.exception.UserNotFoundException;
 import com.cookingrecipe.cookingrecipe.repository.UserRepository;
-import com.cookingrecipe.cookingrecipe.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -55,23 +49,8 @@ public class UserServiceImpl implements UserService {
         // User 엔티티 저장
         joinEntity(user);
 
-        // 자동 로그인 처리
-        autoLogin(user);
 
         return user;
-    }
-
-    // 자동 로그인 처리 메서드
-    private void autoLogin(User user) {
-
-        // 권한 리스트 호출
-        List<SimpleGrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(user.getRole().name()));
-
-        // User 객체와 권한 리스트 기반 인증 객체 생성
-        Authentication authentication = new UsernamePasswordAuthenticationToken(user, null, authorities);
-
-        // SecurityContext 권한 설정 (로그인 처리)
-        SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 
     // 회원 가입 시 아이디 중복 검사 - 이미 존재하는 경우 true / 그렇지 않은 경우 false 반환
@@ -90,6 +69,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public Optional<User> findById(Long id) {
         return userRepository.findById(id);
+    }
+
+    @Override
+    public Optional<User> findByLoginId(String loginId) {
+        return userRepository.findByLoginId(loginId);
     }
 
     // 회원 정보 변경
@@ -133,7 +117,5 @@ public class UserServiceImpl implements UserService {
 
         userRepository.delete(user);
     }
-
-
 
 }
