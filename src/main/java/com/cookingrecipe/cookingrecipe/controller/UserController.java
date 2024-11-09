@@ -2,6 +2,7 @@ package com.cookingrecipe.cookingrecipe.controller;
 
 import com.cookingrecipe.cookingrecipe.domain.CustomUserDetails;
 import com.cookingrecipe.cookingrecipe.domain.User;
+import com.cookingrecipe.cookingrecipe.dto.PasswordUpdateDto;
 import com.cookingrecipe.cookingrecipe.dto.UserLoginDto;
 import com.cookingrecipe.cookingrecipe.dto.UserSignupDto;
 import com.cookingrecipe.cookingrecipe.dto.UserUpdateDto;
@@ -14,6 +15,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.Optional;
 
@@ -69,7 +71,7 @@ public class UserController {
         return "redirect:/login";
     }
 
-    // 로그인 폼 제공
+    // 로그인 폼 - 로그인 과정은 Spring Security 관여
     @GetMapping("/login")
     public String loginForm(@ModelAttribute("form") UserLoginDto userLoginDto) {
         return "user/loginForm";
@@ -94,7 +96,7 @@ public class UserController {
         return "user/myPageInfo";
     }
 
-    // 마이페이지 - 회원 정보 수정 폼 제공
+    // 마이페이지 - 회원 정보 수정 폼
     @GetMapping("/myPage/info/edit")
     public String myPageInfoUpdateForm(@AuthenticationPrincipal CustomUserDetails userDetails,
                                        Model model) {
@@ -116,7 +118,7 @@ public class UserController {
     @PatchMapping("/myPage/info")
     public String myPageInfoUpdate(@AuthenticationPrincipal CustomUserDetails userDetails,
                                    @Validated @ModelAttribute("form") UserUpdateDto userUpdateDto,
-                                   BindingResult bindingResult, Model model) {
+                                   BindingResult bindingResult, RedirectAttributes redirectAttributes) {
 
         if (bindingResult.hasErrors()) {
             return "user/myPageInfoEdit";
@@ -124,10 +126,39 @@ public class UserController {
 
 
         userService.updateUser(userDetails.getId(), userUpdateDto);
+        redirectAttributes.addFlashAttribute("successMessage", "회원 정보가 변경되었습니다.");
 
         return "redirect:/myPage/info";
     }
+    
+    // 마이페이지 - 비밀번호 변경 폼
+    @GetMapping("/myPage/info/password")
+    public String myPagePasswordForm(@AuthenticationPrincipal CustomUserDetails customUserDetails,
+                                     Model model) {
 
+        model.addAttribute("user", customUserDetails);
+        model.addAttribute("form", new PasswordUpdateDto());
+
+        return "user/myPagePassword";
+    }
+
+    // 마이페이지 - 비밀번호 변경
+    @PutMapping("/myPage/info/password")
+    public String myPageInfoEditPassword(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                         @Validated @ModelAttribute("form") PasswordUpdateDto passwordUpdateDto,
+                                         BindingResult bindingResult, RedirectAttributes redirectAttributes) {
+
+        if (bindingResult.hasErrors()) {
+            return "user/myPagePassword";
+        }
+
+        userService.updatePassword(userDetails.getId(), passwordUpdateDto.getCurrentPassword(),
+                passwordUpdateDto.getNewPassword(), passwordUpdateDto.getConfirmPassword());
+
+        redirectAttributes.addFlashAttribute("successMessage", "비밀번호가 변경되었습니다.");
+
+        return "redirect:/myPage/info";
+    }
 
     @GetMapping("/bookmark")
     public String bookMark() {

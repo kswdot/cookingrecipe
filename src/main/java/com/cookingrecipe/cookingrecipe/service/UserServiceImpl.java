@@ -87,7 +87,7 @@ public class UserServiceImpl implements UserService {
 
     // 비밀번호 변경
     @Override
-    public void updatePassword(Long id, String currentPassword, String newPassword) {
+    public void updatePassword(Long id, String currentPassword, String newPassword, String confirmPassword) {
         User user = findById(id)
                 .orElseThrow(() -> new UserNotFoundException("해당 유저를 찾을 수 없습니다."));
 
@@ -96,9 +96,19 @@ public class UserServiceImpl implements UserService {
             throw new BadRequestException("현재 비밀번호가 올바르지 않습니다.");
         }
 
+        checkNewPassword(newPassword, confirmPassword);
+
         // 새로운 비밀번호 암호화 후 변경
         String encodedNewPassword = passwordEncoder.encode(newPassword);
         user.updatePassword(encodedNewPassword);
+    }
+
+    // 비밀번호 확인
+    public void checkNewPassword(String newPassword, String confirmPassword) {
+
+        if (!newPassword.equals(confirmPassword)) {
+            throw new BadRequestException("비밀번호 확인이 일치하지 않습니다.");
+        }
     }
 
     // 아이디 찾기 - 이메일, 전화번호 사용

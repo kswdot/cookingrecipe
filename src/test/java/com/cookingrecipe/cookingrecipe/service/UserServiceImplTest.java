@@ -130,7 +130,8 @@ class UserServiceImplTest {
         //when
         String currentPassword = "!tester";
         String newPassword = "@tester";
-        userService.updatePassword(savedId, currentPassword, newPassword);
+        String confirmPassword = "!tester";
+        userService.updatePassword(savedId, currentPassword, newPassword, confirmPassword);
 
         //then
         User updatedUser = userService.findById(savedId).orElseThrow(() -> new IllegalArgumentException("User not found"));
@@ -157,10 +158,11 @@ class UserServiceImplTest {
         //when
         String wrongPassword = "$tester";
         String newPassword = "@tester";
+        String confirmPassword = "@tester";
 
         //then
         org.junit.jupiter.api.Assertions.assertThrows(BadRequestException.class, () -> {
-            userService.updatePassword(savedId, wrongPassword, newPassword);
+            userService.updatePassword(savedId, wrongPassword, newPassword, confirmPassword);
         });
     }
 

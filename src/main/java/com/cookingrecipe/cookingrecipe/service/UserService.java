@@ -35,7 +35,7 @@ public interface UserService {
     void updateUser(Long id, UserUpdateDto userUpdateDto);
 
     // 비밀번호 변경
-    void updatePassword(Long id, String currentPassword, String newPassword);
+    void updatePassword(Long id, String currentPassword, String newPassword, String confirmPassword);
 
     // 아이디 찾기 - 이메일, 전화번호 사용
     String findLoginIdByNumberAndBirth(String number, LocalDate birth);
