@@ -7,12 +7,6 @@
 <body>
 <div class="mb-4">
     <h5>검색</h5>
-    <form action="/search" method="get">
-        <div class="mb-2 d-flex">
-            <input type="text" name="keyword" class="form-control me-2" placeholder="검색">
-            <button type="submit" class="btn btn-dark" style="white-space: nowrap;">검색</button>
-        </div>
-    </form>
 
     <div class="mb-2">
         <select name="searchCriteria" class="form-select">
@@ -20,6 +14,13 @@
             <option value="ingredients">레시피 내용(재료)</option>
             <option value="author">작성자</option>
         </select>
+
+        <form action="/search" method="get">
+            <div class="mb-2 d-flex">
+                <input type="text" name="keyword" class="form-control me-2" placeholder="검색">
+                <button type="submit" class="btn btn-dark" style="white-space: nowrap;">검색</button>
+            </div>
+        </form>
     </div>
 </div>
 

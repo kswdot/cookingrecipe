@@ -82,7 +82,7 @@ public class UserServiceImpl implements UserService {
         User user = findById(id)
                 .orElseThrow(() -> new UserNotFoundException("해당 유저를 찾을 수 없습니다."));
 
-        user.updateUser(userUpdateDto.getNickname(), userUpdateDto.getNumber(), userUpdateDto.getNumber());
+        user.updateUser(userUpdateDto.getNickname(), userUpdateDto.getEmail(), userUpdateDto.getNumber());
     }
 
     // 비밀번호 변경

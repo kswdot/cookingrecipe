@@ -3,10 +3,14 @@ package com.cookingrecipe.cookingrecipe.service;
 import com.cookingrecipe.cookingrecipe.domain.User;
 import com.cookingrecipe.cookingrecipe.dto.UserSignupDto;
 import com.cookingrecipe.cookingrecipe.dto.UserUpdateDto;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.Optional;
 
+@Service
+@Transactional
 public interface UserService {
 
     // User Entity 생성

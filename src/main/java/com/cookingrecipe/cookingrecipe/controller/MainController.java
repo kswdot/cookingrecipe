@@ -1,9 +1,7 @@
 package com.cookingrecipe.cookingrecipe.controller;
 
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
@@ -11,8 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class MainController {
 
     @GetMapping
-    public String index(HttpServletRequest request, Model model) {
-        model.addAttribute("httpServletRequest", request);
+    public String index() {
         return "index";
     }
 }

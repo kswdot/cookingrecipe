@@ -13,7 +13,10 @@
         </div>
         <nav class="nav" style="display: flex; flex-wrap: wrap; gap: 10px;">
             <div sec:authorize="isAuthenticated()" style="display: flex; gap: 10px;">
-                <a class="nav-link" th:href="@{/mypage}" style="color: black;">마이페이지</a>
+                <span th:text="${#authentication.principal.nickname} + ' 쉐프님 어서오세요!'"
+                      style="display: block; font-weight: bold; margin-top: 30px; margin-right: 20px;"></span>
+                <a class="nav-link" th:href="@{/myPage}" style="color: black;">마이페이지</a>
+                <a class="nav-link" th:href="@{/bookmark}" style="color: black;">북마크</a>
                 <a class="nav-link" th:href="@{/logout}" style="color: black;">로그아웃</a>
             </div>
             <div sec:authorize="isAnonymous()" style="display: flex; gap: 10px;">

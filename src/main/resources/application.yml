@@ -1,11 +1,11 @@
 spring:
   jpa:
     hibernate:
-      ddl-auto: create  # (1) 스키마 자동 생성
-    show-sql: true      # (2) SQL 쿼리 출력
+      ddl-auto: create  # (1) 스키마 자동 생성으로 매번 초기화됨
+    show-sql: true      # (2) SQL 쿼리 출력 활성화
     properties:
       hibernate:
-        format_sql: true  # (3) SQL pretty print
+        format_sql: true  # (3) SQL 포맷팅
   messages:
     basename: message, errors
 
@@ -15,10 +15,14 @@ spring:
     username: root
     password: 0309
   thymeleaf:
-    cache: false
+    cache: false  # 캐시 비활성화
+  mvc:
+    hiddenmethod:
+      filter:
+        enabled: true  # HiddenHttpMethodFilter 활성화
 
 logging:
   level:
     org:
       springframework:
-        security: DEBUG
+        security: DEBUG  # Spring Security 디버그 모드

@@ -1,18 +1,21 @@
 package com.cookingrecipe.cookingrecipe.controller;
 
+import com.cookingrecipe.cookingrecipe.domain.CustomUserDetails;
+import com.cookingrecipe.cookingrecipe.domain.User;
 import com.cookingrecipe.cookingrecipe.dto.UserLoginDto;
 import com.cookingrecipe.cookingrecipe.dto.UserSignupDto;
+import com.cookingrecipe.cookingrecipe.dto.UserUpdateDto;
+import com.cookingrecipe.cookingrecipe.exception.UserNotFoundException;
 import com.cookingrecipe.cookingrecipe.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Optional;
 
 @Controller
 @RequiredArgsConstructor
@@ -22,11 +25,13 @@ public class UserController {
     private final UserService userService;
 
 
+    // 회원가입 폼 제공
     @GetMapping("/join")
     public String joinForm(@ModelAttribute("form") UserSignupDto userSignupDto) {
         return "user/joinForm";
     }
 
+    // 회원가입
     @PostMapping("/join")
     public String join(@Validated @ModelAttribute("form") UserSignupDto userSignupDto,
                        BindingResult bindingResult, Model model) {
@@ -64,14 +69,68 @@ public class UserController {
         return "redirect:/login";
     }
 
-
+    // 로그인 폼 제공
     @GetMapping("/login")
     public String loginForm(@ModelAttribute("form") UserLoginDto userLoginDto) {
         return "user/loginForm";
     }
 
-    @GetMapping("/{userId}/myPage")
-    public String myPage(Model model, @PathVariable("userId") String userId) {
-        return "user/myPageForm";
+
+    // 마이페이지
+    @GetMapping("/myPage")
+    public String myPage(@AuthenticationPrincipal CustomUserDetails userDetails, Model model) {
+        model.addAttribute("user", userDetails);
+        return "user/myPage";
+    }
+
+    // 마이페이지 - 회원 정보 확인
+    @GetMapping("/myPage/info")
+    public String myPageInfo(@AuthenticationPrincipal CustomUserDetails userDetails, Model model) {
+
+        User user = userService.findById(userDetails.getId())
+                .orElseThrow(() -> new UserNotFoundException("해당 사용자의 정보를 찾을 수 없습니다"));
+
+        model.addAttribute("user", user);
+        return "user/myPageInfo";
+    }
+
+    // 마이페이지 - 회원 정보 수정 폼 제공
+    @GetMapping("/myPage/info/edit")
+    public String myPageInfoUpdateForm(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                       Model model) {
+        UserUpdateDto userUpdateDto = new UserUpdateDto(
+                userDetails.getUsername(),
+                userDetails.getNickname(),
+                userDetails.getEmail(),
+                userDetails.getNumber(),
+                userDetails.getBirth()
+        );
+
+        model.addAttribute("user", userDetails);
+        model.addAttribute("form", userUpdateDto);
+
+        return "user/myPageInfoEdit";
+    }
+
+    // 마이페이지 - 회원 정보 수정
+    @PatchMapping("/myPage/info")
+    public String myPageInfoUpdate(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                   @Validated @ModelAttribute("form") UserUpdateDto userUpdateDto,
+                                   BindingResult bindingResult, Model model) {
+
+        if (bindingResult.hasErrors()) {
+            return "user/myPageInfoEdit";
+        }
+
+
+        userService.updateUser(userDetails.getId(), userUpdateDto);
+
+        return "redirect:/myPage/info";
+    }
+
+
+    @GetMapping("/bookmark")
+    public String bookMark() {
+        return "user/bookmark";
     }
 }

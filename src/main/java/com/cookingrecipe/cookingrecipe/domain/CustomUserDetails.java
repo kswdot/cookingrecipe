@@ -5,9 +5,9 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 
 @RequiredArgsConstructor
 public class CustomUserDetails implements UserDetails {
@@ -19,6 +19,10 @@ public class CustomUserDetails implements UserDetails {
         return Collections.singletonList(new SimpleGrantedAuthority(user.getRole().name()));
     }
 
+    public Long getId() {
+        return user.getId();
+    }
+
     @Override
     public String getPassword() {
         return user.getPassword();
@@ -27,6 +31,22 @@ public class CustomUserDetails implements UserDetails {
     @Override
     public String getUsername() {
         return user.getLoginId();
+    }
+
+    public String getNickname() {
+        return user.getNickname();
+    }
+
+    public String getEmail() {
+        return user.getEmail();
+    }
+
+    public String getNumber() {
+        return user.getNumber();
+    }
+
+    public LocalDate getBirth() {
+        return user.getBirth();
     }
 
     @Override
