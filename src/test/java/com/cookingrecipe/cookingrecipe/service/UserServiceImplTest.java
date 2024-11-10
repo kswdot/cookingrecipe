@@ -231,7 +231,7 @@ class UserServiceImplTest {
         Long savedId = savedUser.getId();
 
         //when
-        userService.deleteUser(savedId);
+        userService.deleteUser(savedId, savedUser.getPassword());
 
         //then: 삭제된 유저를 조회했을 때 존재하지 않아야 함
         org.junit.jupiter.api.Assertions.assertThrows(UserNotFoundException.class, () -> {

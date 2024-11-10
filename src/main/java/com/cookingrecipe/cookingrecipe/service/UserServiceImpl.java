@@ -121,11 +121,19 @@ public class UserServiceImpl implements UserService {
 
     // 회원 탈퇴
     @Override
-    public void deleteUser(Long id) {
+    public void deleteUser(Long id, String enteredPassword) {
+
         User user = findById(id)
                 .orElseThrow(() -> new UserNotFoundException("해당 유저를 찾을 수 없습니다."));
 
+        // 비밀번호 일치 여부 확인
+        if (!passwordEncoder.matches(enteredPassword, user.getPassword())) {
+            throw new BadRequestException("비밀번호가 일치하지 않습니다.");
+        }
+
         userRepository.delete(user);
     }
+
+
 
 }

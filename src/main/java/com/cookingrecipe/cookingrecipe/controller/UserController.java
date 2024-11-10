@@ -6,10 +6,15 @@ import com.cookingrecipe.cookingrecipe.dto.PasswordUpdateDto;
 import com.cookingrecipe.cookingrecipe.dto.UserLoginDto;
 import com.cookingrecipe.cookingrecipe.dto.UserSignupDto;
 import com.cookingrecipe.cookingrecipe.dto.UserUpdateDto;
+import com.cookingrecipe.cookingrecipe.exception.BadRequestException;
 import com.cookingrecipe.cookingrecipe.exception.UserNotFoundException;
 import com.cookingrecipe.cookingrecipe.service.UserService;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -162,6 +167,43 @@ public class UserController {
 
     @GetMapping("/bookmark")
     public String bookMark() {
+
         return "user/bookmark";
+    }
+
+    // 마이페이지 - 회원 탈퇴 폼
+    @GetMapping("/myPage/withdraw")
+    public String withdrawForm() {
+
+        return "user/withdrawForm";
+    }
+
+    // 마이페이지 - 회원 탈퇴
+    @PostMapping("/myPage/withdraw")
+    public String withdraw(@AuthenticationPrincipal CustomUserDetails userDetails,
+                           @RequestParam("password") String enteredPassword,
+                           RedirectAttributes redirectAttributes,
+                           HttpServletRequest request) {
+
+        if (enteredPassword == null || enteredPassword.isEmpty()) {
+            redirectAttributes.addFlashAttribute("passwordError", "비밀번호를 입력해주세요");
+            return "user/withdrawForm";
+        }
+
+        try {
+            userService.deleteUser(userDetails.getId(), enteredPassword);
+
+            // 로그아웃 처리
+            request.logout();
+
+            redirectAttributes.addFlashAttribute("successMessage", "회원 탈퇴가 완료되었습니다.");
+            return "redirect:/";
+        } catch (BadRequestException e) {
+            redirectAttributes.addFlashAttribute("error", "비밀번호가 일치하지 않습니다.");
+            return "/user/withdrawForm";
+        } catch (ServletException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "에러가 발생했습니다. 다시 시도해주세요.");
+            return "redirect:/myPage/withdraw";
+        }
     }
 }

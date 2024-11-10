@@ -26,7 +26,7 @@
         <!-- 로그인 폼 -->
         <div class="col-md-9">
             <div class="text-center">
-                <h2>로그인</h2>
+                <h2 style="margin-bottom:40px;">로그인</h2>
             </div>
             <div th:if="${param.error}" class="alert alert-danger">
                 아이디 또는 비밀번호가 일치하지 않습니다.
@@ -48,6 +48,10 @@
                     <div th:if="${#fields.hasErrors('password')}" class="form-text text-danger"
                          th:text="${#fields.error('password')}"></div>
                 </div>
+
+                <!--공백 추가-->
+                <div class="mt-4"></div>
+
                 <div class="row">
                     <div class="col">
                         <button type="submit" class="btn btn-primary w-100">로그인</button>

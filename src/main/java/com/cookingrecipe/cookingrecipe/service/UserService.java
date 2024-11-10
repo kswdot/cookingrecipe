@@ -41,6 +41,6 @@ public interface UserService {
     String findLoginIdByNumberAndBirth(String number, LocalDate birth);
 
     // 회원 탈퇴
-    void deleteUser(Long id);
+    void deleteUser(Long id, String enteredPassword);
 
 }
