@@ -52,13 +52,18 @@
                 <!--공백 추가-->
                 <div class="mt-4"></div>
 
-                <div class="row">
-                    <div class="col">
+                    <div class="col" style="margin-bottom: 10px;">
                         <button type="submit" class="btn btn-primary w-100">로그인</button>
+                    </div>
+
+                <div class="row">
+                    <div class="col text-center">
+                        <button type="button" class="btn btn-info w-100"
+                                th:onclick="|location.href='/findLoginId'|">아이디 찾기</button>
                     </div>
                     <div class="col">
                         <button type="button" class="btn btn-secondary w-100"
-                                th:onclick="|location.href='/'|">취소</button>
+                                th:onclick="|location.href='/findPassword'|">비밀번호 찾기</button>
                     </div>
                 </div>
             </form>

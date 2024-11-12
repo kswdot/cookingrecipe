@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @Transactional
@@ -117,6 +118,23 @@ public class UserServiceImpl implements UserService {
         return userRepository.findByNumberAndBirth(number, birth)
                 .map(User::getLoginId) // 호출한 쪽에서 exception 다루도록 설정
                 .orElseThrow(() -> new UserNotFoundException("해당 유저를 찾을 수 없습니다. 입력한 정보를 다시 확인해주세요."));
+    }
+
+    @Override
+    public String findPassword(String LoginId, String number, LocalDate birth) {
+
+        User findUser = userRepository.findByNumberAndBirth(number, birth)
+                .filter(u -> u.getLoginId().equals(LoginId))
+                .orElseThrow(() -> new UserNotFoundException("해당 유저를 찾을 수 없습니다. 입력한 정보를 다시 확인해주세요"));
+
+        // 임시 비밀번호 생성
+        String tempPassword = UUID.randomUUID().toString().substring(0, 8);
+
+        // 임시 비밀번호 암호화 후 DB 업데이트
+        String encodedPassword = passwordEncoder.encode(tempPassword);
+        findUser.updatePassword(encodedPassword);
+
+        return tempPassword;
     }
 
     // 회원 탈퇴

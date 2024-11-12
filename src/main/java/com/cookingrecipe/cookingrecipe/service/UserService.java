@@ -40,6 +40,9 @@ public interface UserService {
     // 아이디 찾기 - 이메일, 전화번호 사용
     String findLoginIdByNumberAndBirth(String number, LocalDate birth);
 
+    // 비밀번호 찾기 - 로그인 ID, 이메일, 전화번호 사용
+    String findPassword(String LoginId, String number, LocalDate birth);
+
     // 회원 탈퇴
     void deleteUser(Long id, String enteredPassword);
 

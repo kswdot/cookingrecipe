@@ -2,19 +2,14 @@ package com.cookingrecipe.cookingrecipe.controller;
 
 import com.cookingrecipe.cookingrecipe.domain.CustomUserDetails;
 import com.cookingrecipe.cookingrecipe.domain.User;
-import com.cookingrecipe.cookingrecipe.dto.PasswordUpdateDto;
-import com.cookingrecipe.cookingrecipe.dto.UserLoginDto;
-import com.cookingrecipe.cookingrecipe.dto.UserSignupDto;
-import com.cookingrecipe.cookingrecipe.dto.UserUpdateDto;
+import com.cookingrecipe.cookingrecipe.dto.*;
 import com.cookingrecipe.cookingrecipe.exception.BadRequestException;
 import com.cookingrecipe.cookingrecipe.exception.UserNotFoundException;
 import com.cookingrecipe.cookingrecipe.service.UserService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -22,12 +17,9 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.Optional;
-
 @Controller
 @RequiredArgsConstructor
 public class UserController {
-
 
     private final UserService userService;
 
@@ -35,8 +27,9 @@ public class UserController {
     // 회원가입 폼 제공
     @GetMapping("/join")
     public String joinForm(@ModelAttribute("form") UserSignupDto userSignupDto) {
-        return "user/joinForm";
+        return "user/join";
     }
+
 
     // 회원가입
     @PostMapping("/join")
@@ -45,7 +38,7 @@ public class UserController {
 
         // 유효성 검사
         if (bindingResult.hasErrors()) {
-            return "user/joinForm";
+            return "user/join";
         }
 
         // 로그인 ID 중복 검사
@@ -60,7 +53,7 @@ public class UserController {
 
         // 유효성 검사에서 오류가 있으면 회원가입 페이지로 다시 이동
         if (bindingResult.hasErrors()) {
-            return "user/joinForm";
+            return "user/join";
         }
 
         // 회원가입 성공 로직
@@ -68,7 +61,7 @@ public class UserController {
             userService.join(userSignupDto);
         } catch (Exception e) {
             model.addAttribute("errorMessage", "회원가입 중 문제가 발생했습니다. 다시 시도해주세요.");
-            return "user/joinForm";
+            return "user/join";
         }
 
         // 회원 가입 후 로그인 페이지로 이동
@@ -76,10 +69,75 @@ public class UserController {
         return "redirect:/login";
     }
 
+
     // 로그인 폼 - 로그인 과정은 Spring Security 관여
     @GetMapping("/login")
     public String loginForm(@ModelAttribute("form") UserLoginDto userLoginDto) {
-        return "user/loginForm";
+        return "user/login";
+    }
+
+
+    // 로그인 아이디 찾기 폼
+    @GetMapping("/findLoginId")
+    public String findLoginIdForm(@ModelAttribute("form") FindLoginIdDto findLoginIdDto) {
+        return "user/findLoginId";
+    }
+
+
+    // 로그인 아이디 찾기
+    @PostMapping("/findLoginId")
+    public String findLoginId(@ModelAttribute("form") FindLoginIdDto findLoginIdDto,
+                              BindingResult bindingResult, Model model) {
+
+        // 유효성 검사 -> 폼으로 이동
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("errorMessage", "입력한 정보를 다시 확인해주세요.");
+            return "user/findLoginId";
+        }
+
+        try {
+            // 아이디 찾기 성공 시 모델에 loginId 추가
+            String loginId = userService.findLoginIdByNumberAndBirth(findLoginIdDto.getNumber(), findLoginIdDto.getBirth());
+            model.addAttribute("loginId", loginId);
+            return "user/findLoginId"; // 현재 페이지에 결과 표시
+        } catch (UserNotFoundException e) {
+            // 유저를 찾지 못한 경우 예외 메시지 추가
+            model.addAttribute("errorMessage", "해당 유저를 찾을 수 없습니다. 입력한 정보를 다시 확인해주세요.");
+            return "user/findLoginId";
+        }
+    }
+
+
+    // 비밀번호 발급 폼
+    @GetMapping("/findPassword")
+    public String findPasswordForm(@ModelAttribute("form") FindPasswordDto findPasswordDto) {
+        return "user/findPassword";
+    }
+
+    // 비밀번호 발급
+    @PostMapping("/findPassword")
+    public String findPassword(@ModelAttribute("form") FindPasswordDto findPasswordDto,
+                               BindingResult bindingResult, Model model) {
+
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("errorMessage", "입력한 정보를 다시 확인해주세요");
+            return "user/findPassword";
+        }
+
+        try {
+            String tempPassword = userService.findPassword(
+                    findPasswordDto.getLoginId(),
+                    findPasswordDto.getNumber(),
+                    findPasswordDto.getBirth()
+            );
+
+            model.addAttribute("successMessage", "임시 비밀번호가 발급되었습니다.");
+            model.addAttribute("tempPassword", tempPassword);
+            return "user/findPassword";
+        } catch (UserNotFoundException e) {
+            model.addAttribute("errorMessage", "해당 정보를 찾을 수 없습니다. 입력한 정보를 다시 확인해주세요.");
+            return "user/findPassword";
+        }
     }
 
 
@@ -89,6 +147,7 @@ public class UserController {
         model.addAttribute("user", userDetails);
         return "user/myPage";
     }
+
 
     // 마이페이지 - 회원 정보 확인
     @GetMapping("/myPage/info")
@@ -100,6 +159,7 @@ public class UserController {
         model.addAttribute("user", user);
         return "user/myPageInfo";
     }
+
 
     // 마이페이지 - 회원 정보 수정 폼
     @GetMapping("/myPage/info/edit")
@@ -119,6 +179,7 @@ public class UserController {
         return "user/myPageInfoEdit";
     }
 
+
     // 마이페이지 - 회원 정보 수정
     @PatchMapping("/myPage/info")
     public String myPageInfoUpdate(@AuthenticationPrincipal CustomUserDetails userDetails,
@@ -135,7 +196,8 @@ public class UserController {
 
         return "redirect:/myPage/info";
     }
-    
+
+
     // 마이페이지 - 비밀번호 변경 폼
     @GetMapping("/myPage/info/password")
     public String myPagePasswordForm(@AuthenticationPrincipal CustomUserDetails customUserDetails,
@@ -146,6 +208,7 @@ public class UserController {
 
         return "user/myPagePassword";
     }
+
 
     // 마이페이지 - 비밀번호 변경
     @PutMapping("/myPage/info/password")
@@ -164,6 +227,7 @@ public class UserController {
 
         return "redirect:/myPage/info";
     }
+
 
     @GetMapping("/bookmark")
     public String bookMark() {
@@ -185,12 +249,8 @@ public class UserController {
                            RedirectAttributes redirectAttributes,
                            HttpServletRequest request) {
 
-        if (enteredPassword == null || enteredPassword.isEmpty()) {
-            redirectAttributes.addFlashAttribute("passwordError", "비밀번호를 입력해주세요");
-            return "user/withdrawForm";
-        }
-
         try {
+            // 서비스 로직에서 비밀번호 검증 포함
             userService.deleteUser(userDetails.getId(), enteredPassword);
 
             // 로그아웃 처리
@@ -199,11 +259,13 @@ public class UserController {
             redirectAttributes.addFlashAttribute("successMessage", "회원 탈퇴가 완료되었습니다.");
             return "redirect:/";
         } catch (BadRequestException e) {
-            redirectAttributes.addFlashAttribute("error", "비밀번호가 일치하지 않습니다.");
-            return "/user/withdrawForm";
+            redirectAttributes.addFlashAttribute("passwordError", "올바른 비밀번호를 입력하세요.");
+            return "redirect:/myPage/withdraw";
         } catch (ServletException e) {
             redirectAttributes.addFlashAttribute("errorMessage", "에러가 발생했습니다. 다시 시도해주세요.");
             return "redirect:/myPage/withdraw";
         }
+
+
     }
 }

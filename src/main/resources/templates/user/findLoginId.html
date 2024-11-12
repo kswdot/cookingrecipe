@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>로그인 아이디 찾기</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+<div class="container mt-5">
+    <div class="col-md-9 mx-auto">
+        <div class="text-center">
+            <h2 style="margin-bottom:40px;">아이디 찾기</h2>
+        </div>
+
+        <!--오류 메시지 표시 -->
+        <!--입력된 정보에 맞는 사용자를 발견하지 못했을 때-->
+        <div th:if="${errorMessage}" class="alert alert-danger">
+            <span th:text="${errorMessage}"></span>
+        </div>
+
+        <!--성공 메세지 표시-->
+        <!--로그인 아이디가 발견되었을 때-->
+        <div th:if="${loginId}" class="alert alert-success">
+            <span>찾으신 아이디는 <strong th:text="${loginId}"></strong> 입니다.</span>
+        </div>
+
+        <!-- 입력 폼 -->
+        <form th:action="@{/findLoginId}" th:object="${form}" method="post">
+            <div class="form-group">
+                <label for="number">전화번호</label>
+                <input type="text" id="number" th:field="*{number}" class="form-control" placeholder="전화번호 입력">
+                <div th:if="${#fields.hasErrors('number')}" class="text-danger">
+                    <span th:errors="*{number}"></span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="birth">생년월일</label>
+                <input type="date" id="birth" th:field="*{birth}" class="form-control">
+                <div th:if="${#fields.hasErrors('birth')}" class="text-danger">
+                    <span th:errors="*{birth}"></span>
+                </div>
+            </div>
+
+            <div class="text-right">
+            <button type="submit" class="btn btn-primary mt-3">아이디 찾기</button>
+                <a href="/login" class="btn btn-secondary mt-3 ms-2">취소</a>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+</html>
