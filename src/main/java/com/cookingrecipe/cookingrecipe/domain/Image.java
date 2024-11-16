@@ -24,4 +24,11 @@ public class Image {
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "board_id")
     private Board board;
+
+
+    public Image(String name, String path, Board board) {
+        this.name = name;
+        this.path = path;
+        this.board = board;
+    }
 }

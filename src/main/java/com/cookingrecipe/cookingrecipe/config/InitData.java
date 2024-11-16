@@ -21,14 +21,14 @@ public class InitData {
     @PostConstruct
     public void init() {
         createUser("tester1", "테스터1", "@tester1111",
-                "tester1@gmail.com", "010-1111-1111", LocalDate.parse("1998-07-02"));
+                "tester1@gmail.com", "010-1111-1111", LocalDate.parse("2024-11-11"));
         createUser("tester2", "테스터2", "@tester2222",
                 "tester2@gmail.com", "010-2222-2222", LocalDate.parse("1998-07-02"));
     }
 
     private void createUser(String loginId, String nickname, String password, String email, String number, LocalDate birth) {
 
-        if (!userService.isDuplicatedId(loginId) && !userService.isDuplicatedEmail(email)) {
+        if (!userService.isLoginIdDuplicated(loginId) && !userService.isEmailDuplicated(email)) {
 
             UserSignupDto userSignupDto = UserSignupDto.builder()
                     .loginId(loginId)

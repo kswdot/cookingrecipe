@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>글 작성</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container mt-4">
+    <h2 class="text-center mb-4">레시피 작성</h2>
+
+    <div th:if="${errorMessage}" class="alert alert-danger">
+        <span th:text="${errorMessage}"></span>
+    </div>
+
+    <form action="/board" method="post" enctype="multipart/form-data">
+        <!-- 닉네임 -->
+        <input type="hidden" name="nickname" th:value="${#authentication.principal.nickname}">
+
+        <!-- 제목 -->
+        <div class="mb-3">
+            <label for="title" class="form-label">제목</label>
+            <input type="text" class="form-control" id="title" name="title" placeholder="제목을 입력하세요" required>
+        </div>
+
+        <!-- 재료 -->
+        <div class="mb-3">
+            <label for="ingredient" class="form-label">재료</label>
+            <textarea class="form-control" id="ingredient" name="ingredient" rows="4" placeholder="사용할 재료를 입력하세요 (예: 양파 2개, 당근 1개)" required></textarea>
+        </div>
+
+        <!-- 내용 -->
+        <div class="mb-3">
+            <label for="content" class="form-label">내용</label>
+            <textarea class="form-control" id="content" name="content" rows="6" placeholder="레시피 내용을 입력하세요" required></textarea>
+        </div>
+
+        <!-- 카테고리 -->
+        <div class="mb-3">
+            <label for="category" class="form-label">카테고리</label>
+            <select class="form-select" id="category" name="category" required>
+                <option value="">카테고리를 선택하세요</option>
+                <option value="볶음">볶음</option>
+                <option value="찜/탕">찜/탕</option>
+                <option value="구이">구이</option>
+                <option value="튀김">튀김</option>
+                <option value="면">면</option>
+                <option value="샐러드">샐러드</option>
+            </select>
+        </div>
+
+        <!-- 이미지 업로드 -->
+        <div class="mb-3">
+            <label for="images" class="form-label">이미지 업로드</label>
+            <input type="file" class="form-control" id="images" name="images" multiple>
+            <small class="text-muted">여러 장의 이미지를 업로드하려면 Ctrl 키를 누르고 선택하세요.</small>
+        </div>
+
+        <!-- 제출 버튼 -->
+        <div class="text-center">
+            <button type="submit" class="btn btn-primary">작성하기</button>
+            <a th:href="@{/}" class="btn btn-secondary">취소</a>
+        </div>
+    </form>
+</div>
+</body>
+</html>

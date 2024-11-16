@@ -1,18 +1,22 @@
 package com.cookingrecipe.cookingrecipe.service;
 
+import com.cookingrecipe.cookingrecipe.domain.Board;
 import com.cookingrecipe.cookingrecipe.domain.Role;
 import com.cookingrecipe.cookingrecipe.domain.User;
 import com.cookingrecipe.cookingrecipe.dto.UserSignupDto;
 import com.cookingrecipe.cookingrecipe.dto.UserUpdateDto;
 import com.cookingrecipe.cookingrecipe.exception.BadRequestException;
 import com.cookingrecipe.cookingrecipe.exception.UserNotFoundException;
+import com.cookingrecipe.cookingrecipe.repository.BoardRepositoryCustom;
 import com.cookingrecipe.cookingrecipe.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.inject.Qualifier;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -22,13 +26,16 @@ import java.util.UUID;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final BoardRepositoryCustom boardRepositoryCustom;
     private final PasswordEncoder passwordEncoder;
+
 
     // User Entity 생성
     @Override
     public User joinEntity(User user) {
         return userRepository.save(user);
     }
+
 
     // UserSignupDto 사용해 회원 가입
     @Override
@@ -54,42 +61,48 @@ public class UserServiceImpl implements UserService {
         return user;
     }
 
+
     // 회원 가입 시 아이디 중복 검사 - 이미 존재하는 경우 true / 그렇지 않은 경우 false 반환
     @Override
-    public boolean isDuplicatedId(String loginId) {
+    public boolean isLoginIdDuplicated(String loginId) {
         return userRepository.findByLoginId(loginId).isPresent();
     }
 
+
     // 회원 가입 시 이메일 중복 검사 - 이미 존재하는 경우 true / 그렇지 않은 경우 false 반환
     @Override
-    public boolean isDuplicatedEmail(String email) {
+    public boolean isEmailDuplicated(String email) {
         return userRepository.findByEmail(email).isPresent();
     }
 
+
     // 시스템 ID를 이용하여 회원 조회
     @Override
-    public Optional<User> findById(Long id) {
-        return userRepository.findById(id);
+    public Optional<User> findById(Long userId) {
+        return userRepository.findById(userId);
     }
 
+    // 로그인 ID를 이용하여 회원 조회
     @Override
     public Optional<User> findByLoginId(String loginId) {
         return userRepository.findByLoginId(loginId);
     }
 
+
     // 회원 정보 변경
     @Override
-    public void updateUser(Long id, UserUpdateDto userUpdateDto) {
-        User user = findById(id)
+    public void updateUser(Long userId, UserUpdateDto userUpdateDto) {
+        User user = findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("해당 유저를 찾을 수 없습니다."));
 
         user.updateUser(userUpdateDto.getNickname(), userUpdateDto.getEmail(), userUpdateDto.getNumber());
     }
 
+
     // 비밀번호 변경
     @Override
-    public void updatePassword(Long id, String currentPassword, String newPassword, String confirmPassword) {
-        User user = findById(id)
+    public void updatePassword(Long userId, String currentPassword, String newPassword, String confirmPassword) {
+        User user = findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("해당 유저를 찾을 수 없습니다."));
 
         // 현재 비밀번호 확인
@@ -104,13 +117,29 @@ public class UserServiceImpl implements UserService {
         user.updatePassword(encodedNewPassword);
     }
 
+
     // 비밀번호 확인
-    public void checkNewPassword(String newPassword, String confirmPassword) {
+    private void checkNewPassword(String newPassword, String confirmPassword) {
 
         if (!newPassword.equals(confirmPassword)) {
             throw new BadRequestException("비밀번호 확인이 일치하지 않습니다.");
         }
     }
+
+
+    // 마이 페이지 - 내가 쓴 글 조회
+    @Override
+    public List<Board> findByUserId(Long userId) {
+        return boardRepositoryCustom.findByUserId(userId);
+    }
+
+
+    // 마이 페이지 - 북마크한 글 조회
+    @Override
+    public List<Board> findBookmarkedRecipeByUser(Long userId) {
+        return boardRepositoryCustom.findBookmarkedRecipeByUser(userId);
+    }
+
 
     // 아이디 찾기 - 이메일, 전화번호 사용
     @Override
@@ -120,6 +149,7 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new UserNotFoundException("해당 유저를 찾을 수 없습니다. 입력한 정보를 다시 확인해주세요."));
     }
 
+    // 비밀번호 찾기(재발급)
     @Override
     public String findPassword(String LoginId, String number, LocalDate birth) {
 
@@ -137,11 +167,12 @@ public class UserServiceImpl implements UserService {
         return tempPassword;
     }
 
+
     // 회원 탈퇴
     @Override
-    public void deleteUser(Long id, String enteredPassword) {
+    public void deleteUser(Long userId, String enteredPassword) {
 
-        User user = findById(id)
+        User user = findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("해당 유저를 찾을 수 없습니다."));
 
         // 비밀번호 일치 여부 확인

@@ -2,7 +2,6 @@ package com.cookingrecipe.cookingrecipe.service;
 
 import com.cookingrecipe.cookingrecipe.domain.User;
 import com.cookingrecipe.cookingrecipe.dto.UserSignupDto;
-import com.cookingrecipe.cookingrecipe.dto.UserUpdateDto;
 import com.cookingrecipe.cookingrecipe.exception.BadRequestException;
 import com.cookingrecipe.cookingrecipe.exception.UserNotFoundException;
 import org.junit.jupiter.api.Test;
@@ -29,6 +28,7 @@ class UserServiceImplTest {
     PasswordEncoder passwordEncoder;
 
 
+    // 회원가입 - 아이디 중복 O
     @Test
     public void isDuplicatedId() {
         //given
@@ -44,13 +44,14 @@ class UserServiceImplTest {
         User savedUser = userService.join(userSignupDto);
 
         //when
-        boolean result = userService.isDuplicatedId("testerA");
+        boolean result = userService.isLoginIdDuplicated("testerA");
 
         //then
         assertThat(result).isTrue();
     }
 
 
+    // 회원가입 - 아이디 중복 X
     @Test
     public void isNotDuplicatedId() {
         //given
@@ -66,52 +67,14 @@ class UserServiceImplTest {
         User savedUser = userService.join(userSignupDto);
 
         //when
-        boolean result = userService.isDuplicatedId("testerB");
+        boolean result = userService.isLoginIdDuplicated("testerB");
 
         //then
         assertThat(result).isFalse();
     }
 
 
-//    @Test
-//    public void updateUser() {
-//        //given
-//        UserSignupDto userSignupDto = UserSignupDto.builder()
-//                .loginId("testerA")
-//                .nickname("nicknameA")
-//                .password("!tester")
-//                .email("test@example.com")
-//                .number("010-1111-1111")
-//                .birth(LocalDate.of(1998,7,2))
-//                .build();
-//
-//        User savedUser = userService.join(userSignupDto);
-//        Long savedId = savedUser.getId();
-//
-//
-//
-//        //when
-//
-//        String newNickname = "nicknameB";
-//        String newNumber = "010-2222-2222";
-//
-//        UserUpdateDto userUpdateDto = new UserUpdateDto(
-//                newNickname,
-//                savedUser.getNickname(),
-//                savedUser.getPassword(),
-//                savedUser.getEmail(),
-//                newNumber,
-//                savedUser.getBirth()
-//        );
-//
-//        userService.updateUser(savedId, userUpdateDto);
-//
-//        //then
-//        assertThat(savedUser.getNickname()).isEqualTo("nicknameB");
-//        assertThat(savedUser.getNumber()).isEqualTo("010-2222-222");
-//    }
-
-
+    // 로그인 사용자 - 비밀번호 변경
     @Test
     public void updatePassword() {
         //given
@@ -139,7 +102,7 @@ class UserServiceImplTest {
     }
 
 
-
+    // 로그인 사용자 - 잘못된 현재 비밀번호 입력
     @Test
     public void updatePasswordWrong() {
         //given
@@ -167,6 +130,7 @@ class UserServiceImplTest {
     }
 
 
+    // 로그아웃 사용자 - 번호, 생일로 로그인 아이디 찾기
     @Test
     public void findLoginIdByNumberAndBirth() {
         //given
@@ -190,6 +154,7 @@ class UserServiceImplTest {
     }
 
 
+    // 로그아웃 사용자 - 잘못된 번호로 로그인 아이디 찾기
     @Test
     public void findLoginIdByNumberAndBirthWrong() {
         //given
@@ -215,6 +180,36 @@ class UserServiceImplTest {
     }
 
 
+    // 로그아웃 사용자 - 비밀번호 찾기, 재설정
+    @Test
+    public void findPassword() {
+        //given
+        UserSignupDto userSignupDto = UserSignupDto.builder()
+                .loginId("testerA")
+                .nickname("nicknameA")
+                .password("!tester")
+                .email("test@example.com")
+                .number("010-1111-1111")
+                .birth(LocalDate.of(1998,7,2))
+                .build();
+
+        User savedUser = userService.join(userSignupDto);
+        Long savedId = savedUser.getId();
+
+        //when
+        String tempPassword = userService.findPassword(savedUser.getLoginId(), savedUser.getNumber(), savedUser.getBirth());
+        String encodedPassword = passwordEncoder.encode(tempPassword);
+
+        //then
+        assertThat(tempPassword).isNotEqualTo("!tester");
+
+        User updatedUser = userService.findById(savedId).orElseThrow(() -> new UserNotFoundException("사용자를 찾을 수 없습니다."));
+        assertThat(passwordEncoder.matches(tempPassword, updatedUser.getPassword())).isTrue();
+
+    }
+
+
+    // 회원 탈퇴
     @Test
     public void deleteUser_Success() {
         //given
@@ -239,4 +234,5 @@ class UserServiceImplTest {
                     .orElseThrow(() -> new UserNotFoundException("해당 유저를 찾을 수 없습니다."));
         });
     }
+
 }

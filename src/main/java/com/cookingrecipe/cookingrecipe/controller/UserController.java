@@ -42,12 +42,12 @@ public class UserController {
         }
 
         // 로그인 ID 중복 검사
-        if (userService.isDuplicatedId(userSignupDto.getLoginId())) {
+        if (userService.isLoginIdDuplicated(userSignupDto.getLoginId())) {
             bindingResult.rejectValue("loginId", "duplicatedLoginId");
         }
 
         // 이메일 중복 검사
-        if (userService.isDuplicatedEmail(userSignupDto.getEmail())) {
+        if (userService.isEmailDuplicated(userSignupDto.getEmail())) {
             bindingResult.rejectValue("email", "duplicatedEmail");
         }
 
@@ -108,13 +108,14 @@ public class UserController {
     }
 
 
-    // 비밀번호 발급 폼
+    // 비밀번호 찾기(재발급) 폼
     @GetMapping("/findPassword")
     public String findPasswordForm(@ModelAttribute("form") FindPasswordDto findPasswordDto) {
         return "user/findPassword";
     }
 
-    // 비밀번호 발급
+
+    // 비밀번호 찾기(재발급)
     @PostMapping("/findPassword")
     public String findPassword(@ModelAttribute("form") FindPasswordDto findPasswordDto,
                                BindingResult bindingResult, Model model) {
