@@ -36,11 +36,14 @@ dependencies {
 	//dMySQL 연동
 	runtimeOnly 'com.mysql:mysql-connector-j'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
 	// 테스트 lombok 사용
 	testCompileOnly 'org.projectlombok:lombok'
 	testAnnotationProcessor 'org.projectlombok:lombok'
+
 	// P6Spy 쿼리 파라미터 로그 외부라이브러리 사용
 	implementation 'com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.5.6'
+
 	// Bean Validation
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 
@@ -55,6 +58,10 @@ dependencies {
 
 	// thymeleaf-extras-springsecurity6 추가
 	implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
+
+	// MockMultipartFile 추가
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	implementation 'org.springframework.boot:spring-boot-starter-test'
 
 
 }

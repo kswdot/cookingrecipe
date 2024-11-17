@@ -24,6 +24,9 @@ public interface BoardService {
     // 모든 게시글 검색
     List<Board> findAll();
 
+    // 모든 게시글 검색 - 최신순
+    List<Board> findAllByDateDesc();
+
     // 게시글 검색 - 유저
     Optional<Board> findByUser(Long boardId);
 

@@ -53,6 +53,10 @@ public class User extends BaseTimeEntity {
         this.password = newPassword;
     }
 
+    public CustomUserDetails toCustomUserDetails() {
+        return new CustomUserDetails(this);
+    }
+
     @OneToMany(mappedBy = "user", fetch = LAZY)
     private List<Board> boards = new ArrayList<>();
 

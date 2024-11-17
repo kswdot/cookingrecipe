@@ -1,9 +1,6 @@
 package com.cookingrecipe.cookingrecipe.repository;
 
-import com.cookingrecipe.cookingrecipe.domain.Board;
-import com.cookingrecipe.cookingrecipe.domain.QBoard;
-import com.cookingrecipe.cookingrecipe.domain.QBookmark;
-import com.cookingrecipe.cookingrecipe.domain.QUser;
+import com.cookingrecipe.cookingrecipe.domain.*;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +15,21 @@ import java.util.List;
 public class BoardRepositoryCustomImpl implements BoardRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
+
+
+
+    // 모든 게시글 검색 - 최신순
+    @Override
+    public List<Board> findAllByDateDesc() {
+        QBoard board = QBoard.board;
+        QImage image = QImage.image;
+
+        return queryFactory
+                .selectFrom(board)
+                .leftJoin(board.images, image).fetchJoin()
+                .orderBy(board.createdDate.desc())
+                .fetch();
+    }
 
 
     @Override

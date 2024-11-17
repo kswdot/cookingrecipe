@@ -14,7 +14,7 @@
         }
 
         .recipe-card:hover {
-            transform: scale(1.05); /* 호버 시 살짝 확대 */
+            transform: scale(1.05);
         }
 
         .recipe-image {
@@ -38,6 +38,17 @@
             max-height: 45px;
             overflow: hidden;
             text-overflow: ellipsis;
+        }
+
+        /* 연한 회색 버튼 */
+        .btn-light {
+            background-color: #f8f9fa;
+            color: #6c757d;
+            border-color: #e9ecef;
+        }
+
+        .btn-light:hover {
+            background-color: #e9ecef;
         }
     </style>
 </head>
@@ -64,30 +75,28 @@
 
             <!-- 최신 레시피 목록 -->
             <div class="row">
-                <!-- 게시글 목록 반복 렌더링 -->
                 <div class="col-md-4 mb-4" th:each="recipe : ${recipes}">
                     <div class="recipe-card">
                         <!-- 대표 이미지 -->
-                        <img th:src="@{'/uploads/' + ${recipe.image}}" alt="레시피 이미지" class="w-100 recipe-image">
+                        <img th:src="@{'/images/' + ${recipe.images[0].name}}" alt="레시피 이미지" class="w-100 recipe-image">
 
                         <!-- 게시글 내용 -->
                         <div class="recipe-content">
-                            <!-- 제목 -->
                             <div class="recipe-title" th:text="${recipe.title}"></div>
-
-                            <!-- 재료 -->
-                            <div class="recipe-ingredients" th:text="${#strings.substring(recipe.ingredients, 0, 50)} + '...'">
-                            </div>
-
-                            <!-- 버튼 -->
+                            <div class="recipe-ingredients"
+                                 th:text="${#strings.length(recipe.ingredient) > 50 ? #strings.substring(recipe.ingredient, 0, 50) + '...' : recipe.ingredient}"></div>
                             <div class="text-end mt-3">
-                                <a th:href="@{/board/{id}(id=${recipe.id})}" class="btn btn-primary btn-sm">자세히 보기</a>
+                                <a th:href="@{/board/{id}(id=${recipe.id})}" class="btn btn-light btn-sm">자세히 보기</a>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <!-- 최신 레시피 목록 끝 -->
+
+            <!-- 레시피 없는 경우 메시지 -->
+            <div th:if="${#lists.isEmpty(recipes)}" class="text-center mt-5">
+                <p>현재 등록된 레시피가 없습니다. 글을 작성해 보세요!</p>
+            </div>
         </div>
     </div>
 </div>

@@ -8,6 +8,9 @@ import java.util.List;
 @Repository
 public interface BoardRepositoryCustom {
 
+    // 모든 게시글 검색 - 최신순
+    List<Board> findAllByDateDesc();
+
     // 검색 조건에 따라서 게시글 조회
     List<Board> searchBoards(String title, String material, String writer);
 

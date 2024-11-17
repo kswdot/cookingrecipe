@@ -136,6 +136,13 @@ public class BoardServiceImpl implements BoardService {
     }
 
     
+    // 모든 게시글 검색 - 최신순
+    @Override
+    public List<Board> findAllByDateDesc() {
+        return boardRepositoryCustom.findAllByDateDesc();
+    }
+
+
     // 게시글 검색 - 유저
     @Override
     public Optional<Board> findByUser(Long boardId) {
