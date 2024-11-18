@@ -17,7 +17,6 @@ import static jakarta.persistence.FetchType.*;
 @Entity
 @Getter
 @Builder
-@ToString(of = {"title", "nickname", "category", "material", "content", "view"})
 public class Board extends BaseTimeEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,7 +28,11 @@ public class Board extends BaseTimeEntity {
     @NotNull
     private String nickname;
     @NotNull
-    private String category;
+    @Enumerated(EnumType.STRING)
+    private Category category;
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    private Method method;
     @NotNull
     private String ingredient;
     @NotNull
@@ -65,11 +68,12 @@ public class Board extends BaseTimeEntity {
 
 
     @Builder
-    public Board(String title, String ingredient, String content, String category, User user, String nickname) {
+    public Board(String title, Category category, Method method, String ingredient, String content, User user, String nickname) {
         this.title = title;
+        this.category = category;
+        this.method = method;
         this.ingredient = ingredient;
         this.content = content;
-        this.category = category;
         this.user = user;
         this.nickname = nickname;
         this.view = 0L;
@@ -78,11 +82,12 @@ public class Board extends BaseTimeEntity {
     }
 
 
-    public void update(String title, String ingredient, String content, String category) {
+    public void update(String title, Category category, Method method, String ingredient, String content) {
         this.title = title;
+        this.category = category;
+        this.method = method;
         this.ingredient = ingredient;
         this.content = content;
-        this.category = category;
     }
 
     /**
@@ -101,7 +106,7 @@ public class Board extends BaseTimeEntity {
 
     // 조회수 증가 메서드
     public void incrementView() {
-        this.bookmarkCount++;
+        this.view++;
     }
 
     // 북마크 수 증가 메서드

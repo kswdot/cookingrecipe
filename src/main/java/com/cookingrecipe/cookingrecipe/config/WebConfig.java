@@ -12,5 +12,6 @@ public class WebConfig implements WebMvcConfigurer {
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/images/**")
                 .addResourceLocations("file:" + System.getProperty("user.dir") + "/uploaded-images/");
+                // 해당 경로로 업로드한 파일이 저장됨
     }
 }

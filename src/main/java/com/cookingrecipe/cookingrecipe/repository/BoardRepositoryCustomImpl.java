@@ -32,11 +32,12 @@ public class BoardRepositoryCustomImpl implements BoardRepositoryCustom {
     }
 
 
+    // 검색 조건에 따른 게시글 조회 - 최신순
     @Override
-    public List<Board> searchBoards(String keyword, String material, String writer) {
+    public List<Board> searchBoards(String keyword, String ingredient, String nickname) {
         QBoard board = QBoard.board;
 
-        BooleanExpression condition = chooseSingleCondition(keyword, material, writer);
+        BooleanExpression condition = chooseSingleCondition(keyword, ingredient, nickname);
         
         // 검색 조건이 없을 때 전체 게시글 반환
         if (condition == null) {
@@ -55,14 +56,35 @@ public class BoardRepositoryCustomImpl implements BoardRepositoryCustom {
     }
 
 
+    // 검색 조건에 따른 게시글 조회 - 좋아요 순
+    @Override
+    public List<Board> searchBoardsOrderByLikes(String keyword, String ingredient, String nickname) {
+        QBoard board = QBoard.board;
+
+        BooleanExpression condition = chooseSingleCondition(keyword, ingredient, nickname);
+
+        if (condition == null) {
+            return queryFactory
+                    .selectFrom(board)
+                    .orderBy(board.createdDate.desc())
+                    .fetch();
+        }
+
+        return queryFactory
+                .selectFrom(board)
+                .where(condition)
+                .orderBy(board.likeCount.desc())
+                .fetch();
+    }
+
     // 검색 조건이 있을 때
-    private BooleanExpression chooseSingleCondition(String keyword, String material, String writer) {
+    private BooleanExpression chooseSingleCondition(String keyword, String ingredient, String nickname) {
         if (keyword != null) {
             return titleOrContentContains(keyword);
-        } else if (material != null) {
-            return ingredientContains(material);
-        } else if (writer != null) {
-            return writerContains(writer);
+        } else if (ingredient != null) {
+            return ingredientContains(ingredient);
+        } else if (nickname != null) {
+            return writerContains(nickname);
         }
 
         return null;
@@ -77,25 +99,65 @@ public class BoardRepositoryCustomImpl implements BoardRepositoryCustom {
     // 재료 검색
     private BooleanExpression ingredientContains(String ingredient) {
         QBoard board = QBoard.board;
-        return board.content.contains(ingredient);
+        return board.ingredient.contains(ingredient);
     }
 
     // 작성자 검색
-    private BooleanExpression writerContains(String writer) {
+    private BooleanExpression writerContains(String nickname) {
         QBoard board = QBoard.board;
-        return board.content.contains(writer);
+        return board.nickname.contains(nickname);
     }
 
 
-    // 카테고리에 따른 레시피 조회
+    // 카테고리에 따른 레시피 조회 - 최신순
     @Override
-    public List<Board> findByCategory(String category) {
+    public List<Board> findByCategory(Category category) {
         QBoard board = QBoard.board;
 
         return queryFactory
                 .selectFrom(board)
                 .where(board.category.eq(category))
                 .orderBy(board.createdDate.desc())
+                .fetch();
+    }
+
+
+    // 카테고리에 따른 레시피 조회 - 좋아요 순
+    @Override
+    public List<Board> findByCategoryOrderByLikes(Category category) {
+        QBoard board = QBoard.board;
+
+        return queryFactory
+                .selectFrom(board)
+                .where(board.category.eq(category))
+                .orderBy(board.likeCount.desc())
+                .fetch();
+    }
+
+
+    // 요리 방법에 따른 레시피 조회 - 최신순
+    @Override
+    public List<Board> findByMethod(Method method) {
+        QBoard board = QBoard.board;
+
+        return queryFactory
+                .selectFrom(board)
+                .where(board.method.eq(method))
+                .orderBy(board.createdDate.desc())
+                .fetch();
+
+    }
+
+
+    // 요리 방법에 따른 레시피 조회 - 좋아요순
+    @Override
+    public List<Board> findByMethodOrderByLikes(Method method) {
+        QBoard board = QBoard.board;
+
+        return queryFactory
+                .selectFrom(board)
+                .where(board.method.eq(method))
+                .orderBy(board.likeCount.desc())
                 .fetch();
     }
 

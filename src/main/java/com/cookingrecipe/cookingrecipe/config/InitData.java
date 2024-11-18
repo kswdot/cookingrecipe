@@ -1,6 +1,8 @@
 package com.cookingrecipe.cookingrecipe.config;
 
 import com.cookingrecipe.cookingrecipe.domain.Board;
+import com.cookingrecipe.cookingrecipe.domain.Category;
+import com.cookingrecipe.cookingrecipe.domain.Method;
 import com.cookingrecipe.cookingrecipe.domain.User;
 import com.cookingrecipe.cookingrecipe.dto.BoardSaveDto;
 import com.cookingrecipe.cookingrecipe.dto.UserSignupDto;
@@ -20,6 +22,9 @@ import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.Optional;
+
+import static com.cookingrecipe.cookingrecipe.domain.Category.*;
+import static com.cookingrecipe.cookingrecipe.domain.Method.*;
 
 @Configuration
 @Transactional
@@ -41,14 +46,15 @@ public class InitData {
         User user3 = createUser("tester3", "테스터3", "@tester3333",
                 "tester3@gmail.com", "010-3333-3333", LocalDate.parse("2020-11-18"));
 
-        createBoard("1번 레시피", "감자, 고구마, 토마토", "1번 레시피 : 감자, 고구마, 토마토",
-                "양식","src/main/resources/static/images/cat.jpg", user1);
+        createBoard("1번 레시피",  KOREAN, SOUP, "김치, 참치, 양파, 파", "1번 레시피: 김치, 참치, 양파, 파",
+        "src/main/resources/static/images/cat.jpg", user1);
 
-        createBoard("2번 레시피", "우유, 스파게티, 닭고기", "2번 레시피 : 우유, 스파게티, 닭고기",
-                "중식","src/main/resources/static/images/dog.jpg", user2);
+        createBoard("2번 레시피",  JAPANESE, RAW, "연어, 광어, 숭어", "2번 레시피: 연어, 광어, 숭어",
+                "src/main/resources/static/images/dog.jpg", user2);
 
-        createBoard("3번 레시피", "김치, 다진 마늘, 소고기, 양파, 파", "3번 레시피 : 김치, 다진 마늘, 소고기, 양파, 파",
-                "한식","src/main/resources/static/images/rabbit.jpg", user3);
+        createBoard("3번 레시피",  CHINESE, DEEP_FRY, "돼지고기, 튀김가루, 무침가루, 꿀", "3번 레시피: 돼지고기, 튀김가루, 무침가루, 꿀",
+                "src/main/resources/static/images/rabbit.jpg", user3);
+
     }
 
     private User createUser(String loginId, String nickname, String password, String email, String number, LocalDate birth) {
@@ -72,7 +78,7 @@ public class InitData {
 
     }
 
-    private void createBoard(String title, String ingredient, String content, String category, String imagePath, User user) {
+    private void createBoard(String title, Category category, Method method, String ingredient, String content, String imagePath, User user) {
 
         try {
             // Mock 이미지 생성
@@ -80,8 +86,9 @@ public class InitData {
 
             BoardSaveDto boardSaveDto = BoardSaveDto.builder()
                     .title(title)
-                    .ingredient(ingredient)
                     .category(category)
+                    .method(method)
+                    .ingredient(ingredient)
                     .content(content)
                     .build();
 

@@ -1,7 +1,9 @@
 package com.cookingrecipe.cookingrecipe.service;
 
 import com.cookingrecipe.cookingrecipe.domain.Board;
+import com.cookingrecipe.cookingrecipe.domain.Category;
 import com.cookingrecipe.cookingrecipe.domain.CustomUserDetails;
+import com.cookingrecipe.cookingrecipe.domain.Method;
 import com.cookingrecipe.cookingrecipe.dto.BoardSaveDto;
 import com.cookingrecipe.cookingrecipe.dto.BoardUpdateDto;
 import org.springframework.stereotype.Service;
@@ -33,11 +35,23 @@ public interface BoardService {
     // 게시글 검색 - 시스템 ID
     Board findById(Long boardId);
 
-    // 게시글 검색 - 검색 조건
-    List<Board> searchBoards(String title, String material, String writer);
+    // 게시글 검색 - 검색 조건 - 최신순
+    List<Board> searchBoards(String keyword, String material, String writer);
 
-    // 게시글 검색 - 카테고리
-    List<Board> findByCategory(String category);
+    // 게시글 검색 -검색 조건 - 좋아요 순
+    List<Board> searchBoardsOrderByLikes(String keyword, String material, String writer);
+
+    // 게시글 검색 - 카테고리 - 최신순
+    List<Board> findByCategory(Category category);
+
+    // 게시글 검색 - 카테고리 - 좋아요 순
+    List<Board> findByCategoryOrderByLikes(Category category);
+
+    // 게시글 검색 - 요리 방법 - 최신순
+    List<Board> findByMethod(Method method);
+
+    // 게시글 검색 - 요리 방법 - 좋아요 순
+    List<Board> findByMethodOrderByLikes(Method method);
 
     // 게시글 검색 - 인기 레시피 TOP 10
     List<Board> findTopRecipesByLikes(int limit);
