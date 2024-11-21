@@ -30,4 +30,8 @@ public class Like extends BaseTimeEntity {
     @JoinColumn(name = "board_id")
     private Board board;
 
+    public Like(User user, Board board) {
+        this.user = user;
+        this.board = board;
+    }
 }

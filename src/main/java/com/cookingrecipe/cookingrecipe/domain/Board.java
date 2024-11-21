@@ -25,23 +25,30 @@ public class Board extends BaseTimeEntity {
 
     @NotNull
     private String title;
+
     @NotNull
     private String nickname;
-    @NotNull
+
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private Category category;
-    @NotNull
+
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private Method method;
+
     @NotNull
     private String ingredient;
+
     @NotNull
     private String content;
+
     @NotNull
     private long view;
 
     @NotNull
     private int bookmarkCount;
+
     @NotNull
     private int likeCount;
 
@@ -64,7 +71,7 @@ public class Board extends BaseTimeEntity {
 
     @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, fetch = LAZY)
     @Builder.Default
-    private List<Image> images = new ArrayList<>();
+    private List<RecipeStep> recipeSteps = new ArrayList<>();
 
 
     @Builder
@@ -94,6 +101,12 @@ public class Board extends BaseTimeEntity {
      * 메서드 구현
      */
 
+    // 편의 메서드 (단계 추가)
+    public void addRecipeStep(RecipeStep step) {
+        step.setBoard(this);
+        this.recipeSteps.add(step);
+    }
+
     // 좋아요 수 증가 메서드
     public void incrementLikeCount() {
         this.likeCount++;
@@ -101,22 +114,9 @@ public class Board extends BaseTimeEntity {
 
     // 좋아요 수 감소 메서드
     public void decrementLikeCount() {
-        this.likeCount = Math.max(0, this.likeCount - 1); // 0 이하로 내려가지 않도록 설정
+        this.likeCount = Math.max(0, this.bookmarkCount - 1);
     }
 
-    // 조회수 증가 메서드
-    public void incrementView() {
-        this.view++;
-    }
 
-    // 북마크 수 증가 메서드
-    public void incrementBookmarkCount() {
-        this.bookmarkCount++;
-    }
-
-    // 북마크 수 감소 메서드
-    public void decrementBookmarkCount() {
-        this.bookmarkCount = Math.max(0, this.bookmarkCount - 1);
-    }
 
 }

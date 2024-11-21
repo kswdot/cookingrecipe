@@ -13,9 +13,39 @@
             margin-bottom: 15px;
             background-color: #f9f9f9;
         }
-        .image-box img {
-            border: 1px solid #ddd;
-            border-radius: 5px;
+
+        /* step 스타일 - 실선 유지, 마지막 단계 실선 제거 */
+        .recipe-step {
+            border-bottom: 1px solid #bbb;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+        }
+
+        .recipe-step:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        /* 좋아요와 북마크 위치 및 크기 설정 */
+        .like-bookmark-box {
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .like-bookmark {
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        /* 이미지 스타일 */
+        .recipe-step img {
+            max-width: 100%;
+            height: auto;
+            margin: 10px 0;
+            display: block;
         }
     </style>
 </head>
@@ -31,34 +61,58 @@
         </div>
 
         <!-- 게시글 본문 -->
-        <div class="col-md-9">
+        <div class="col-md-9 position-relative">
             <!-- 제목과 작성자 -->
             <div class="content-box">
                 <div class="d-flex justify-content-between align-items-center">
                     <h1 th:text="${board.title}" class="mb-0"></h1>
                     <small class="text-muted">작성자: <span th:text="${board.user.nickname}"></span></small>
                 </div>
-                <p class="text-muted mt-2">카테고리: <span th:text="${board.category}"></span></p>
+                <p class="text-muted mt-2">카테고리: <span th:text="${board.category.getKoreanName()}"></span> | 방식: <span th:text="${board.method.getKoreanName()}"></span></p>
             </div>
 
             <!-- 재료 -->
-            <div class="content-box">
-                <h5>재료</h5>
+            <div>
+                <h5 style="font-weight: bold">[재료]</h5>
                 <p th:text="${board.ingredient}"></p>
             </div>
 
-            <!-- 내용 -->
-            <div class="content-box">
-                <h5>내용</h5>
+            <!-- 소개 -->
+            <div>
+                <h5 style="font-weight: bold">[소개]</h5>
                 <p th:text="${board.content}"></p>
             </div>
 
-            <!-- 이미지 -->
-            <div class="content-box image-box">
-                <h5>사진</h5>
-                <div class="d-flex flex-wrap">
-                    <img th:each="image : ${board.images}" th:src="@{/images/{filename}(filename=${image.name})}" class="img-fluid" />
+            <!-- 레시피 단계 -->
+            <h5 style="font-weight: bold">[레시피 단계]</h5>
+            <div th:each="recipe : ${recipes}" class="recipe-step">
+                <h6 th:text="'Step ' + ${recipe.stepOrder}"></h6>
+                <div>
+                    <img th:src="@{${recipe.imagePath}}" alt="레시피 이미지" class="img-fluid mb-2">
+                    <p th:text="${recipe.description}"></p>
                 </div>
+            </div>
+
+            <!-- 좋아요 & 북마크 -->
+            <div class="like-bookmark-box">
+                <!-- 좋아요 -->
+                <form th:action="@{/board/{id}/like(id=${board.id})}" method="post" style="display: inline;">
+                    <button type="submit"
+                            th:classappend="${isLiked} ? 'text-danger' : 'text-secondary'"
+                            class="like-bookmark"
+                            style="background: none; border: none; cursor: pointer;">
+                        ❤️ <span th:text="${board.likeCount}"></span>
+                    </button>
+                </form>
+                <!-- 북마크 -->
+                <form th:action="@{/board/{id}/bookmark(id=${board.id})}" method="post" style="display: inline;">
+                    <button type="submit"
+                            th:classappend="${isBookmarked} ? 'text-danger' : 'text-secondary'"
+                            class="like-bookmark"
+                            style="background: none; border: none; cursor: pointer;">
+                        📌
+                    </button>
+                </form>
             </div>
         </div>
     </div>

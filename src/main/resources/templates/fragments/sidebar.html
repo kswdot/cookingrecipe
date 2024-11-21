@@ -6,16 +6,16 @@
     <style>
         /* 검색창 크기 조정 */
         .sidebar-search-input {
-            width: 80%; /* 너비를 줄임 */
-            height: 30px; /* 높이를 줄임 */
-            font-size: 0.9rem; /* 글자 크기 조정 */
+            width: 80%;
+            height: 30px;
+            font-size: 0.9rem;
         }
 
         /* 검색 기준 선택 바 크기 조정 */
         .sidebar-select {
-            width: 80%; /* 너비를 줄임 */
-            height: 35px; /* 높이를 줄임 */
-            font-size: 0.9rem; /* 글자 크기 조정 */
+            width: 80%;
+            height: 35px;
+            font-size: 0.9rem;
         }
 
         /* 버튼 크기 조정 */
@@ -24,6 +24,18 @@
             font-size: 0.9rem;
             padding: 0 10px;
         }
+
+        /* 카테고리 및 요리 방식 리스트 스타일 */
+        .list-styled li {
+            margin-bottom: 8px;
+        }
+        .list-styled a {
+            text-decoration: none;
+            color: #333;
+        }
+        .list-styled a:hover {
+            color: #007bff;
+        }
     </style>
 </head>
 <body>
@@ -31,13 +43,16 @@
     <h5>검색</h5>
 
     <div class="mb-2">
-        <select name="searchCriteria" class="form-select sidebar-select">
-            <option value="title">레시피 제목+내용</option>
-            <option value="ingredients">재료</option>
-            <option value="nickname">닉네임</option>
-        </select>
-
         <form action="/search" method="get">
+            <div class="mb-2">
+                <!-- 검색 기준 선택 -->
+                <select name="searchCriteria" class="form-select sidebar-select">
+                    <option value="title">레시피 제목+내용</option>
+                    <option value="ingredients">재료</option>
+                    <option value="nickname">닉네임</option>
+                </select>
+            </div>
+            <!-- 검색어 입력 -->
             <div class="mb-2 d-flex">
                 <input type="text" name="keyword" class="form-control me-2 sidebar-search-input" placeholder="검색">
                 <button type="submit" class="btn btn-dark sidebar-search-button">검색</button>
@@ -47,15 +62,33 @@
 </div>
 
 <div class="mb-4">
-    <h5>Category</h5>
+    <h5>카테고리</h5>
     <ul class="list-styled">
         <li><a href="/category/all">전체</a></li>
-        <li><a href="/category/볶음">한식</a></li>
-        <li><a href="/category/찜/탕">양식</a></li>
-        <li><a href="/category/구이">구이</a></li>
-        <li><a href="/category/튀김">튀김</a></li>
-        <li><a href="/category/면">면</a></li>
-        <li><a href="/category/샐러드">샐러드</a></li>
+        <li><a href="/category/KOREAN">한식</a></li>
+        <li><a href="/category/CHINESE">중식</a></li>
+        <li><a href="/category/JAPANESE">일식</a></li>
+        <li><a href="/category/WESTERN">양식</a></li>
+        <li><a href="/category/SOUTHEAST">동남아식</a></li>
+        <li><a href="/category/FUSION">퓨전</a></li>
+        <li><a href="/category/DESSERT">후식</a></li>
+        <li><a href="/category/ETC">기타</a></li>
+    </ul>
+</div>
+
+<div class="mb-4">
+    <h5>요리 방식</h5>
+    <ul class="list-styled">
+        <li><a href="/method/all">전체</a></li>
+        <li><a href="/method/STIR_FRY">볶음</a></li>
+        <li><a href="/method/STEAM">찜</a></li>
+        <li><a href="/method/SOUP">탕</a></li>
+        <li><a href="/method/DEEP_FRY">튀김</a></li>
+        <li><a href="/method/GRILL">구이</a></li>
+        <li><a href="/method/MIX">무침</a></li>
+        <li><a href="/method/RAW">회</a></li>
+        <li><a href="/method/SALAD">샐러드</a></li>
+        <li><a href="/method/ETC">기타</a></li>
     </ul>
 </div>
 </body>

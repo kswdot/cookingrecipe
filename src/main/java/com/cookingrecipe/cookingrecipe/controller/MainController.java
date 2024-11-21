@@ -1,6 +1,7 @@
 package com.cookingrecipe.cookingrecipe.controller;
 
 import com.cookingrecipe.cookingrecipe.domain.Board;
+import com.cookingrecipe.cookingrecipe.dto.BoardWithImageDto;
 import com.cookingrecipe.cookingrecipe.service.BoardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -17,12 +18,11 @@ public class MainController {
 
     @GetMapping
     public String index(Model model) {
-        List<Board> boards = boardService.findAllByDateDesc();
-        boards.forEach(board -> {
-            System.out.println("Board Title: " + board.getTitle());
-            board.getImages().forEach(image -> System.out.println("Image Path: " + image.getPath()));
-        });
-        model.addAttribute("recipes", boards);
+
+        List<BoardWithImageDto> boards = boardService.findAllBoardsWithLastImage();
+
+
+        model.addAttribute("boards", boards);
         return "index";
     }
 

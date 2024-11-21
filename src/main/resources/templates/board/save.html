@@ -5,6 +5,11 @@
     <title>글 작성</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
+<style>
+    .form-label {
+        font-weight: bold;
+    }
+</style>
 <body>
 <div class="container mt-4">
     <h2 class="text-center mb-4">레시피 작성</h2>
@@ -15,11 +20,12 @@
 
     <form action="/board" method="post" enctype="multipart/form-data">
         <!-- 닉네임 -->
-        <input type="hidden" name="nickname" th:value="${#authentication.principal.nickname}">
+        <input type="hidden" name="nickname" th:value="${form.nickname}">
+
 
         <!-- 제목 -->
         <div class="mb-3">
-            <label for="title" class="form-label">제목</label>
+            <label for="title" class="form-label" style="">제목</label>
             <input type="text" class="form-control" id="title" name="title" placeholder="제목을 입력하세요" required>
         </div>
 
@@ -40,12 +46,31 @@
             <label for="category" class="form-label">카테고리</label>
             <select class="form-select" id="category" name="category" required>
                 <option value="">카테고리를 선택하세요</option>
-                <option value="볶음">볶음</option>
-                <option value="찜/탕">찜/탕</option>
-                <option value="구이">구이</option>
-                <option value="튀김">튀김</option>
-                <option value="면">면</option>
-                <option value="샐러드">샐러드</option>
+                <option value="KOREAN">한식</option>
+                <option value="CHINESE">중식</option>
+                <option value="JAPANESE">일식</option>
+                <option value="WESTERN">양식</option>
+                <option value="SOUTHEAST">동남아식</option>
+                <option value="FUSION">퓨전</option>
+                <option value="DESSERT">후식</option>
+                <option value="ETC">기타</option>
+            </select>
+        </div>
+
+        <!-- 방법 -->
+        <div class="mb-3">
+            <label for="method" class="form-label">조리 방법</label>
+            <select class="form-select" id="method" name="method" required>
+                <option value="">조리 방법을 선택하세요</option>
+                <option value="STIR_FRY">볶음</option>
+                <option value="STEAM">찜</option>
+                <option value="SOUP">탕</option>
+                <option value="DEEP_FRY">튀김</option>
+                <option value="GRILL">구이</option>
+                <option value="MIX">무침</option>
+                <option value="RAW">회</option>
+                <option value="SALAD">샐러드</option>
+                <option value="ETC">기타</option>
             </select>
         </div>
 

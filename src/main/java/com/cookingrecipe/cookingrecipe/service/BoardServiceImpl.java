@@ -1,95 +1,112 @@
 package com.cookingrecipe.cookingrecipe.service;
 
+import com.cookingrecipe.cookingrecipe.config.FileService;
 import com.cookingrecipe.cookingrecipe.domain.*;
 import com.cookingrecipe.cookingrecipe.dto.BoardSaveDto;
 import com.cookingrecipe.cookingrecipe.dto.BoardUpdateDto;
+import com.cookingrecipe.cookingrecipe.dto.BoardWithImageDto;
+import com.cookingrecipe.cookingrecipe.dto.RecipeStepDto;
 import com.cookingrecipe.cookingrecipe.exception.BadRequestException;
 import com.cookingrecipe.cookingrecipe.repository.*;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
 @Transactional
 @RequiredArgsConstructor
+@Slf4j
 public class BoardServiceImpl implements BoardService {
 
     private final BoardRepository boardRepository;
     private final BoardRepositoryCustom boardRepositoryCustom;
     private final UserRepository userRepository;
-    private final ImageRepository imageRepository;
+    private final RecipeStepService recipeStepService;
     private final BookmarkRepository bookmarkRepository;
+    private final LikeRepository likeRepository;
+    private final RecipeStepRepository recipeStepRepository;
 
+
+    // Board Entity 생성
+    @Override
+    public Board joinEntity(Board board) {
+        return boardRepository.save(board);
+    }
 
     // 게시글 저장
     @Override
-    public Long save(BoardSaveDto boardSaveDto, List<MultipartFile> images, CustomUserDetails userDetails) {
-        String uploadDir = System.getProperty("user.dir") + "/uploaded-images/";
+    public Long save(BoardSaveDto boardSaveDto, List<RecipeStepDto> recipeStepDto, CustomUserDetails userDetails) {
+        FileService.createUploadDir();
+
+        // Board 생성 및 저장
+        Board board = Board.builder()
+                .title(boardSaveDto.getTitle())
+                .content(boardSaveDto.getContent())
+                .category(boardSaveDto.getCategory())
+                .method(boardSaveDto.getMethod())
+                .ingredient(boardSaveDto.getIngredient())
+                .nickname(userDetails.getNickname())
+                .user(userDetails.getUser())
+                .build();
+
+        boardRepository.save(board);
 
         try {
-            // Board 생성
-            Board board = Board.builder()
-                    .title(boardSaveDto.getTitle())
-                    .content(boardSaveDto.getContent())
-                    .category(boardSaveDto.getCategory())
-                    .method(boardSaveDto.getMethod())
-                    .ingredient(boardSaveDto.getIngredient())
-                    .nickname(userDetails.getNickname())
-                    .user(userDetails.getUser())
-                    .build();
-
-            // 이미지 추가
-            for (MultipartFile image : images) {
-                String fileName = UUID.randomUUID() + "_" + image.getOriginalFilename();
-                Path filePath = Paths.get(uploadDir + fileName);
-                Files.createDirectories(filePath.getParent());
-                Files.copy(image.getInputStream(), filePath);
-
-                // 이미지 엔티티 생성 및 Board에 추가
-                Image savedImage = new Image(fileName, filePath.toString(), board);
-                board.getImages().add(savedImage); // Board와 연관
-            }
-
-            // Board 저장 (CascadeType.ALL로 인해 이미지도 저장됨)
-            boardRepository.save(board);
-
-            return board.getId();
-        } catch (Exception e) {
-            throw new IllegalStateException("파일 업로드 중 문제가 발생했습니다.", e);
+            // RecipeStep 저장
+            recipeStepService.save(board, recipeStepDto);
+        } catch (IOException e) {
+            throw new IllegalStateException("레시피 단계 저장 중 문제가 발생했습니다.", e);
         }
+
+        return board.getId();
     }
 
-
-
-    // 게시글 수정
     @Override
-    public Long update(Long boardId, BoardUpdateDto boardUpdateDto) {
+    public Long update(Long boardId, BoardUpdateDto boardUpdateDto, List<RecipeStepDto> steps) {
+        FileService.createUploadDir();
 
+        // 게시글 가져오기
         Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new BadRequestException("해당 게시글을 찾을 수 없습니다."));
 
+        // 게시글 업데이트
         board.update(boardUpdateDto.getTitle(), boardUpdateDto.getCategory(),
                 boardUpdateDto.getMethod(), boardUpdateDto.getIngredient(),
                 boardUpdateDto.getContent());
 
-        imageRepository.deleteByBoardId(boardId);
+        // 기존 RecipeStep 제거 후 새로 저장
+        recipeStepService.deleteByBoardId(boardId);
 
-        List<Image> images = boardUpdateDto.getImages().stream()
-                .map(imageDto -> new Image(imageDto.getName(), imageDto.getPath(), board))
-                .collect(Collectors.toList());
-        imageRepository.saveAll(images);
+        try {
+            recipeStepService.save(board, steps);
+        } catch (IOException e) {
+            throw new IllegalStateException("레시피 단계 저장 중 문제가 발생했습니다.", e);
+        }
 
         return board.getId();
     }
+
+    
+    // 게시글 대표 사진 설정 - 레시피 마지막 이미지
+    @Override
+    public List<BoardWithImageDto> findAllBoardsWithLastImage() {
+        List<Board> boards = boardRepository.findAll();
+        return boards.stream()
+                .map(board -> {
+                    String lastImagePath = recipeStepRepository.findLastImagePathByBoardId(board.getId());
+                    return new BoardWithImageDto(board, lastImagePath);
+                })
+                .collect(Collectors.toList());
+
+    }
+
 
 
     // 게시글 검색 - 시스템 ID
@@ -97,6 +114,13 @@ public class BoardServiceImpl implements BoardService {
     public Board findById(Long boardId) {
 
         return boardRepository.findById(boardId)
+                .orElseThrow(() -> new BadRequestException("해당 게시글을 찾을 수 없습니다"));
+    }
+
+    @Override
+    public Board findBoardWithRecipeSteps(Long boardId) {
+
+        return boardRepository.findWithRecipeStepsById(boardId)
                 .orElseThrow(() -> new BadRequestException("해당 게시글을 찾을 수 없습니다"));
     }
 
@@ -181,12 +205,7 @@ public class BoardServiceImpl implements BoardService {
     // 조회수 증가
     @Override
     public void addViewCount(Long boardId) {
-        Board board = boardRepository.findById(boardId)
-
-                .orElseThrow(() -> new BadRequestException("해당 게시글을 찾을 수 없습니다"));
-
-        board.incrementView();
-        boardRepository.save(board); // 명시적으로 저장
+        boardRepository.updateViewCount(boardId);
     }
 
 
@@ -200,50 +219,101 @@ public class BoardServiceImpl implements BoardService {
     // 좋아요 추가
     @Override
     public void addLike(Long boardId) {
-        Board board = boardRepository.findById(boardId)
-                .orElseThrow(() -> new BadRequestException("해당 게시글을 찾을 수 없습니다"));
-
-        board.incrementLikeCount();
-        boardRepository.save(board); // 명시적으로 저장
+        boardRepository.incrementLikeCount(boardId);
     }
 
 
     // 좋아요 삭제
     @Override
     public void removeLike(Long boardId) {
-        Board board = boardRepository.findById(boardId)
-                .orElseThrow(() -> new BadRequestException("해당 게시글을 찾을 수 없습니다"));
-
-        board.decrementLikeCount();
-        boardRepository.save(board); // 명시적으로 저장
+        boardRepository.decrementLikeCount(boardId);
     }
 
 
-    // 북마크 추가/삭제 토글
+    // 좋아요 여부 확인
     @Override
-    public boolean toggleBookmark(Long boardId, Long userId) {
+    public boolean isLikedByUser(Long boardId, Long userId) {
+        return likeRepository.findByBoardIdAndUserId(boardId, userId).isPresent();
+    }
+
+
+    // 북마크 여부 확인
+    @Override
+    public boolean isBookmarkedByUser(Long boardId, Long userId) {
+        return bookmarkRepository.findByBoardIdAndUserId(boardId, userId).isPresent();
+    }
+
+
+    // 좋아요 토글
+    @Override
+    public void toggleLike(Long boardId, Long userId) {
+
+        // 좋아요 여부 확인
+        Optional<Like> existingLike = likeRepository.findByBoardIdAndUserId(boardId, userId);
 
         Board board = boardRepository.findById(boardId)
-                .orElseThrow(() -> new BadRequestException("해당 게시글을 찾을 수 없습니다"));
+                .orElseThrow(() -> new BadRequestException("게시글을 찾을 수 없습니다"));
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new BadRequestException("해당 사용자를 찾을 수 없습니다"));
 
-        // 북마크 여부 확인
-        Optional<Bookmark> checkBookmark = bookmarkRepository.findByUserAndBoard(user, board);
-
-        // 북마크 존재 -> 삭제
-        if (checkBookmark.isPresent()) {
-            bookmarkRepository.delete(checkBookmark.get());
-            board.decrementBookmarkCount();
-            return false; // 북마크가 해제되었음을 의미
+        if (existingLike.isPresent()) {
+            likeRepository.delete(existingLike.get());
+            board.decrementLikeCount();
         } else {
-            // 북마크가 존재하지 않을 때 -> 추가
-            Bookmark newBookmark = new Bookmark(user, board);
-            bookmarkRepository.save(newBookmark);
-            board.incrementBookmarkCount();
-            return true; // 북마크가 추가되었음을 의미
+            Like like = likeRepository.save(new Like(userRepository.findById(userId)
+                    .orElseThrow(() -> new BadRequestException("사용자를 찾을 수 없습니다")), board));
+            likeRepository.save(like);
+            board.incrementLikeCount();
         }
+
+        boardRepository.save(board);
     }
+
+
+    // 북마크 토글
+    @Override
+    public void toggleBookmark(Long boardId, Long userId) {
+        Optional<Bookmark> existingBookmark = bookmarkRepository.findByBoardIdAndUserId(boardId, userId);
+
+        Board board = boardRepository.findById(boardId)
+                .orElseThrow(() -> new BadRequestException("게시글을 찾을 수 없습니다"));
+
+        if (existingBookmark.isPresent()) {
+            bookmarkRepository.delete(existingBookmark.get());
+        } else {
+            Bookmark bookmark = bookmarkRepository.save(new Bookmark(userRepository.findById(userId)
+                    .orElseThrow(() -> new BadRequestException("사용자를 찾을 수 없습니다")), board));
+            bookmarkRepository.save(bookmark);
+        }
+
+        boardRepository.save(board);
+    }
+
+
+    // InitData 삽입 위한 메서드 생성
+    public void saveForInitData(BoardSaveDto boardSaveDto, List<RecipeStepDto> recipeStepDto, User user) {
+        FileService.createUploadDir();
+
+        // Board 생성 및 저장
+        Board board = Board.builder()
+                .title(boardSaveDto.getTitle())
+                .content(boardSaveDto.getContent())
+                .category(boardSaveDto.getCategory())
+                .method(boardSaveDto.getMethod())
+                .ingredient(boardSaveDto.getIngredient())
+                .nickname(user.getNickname()) // User 엔티티에서 닉네임 가져옴
+                .user(user)                   // User 엔티티 저장
+                .build();
+
+        boardRepository.save(board);
+
+        try {
+            // RecipeStep 저장
+            recipeStepService.save(board, recipeStepDto);
+        } catch (IOException e) {
+            throw new IllegalStateException("레시피 단계 저장 중 문제가 발생했습니다.", e);
+        }
+
+    }
+
 
 }

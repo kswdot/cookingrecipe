@@ -22,11 +22,16 @@ public class BoardRepositoryCustomImpl implements BoardRepositoryCustom {
     @Override
     public List<Board> findAllByDateDesc() {
         QBoard board = QBoard.board;
-        QImage image = QImage.image;
+        QRecipeStep recipeStep = QRecipeStep.recipeStep;
 
         return queryFactory
                 .selectFrom(board)
-                .leftJoin(board.images, image).fetchJoin()
+                .leftJoin(board.recipeSteps, recipeStep).fetchJoin()
+                .where(recipeStep.stepOrder.eq(
+                        queryFactory.select(recipeStep.stepOrder.max())
+                                .from(recipeStep)
+                                .where(recipeStep.board.eq(board))
+                ))
                 .orderBy(board.createdDate.desc())
                 .fetch();
     }

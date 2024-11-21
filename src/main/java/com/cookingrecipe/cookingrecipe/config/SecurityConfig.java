@@ -12,6 +12,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.security.web.firewall.StrictHttpFirewall;
 
 @Configuration
 @EnableWebSecurity
@@ -30,8 +31,9 @@ public class SecurityConfig {
                 .securityContext(securityContext -> securityContext
                         .securityContextRepository(new HttpSessionSecurityContextRepository()))
                 .authorizeHttpRequests(auth -> auth // 최신 메서드인 authorizeHttpRequests로 변경
-                        .requestMatchers("/", "/login", "/join").permitAll() // 모두 접근 가능
-                        .requestMatchers("/myPage/**").hasRole("USER") // "USER" 역할을 가진 사용자만 접근 가능
+                        .requestMatchers("/", "/login", "/join", "/board/{id}").permitAll() // 모두 접근 가능
+                        .requestMatchers("/images/**", "/css/**", "/js/**", "/static/**", "/uploads/**").permitAll()
+                        .requestMatchers("/myPage/**", "/board").hasRole("USER") // "USER" 역할을 가진 사용자만 접근 가능
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().permitAll()
                 )
@@ -50,6 +52,14 @@ public class SecurityConfig {
                         .deleteCookies("JSESSIONID") // 쿠키 삭제
                 );
         return http.build();
+    }
+
+    @Bean
+    public StrictHttpFirewall strictHttpFirewall() {
+        StrictHttpFirewall firewall = new StrictHttpFirewall();
+        firewall.setAllowUrlEncodedSlash(true); // / 허용
+        firewall.setAllowUrlEncodedDoubleSlash(true);     // // 허용
+        return firewall;
     }
 
 }

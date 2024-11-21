@@ -1,41 +1,38 @@
 package com.cookingrecipe.cookingrecipe.config;
 
-import com.cookingrecipe.cookingrecipe.domain.Board;
 import com.cookingrecipe.cookingrecipe.domain.Category;
 import com.cookingrecipe.cookingrecipe.domain.Method;
 import com.cookingrecipe.cookingrecipe.domain.User;
 import com.cookingrecipe.cookingrecipe.dto.BoardSaveDto;
+import com.cookingrecipe.cookingrecipe.dto.RecipeStepDto;
 import com.cookingrecipe.cookingrecipe.dto.UserSignupDto;
 import com.cookingrecipe.cookingrecipe.exception.UserNotFoundException;
 import com.cookingrecipe.cookingrecipe.service.BoardService;
 import com.cookingrecipe.cookingrecipe.service.UserService;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.mock.web.MockMultipartFile;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.LocalDate;
-import java.util.Collections;
-import java.util.Optional;
-
-import static com.cookingrecipe.cookingrecipe.domain.Category.*;
-import static com.cookingrecipe.cookingrecipe.domain.Method.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Configuration
-@Transactional
 @RequiredArgsConstructor
+@Slf4j
 public class InitData {
 
     private final UserService userService;
     private final BoardService boardService;
-    private final PasswordEncoder passwordEncoder;
 
     @PostConstruct
+    @Transactional
     public void init() {
         User user1 = createUser("tester1", "테스터1", "@tester1111",
                 "tester1@gmail.com", "010-1111-1111", LocalDate.parse("2024-11-11"));
@@ -46,21 +43,19 @@ public class InitData {
         User user3 = createUser("tester3", "테스터3", "@tester3333",
                 "tester3@gmail.com", "010-3333-3333", LocalDate.parse("2020-11-18"));
 
-        createBoard("1번 레시피",  KOREAN, SOUP, "김치, 참치, 양파, 파", "1번 레시피: 김치, 참치, 양파, 파",
-        "src/main/resources/static/images/cat.jpg", user1);
+        // 게시글과 레시피 단계 생성
+        createBoardWithSteps("레시피1", "간단한 레시피1입니다.", Category.CHINESE, Method.SOUP,
+                "재료1, 재료2, 재료3", user1, List.of("1.jpg", "2.jpg", "3.jpg"));
 
-        createBoard("2번 레시피",  JAPANESE, RAW, "연어, 광어, 숭어", "2번 레시피: 연어, 광어, 숭어",
-                "src/main/resources/static/images/dog.jpg", user2);
+        createBoardWithSteps("레시피2", "간단한 레시피2입니다.", Category.KOREAN, Method.STIR_FRY,
+                "재료A, 재료B, 재료C", user2, List.of("2.jpg", "3.jpg", "1.jpg"));
 
-        createBoard("3번 레시피",  CHINESE, DEEP_FRY, "돼지고기, 튀김가루, 무침가루, 꿀", "3번 레시피: 돼지고기, 튀김가루, 무침가루, 꿀",
-                "src/main/resources/static/images/rabbit.jpg", user3);
-
+        createBoardWithSteps("레시피3", "간단한 레시피3입니다.", Category.FUSION, Method.SALAD,
+                "재료X, 재료Y, 재료Z", user3, List.of("3.jpg", "1.jpg", "2.jpg"));
     }
 
     private User createUser(String loginId, String nickname, String password, String email, String number, LocalDate birth) {
-
         if (!userService.isLoginIdDuplicated(loginId) && !userService.isEmailDuplicated(email)) {
-
             UserSignupDto userSignupDto = UserSignupDto.builder()
                     .loginId(loginId)
                     .nickname(nickname)
@@ -69,45 +64,54 @@ public class InitData {
                     .number(number)
                     .birth(birth)
                     .build();
-
             userService.join(userSignupDto);
         }
 
         return userService.findByLoginId(loginId)
                 .orElseThrow(() -> new UserNotFoundException("해당 사용자가 없습니다."));
-
     }
 
-    private void createBoard(String title, Category category, Method method, String ingredient, String content, String imagePath, User user) {
+    private void createBoardWithSteps(String title, String content, Category category, Method method,
+                                      String ingredient, User user, List<String> imageFileNames) {
 
-        try {
-            // Mock 이미지 생성
-            MockMultipartFile mockImage = createMockImage(imagePath);
+        System.out.println("category: " + category);  // 값 확인
+        System.out.println("method: " + method);
 
-            BoardSaveDto boardSaveDto = BoardSaveDto.builder()
-                    .title(title)
-                    .category(category)
-                    .method(method)
-                    .ingredient(ingredient)
-                    .content(content)
-                    .build();
 
-            boardService.save(boardSaveDto, Collections.singletonList(mockImage), user.toCustomUserDetails());
-        } catch (Exception e) {
-            throw new IllegalStateException("게시글 생성 중 오류 발생", e);
+        // 1. BoardSaveDto 생성
+        BoardSaveDto boardDto = BoardSaveDto.builder()
+                .title(title)
+                .content(content)
+                .category(category)
+                .method(method)
+                .ingredient(ingredient)
+                .nickname(user.getNickname())
+                .userId(user.getId())
+                .build();
+
+        System.out.println("DTO category: " + boardDto.getCategory());
+        System.out.println("DTO method: " + boardDto.getMethod());
+
+
+        // 2. RecipeStepDto 리스트 생성
+        List<RecipeStepDto> steps = new ArrayList<>();
+        for (int i = 0; i < imageFileNames.size(); i++) {
+            String imagePath = "src/main/resources/static/images/" + imageFileNames.get(i);
+
+            try {
+                MultipartFile image = new MockMultipartFile(imageFileNames.get(i), Files.newInputStream(Path.of(imagePath)));
+                RecipeStepDto stepDto = RecipeStepDto.builder()
+                        .stepOrder(i + 1)
+                        .description("단계 " + (i + 1) + " 설명입니다.")
+                        .image(image)
+                        .build();
+                steps.add(stepDto);
+            } catch (Exception e) {
+                throw new IllegalStateException("이미지 파일 로드 중 문제가 발생했습니다: " + imagePath, e);
+            }
         }
 
+        // 3. Board, RecipeStep 저장
+        boardService.saveForInitData(boardDto, steps, user);
     }
-
-    private MockMultipartFile createMockImage(String filePath) {
-        try {
-            Path path = Paths.get(filePath);
-            byte[] content = Files.readAllBytes(path); // 파일 내용을 byte 배열로 읽음
-            String fileName = path.getFileName().toString(); // 파일 이름 추출
-            return new MockMultipartFile("image", fileName, "image/jpeg", content);
-        } catch (Exception e) {
-            throw new IllegalStateException("Mock 이미지 생성 중 오류 발생", e);
-        }
-    }
-
 }

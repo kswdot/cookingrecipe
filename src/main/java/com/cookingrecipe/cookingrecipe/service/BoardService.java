@@ -1,14 +1,12 @@
 package com.cookingrecipe.cookingrecipe.service;
 
-import com.cookingrecipe.cookingrecipe.domain.Board;
-import com.cookingrecipe.cookingrecipe.domain.Category;
-import com.cookingrecipe.cookingrecipe.domain.CustomUserDetails;
-import com.cookingrecipe.cookingrecipe.domain.Method;
+import com.cookingrecipe.cookingrecipe.domain.*;
 import com.cookingrecipe.cookingrecipe.dto.BoardSaveDto;
 import com.cookingrecipe.cookingrecipe.dto.BoardUpdateDto;
+import com.cookingrecipe.cookingrecipe.dto.BoardWithImageDto;
+import com.cookingrecipe.cookingrecipe.dto.RecipeStepDto;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Optional;
@@ -17,11 +15,16 @@ import java.util.Optional;
 @Transactional
 public interface BoardService {
 
+    public Board joinEntity(Board board);
+
     // 게시글 작성
-    Long save(BoardSaveDto boardSaveDto, List<MultipartFile> images, CustomUserDetails userDetails);
+    Long save(BoardSaveDto boardSaveDto, List<RecipeStepDto> recipeStepDto, CustomUserDetails userDetails);
 
     // 게시글 수정
-    Long update(Long boardId, BoardUpdateDto boardUpdateDto);
+    Long update(Long boardId, BoardUpdateDto boardUpdateDto, List<RecipeStepDto> recipeStepDto);
+
+    // 대표 사진 설정 - 마지막 레시피 이미지
+    public List<BoardWithImageDto> findAllBoardsWithLastImage();
 
     // 모든 게시글 검색
     List<Board> findAll();
@@ -34,6 +37,9 @@ public interface BoardService {
 
     // 게시글 검색 - 시스템 ID
     Board findById(Long boardId);
+
+    // 특정 게시글과 속한 레시피 검색
+    Board findBoardWithRecipeSteps(Long boardId);
 
     // 게시글 검색 - 검색 조건 - 최신순
     List<Board> searchBoards(String keyword, String material, String writer);
@@ -70,10 +76,21 @@ public interface BoardService {
     
     // 좋아요 삭제
     void removeLike(Long boardId);
-    
-    // 북마크 추가/삭제 토글
-    boolean toggleBookmark(Long boardId, Long userId);
 
+    // 좋아요 여부 확인
+    boolean isLikedByUser(Long boardId, Long userId);
+
+    // 책갈피 여부 확인
+    boolean isBookmarkedByUser(Long boardId, Long userId);
+
+    // 좋아요 추가/삭제 토글
+    void toggleLike(Long boardId, Long userId);
+
+    // 북마크 추가/삭제 토글
+    void toggleBookmark(Long boardId, Long userId);
+
+    // InitData 삽입 위한 메서드 생성
+    void saveForInitData(BoardSaveDto boardSaveDto, List<RecipeStepDto> recipeStepDto, User user);
 
 
 }

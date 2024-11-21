@@ -1,104 +1,96 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="https://www.thymeleaf.org/extras/spring-security">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="utf-8">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <title>메인 페이지</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>게시글 목록</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css">
     <style>
-        /* 카드 스타일 */
-        .recipe-card {
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            overflow: hidden;
-            transition: transform 0.2s;
+        .card {
+            margin-bottom: 20px;
+            position: relative;
+            transition: transform 0.2s, box-shadow 0.2s;
         }
 
-        .recipe-card:hover {
+        .card:hover {
             transform: scale(1.05);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
 
-        .recipe-image {
+        .card-img-top {
             height: 200px;
             object-fit: cover;
         }
 
-        .recipe-content {
-            padding: 15px;
+        .card-body .card-title {
+            font-weight: bold;
         }
 
-        .recipe-title {
-            font-size: 1.25rem;
-            font-weight: bold;
+        .card-body .author {
+            font-size: 0.85rem;
+            color: #6c757d;
+        }
+
+        .card-body .stats {
+            font-size: 0.85rem;
+            color: #6c757d;
             margin-bottom: 10px;
         }
 
-        .recipe-ingredients {
-            color: #555;
-            font-size: 0.9rem;
-            max-height: 45px;
-            overflow: hidden;
-            text-overflow: ellipsis;
+        .btn-detail {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
         }
 
-        /* 연한 회색 버튼 */
-        .btn-light {
-            background-color: #f8f9fa;
-            color: #6c757d;
-            border-color: #e9ecef;
+        .write-button {
+            margin-bottom: 20px;
+            float: right;
         }
 
-        .btn-light:hover {
-            background-color: #e9ecef;
-        }
+
     </style>
 </head>
-
 <body>
 <!-- 헤더 fragment 포함 -->
 <div th:replace="~{fragments/header.html}"></div>
 
-<div class="container mt-4">
+<div class="container mt-3">
     <div class="row">
         <!-- 사이드바 fragment 포함 -->
         <div class="col-md-3" style="margin-left: -1cm;">
             <div th:replace="~{fragments/sidebar.html}"></div>
         </div>
 
-        <!-- 본문 내용 -->
         <div class="col-md-9">
-            <!-- 상단 헤더 (글쓰기 버튼 + 최신 레시피 제목) -->
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 class="mb-0">최신 레시피</h2>
-                <a sec:authorize="isAuthenticated()" th:href="@{/board}" class="btn btn-primary">글쓰기</a>
-                <a sec:authorize="isAnonymous()" th:href="@{/login}" class="btn btn-primary">글쓰기</a>
-            </div>
+            <!-- 글쓰기 버튼 -->
+            <a th:href="@{/board}" class="btn btn-info write-button">글쓰기</a>
 
-            <!-- 최신 레시피 목록 -->
+            <h1 class="mb-4 text-center">레시피 게시판</h1>
             <div class="row">
-                <div class="col-md-4 mb-4" th:each="recipe : ${recipes}">
-                    <div class="recipe-card">
-                        <!-- 대표 이미지 -->
-                        <img th:src="@{'/images/' + ${recipe.images[0].name}}" alt="레시피 이미지" class="w-100 recipe-image">
+                <!-- 게시글 목록 -->
+                <div th:each="boardWithImage : ${boards}" class="col-md-4 mb-3">
+                    <div class="card">
+                        <!-- 이미지 처리 -->
+                        <img th:src="@{${boardWithImage.lastImagePath}}" alt="대표 이미지" class="card-img-top">
 
-                        <!-- 게시글 내용 -->
-                        <div class="recipe-content">
-                            <div class="recipe-title" th:text="${recipe.title}"></div>
-                            <div class="recipe-ingredients"
-                                 th:text="${#strings.length(recipe.ingredient) > 50 ? #strings.substring(recipe.ingredient, 0, 50) + '...' : recipe.ingredient}"></div>
-                            <div class="text-end mt-3">
-                                <a th:href="@{/board/{id}(id=${recipe.id})}" class="btn btn-light btn-sm">자세히 보기</a>
-                            </div>
+                        <!-- 카드 내용 -->
+                        <div class="card-body">
+                            <h5 class="card-title" th:text="${boardWithImage.board.title}"></h5>
+                            <p class="author">작성자: <span th:text="${boardWithImage.board.user.nickname}"></span></p>
+                            <p class="stats">
+                                ❤️ <span th:text="${boardWithImage.board.likeCount}"></span> &nbsp;&nbsp;
+                                👁️ <span th:text="${boardWithImage.board.view}"></span>
+                            </p>
+                            <a th:href="@{/board/{id}(id=${boardWithImage.board.id})}" class="btn btn-light btn-detail">자세히 보기</a>
                         </div>
                     </div>
                 </div>
             </div>
-
-            <!-- 레시피 없는 경우 메시지 -->
-            <div th:if="${#lists.isEmpty(recipes)}" class="text-center mt-5">
-                <p>현재 등록된 레시피가 없습니다. 글을 작성해 보세요!</p>
-            </div>
         </div>
     </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

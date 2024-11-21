@@ -3,11 +3,8 @@ package com.cookingrecipe.cookingrecipe.dto;
 import com.cookingrecipe.cookingrecipe.domain.Category;
 import com.cookingrecipe.cookingrecipe.domain.Method;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.List;
 
 @Getter
 @Setter
@@ -27,7 +24,4 @@ public class BoardUpdateDto {
 
     @NotBlank(message = "내용을 입력하세요")
     private String content;
-
-    @NotNull(message = "이미지를 추가해주세요")
-    private List<ImageDto> images;
 }

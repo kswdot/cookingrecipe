@@ -10,7 +10,6 @@ import static jakarta.persistence.FetchType.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Getter
-@ToString(of = {"id"})
 public class Image {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,13 +21,13 @@ public class Image {
     private String path;
 
     @ManyToOne(fetch = LAZY)
-    @JoinColumn(name = "board_id")
-    private Board board;
+    @JoinColumn(name = "recipe_step_id") // RecipeStep과 매핑
+    private RecipeStep recipeStep;
 
 
-    public Image(String name, String path, Board board) {
+    public Image(String name, String path, RecipeStep recipeStep) {
         this.name = name;
         this.path = path;
-        this.board = board;
+        this.recipeStep = recipeStep;
     }
 }

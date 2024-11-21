@@ -7,7 +7,6 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -28,7 +27,7 @@ public class BoardSaveDto {
     @NotBlank(message = "재료를 입력하세요")
     private String ingredient;
 
-    @NotBlank(message = "내용을 입력하세요")
+    @NotBlank(message = "간단한 요리 설명을 입력하세요")
     private String content;
 
     @NotBlank
@@ -37,6 +36,4 @@ public class BoardSaveDto {
     @NotNull
     private Long userId; // 사용자 식별
 
-    @NotNull(message = "이미지를 추가해주세요")
-    private List<MultipartFile> images;
 }
