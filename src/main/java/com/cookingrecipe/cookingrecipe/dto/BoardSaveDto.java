@@ -30,6 +30,8 @@ public class BoardSaveDto {
     @NotBlank(message = "간단한 요리 설명을 입력하세요")
     private String content;
 
+    private List<RecipeStepDto> recipeSteps;
+
     @NotBlank
     private String nickname; // 게시글 표시
 

@@ -72,7 +72,7 @@
                 <div th:each="boardWithImage : ${boards}" class="col-md-4 mb-3">
                     <div class="card">
                         <!-- 이미지 처리 -->
-                        <img th:src="@{${boardWithImage.lastImagePath}}" alt="대표 이미지" class="card-img-top">
+                        <img th:src="${boardWithImage.lastImagePath}" alt="대표 이미지" class="card-img-top">
 
                         <!-- 카드 내용 -->
                         <div class="card-body">

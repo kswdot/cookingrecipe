@@ -114,7 +114,7 @@ public class Board extends BaseTimeEntity {
 
     // 좋아요 수 감소 메서드
     public void decrementLikeCount() {
-        this.likeCount = Math.max(0, this.bookmarkCount - 1);
+        this.likeCount = Math.max(0, this.likeCount - 1);
     }
 
 

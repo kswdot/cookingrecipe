@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.mock.web.MockMultipartFile;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDate;
@@ -74,9 +75,7 @@ public class InitData {
     private void createBoardWithSteps(String title, String content, Category category, Method method,
                                       String ingredient, User user, List<String> imageFileNames) {
 
-        System.out.println("category: " + category);  // 값 확인
-        System.out.println("method: " + method);
-
+        log.info("Creating board with title: {}", title);
 
         // 1. BoardSaveDto 생성
         BoardSaveDto boardDto = BoardSaveDto.builder()
@@ -89,24 +88,40 @@ public class InitData {
                 .userId(user.getId())
                 .build();
 
-        System.out.println("DTO category: " + boardDto.getCategory());
-        System.out.println("DTO method: " + boardDto.getMethod());
-
-
         // 2. RecipeStepDto 리스트 생성
         List<RecipeStepDto> steps = new ArrayList<>();
         for (int i = 0; i < imageFileNames.size(); i++) {
-            String imagePath = "src/main/resources/static/images/" + imageFileNames.get(i);
+            String imagePath = "C:/Users/user/.gradle/cookingrecipe/src/main/resources/static/images/" + imageFileNames.get(i);
+
+            // 파일 경로 검증
+            Path filePath = Path.of(imagePath);
+            if (!Files.exists(filePath)) {
+                log.error("File does not exist: {}", filePath);
+                throw new IllegalArgumentException("파일이 존재하지 않습니다: " + filePath);
+            }
 
             try {
-                MultipartFile image = new MockMultipartFile(imageFileNames.get(i), Files.newInputStream(Path.of(imagePath)));
+                // 파일 읽기
+                byte[] fileBytes = Files.readAllBytes(filePath);
+
+                // MockMultipartFile 생성
+                MultipartFile image = new MockMultipartFile(
+                        imageFileNames.get(i),  // 파일 이름
+                        imageFileNames.get(i),  // 원본 파일 이름
+                        "image/jpeg",           // MIME 타입 (필요 시 변경)
+                        fileBytes               // 파일 데이터
+                );
+
+                // RecipeStepDto 생성
                 RecipeStepDto stepDto = RecipeStepDto.builder()
                         .stepOrder(i + 1)
                         .description("단계 " + (i + 1) + " 설명입니다.")
                         .image(image)
                         .build();
+
                 steps.add(stepDto);
-            } catch (Exception e) {
+            } catch (IOException e) {
+                log.error("Failed to load file: {}", imagePath, e);
                 throw new IllegalStateException("이미지 파일 로드 중 문제가 발생했습니다: " + imagePath, e);
             }
         }
@@ -114,4 +129,6 @@ public class InitData {
         // 3. Board, RecipeStep 저장
         boardService.saveForInitData(boardDto, steps, user);
     }
+
+
 }

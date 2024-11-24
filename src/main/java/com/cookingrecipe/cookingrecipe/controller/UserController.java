@@ -73,6 +73,7 @@ public class UserController {
     // 로그인 폼 - 로그인 과정은 Spring Security 관여
     @GetMapping("/login")
     public String loginForm(@ModelAttribute("form") UserLoginDto userLoginDto) {
+
         return "user/login";
     }
 

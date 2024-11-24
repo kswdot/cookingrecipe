@@ -96,23 +96,29 @@
             <!-- 좋아요 & 북마크 -->
             <div class="like-bookmark-box">
                 <!-- 좋아요 -->
+                <!-- 좋아요 -->
                 <form th:action="@{/board/{id}/like(id=${board.id})}" method="post" style="display: inline;">
                     <button type="submit"
                             th:classappend="${isLiked} ? 'text-danger' : 'text-secondary'"
                             class="like-bookmark"
                             style="background: none; border: none; cursor: pointer;">
-                        ❤️ <span th:text="${board.likeCount}"></span>
+                        <span th:if="${isLiked}">❤️</span>
+                        <span th:if="${!isLiked}">🤍</span> <!-- 빈 하트 아이콘 -->
+                        <span th:text="${board.likeCount}"></span>
                     </button>
                 </form>
+
                 <!-- 북마크 -->
                 <form th:action="@{/board/{id}/bookmark(id=${board.id})}" method="post" style="display: inline;">
                     <button type="submit"
-                            th:classappend="${isBookmarked} ? 'text-danger' : 'text-secondary'"
+                            th:classappend="${isBookmarked} ? 'text-warning' : 'text-secondary'"
                             class="like-bookmark"
                             style="background: none; border: none; cursor: pointer;">
-                        📌
+                        <span th:if="${isBookmarked}">📌</span>
+                        <span th:if="${!isBookmarked}">🔖</span> <!-- 북마크 해제 아이콘 -->
                     </button>
                 </form>
+
             </div>
         </div>
     </div>

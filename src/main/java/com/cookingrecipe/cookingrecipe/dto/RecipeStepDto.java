@@ -17,7 +17,7 @@ public class RecipeStepDto {
     @NotNull(message = "단계 번호를 입력하세요")
     private int stepOrder;
 
-    @NotBlank(message = "설명을 입력하세요")
+    @NotBlank(message = "단계 설명을 입력하세요")
     private String description;
 
     private MultipartFile image; // 단계별 이미지

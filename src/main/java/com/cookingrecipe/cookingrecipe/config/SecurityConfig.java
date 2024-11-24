@@ -11,8 +11,11 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.firewall.StrictHttpFirewall;
+import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
 @EnableWebSecurity
@@ -39,7 +42,8 @@ public class SecurityConfig {
                 )
                 .formLogin(form -> form
                         .loginPage("/login") // 로그인 페이지 경로
-                        .defaultSuccessUrl("/") // 로그인 성공 시 이동할 경로
+                        .defaultSuccessUrl("/") // 로그인 성공 기본
+                        .successHandler(new SavedRequestAwareAuthenticationSuccessHandler())
                         .loginProcessingUrl("/login") // 로그인 폼에서 제출할 경로 (POST)
                         .usernameParameter("loginId") // 로그인 폼 아이디
                         .passwordParameter("password") // 로그인 폼 비밀번호
@@ -54,11 +58,12 @@ public class SecurityConfig {
         return http.build();
     }
 
+
     @Bean
     public StrictHttpFirewall strictHttpFirewall() {
         StrictHttpFirewall firewall = new StrictHttpFirewall();
-        firewall.setAllowUrlEncodedSlash(true); // / 허용
-        firewall.setAllowUrlEncodedDoubleSlash(true);     // // 허용
+        firewall.setAllowUrlEncodedSlash(true); // "/" 허용
+        firewall.setAllowUrlEncodedDoubleSlash(true); // "//" 허용
         return firewall;
     }
 
