@@ -62,11 +62,16 @@
 
         <!-- 게시글 본문 -->
         <div class="col-md-9 position-relative">
-            <!-- 제목과 작성자 -->
+            <!-- 제목, 작성자 -->
             <div class="content-box">
                 <div class="d-flex justify-content-between align-items-center">
                     <h1 th:text="${board.title}" class="mb-0"></h1>
-                    <small class="text-muted">작성자: <span th:text="${board.nickname}"></span></small>
+                    <div class="d-flex align-items-center">
+                        <small class="text-muted me-3">작성자: <span th:text="${board.nickname}"></span></small>
+                        <small class="text-muted text-end">
+                            <span th:text="'👁️ ' + ${board.view}"></span>
+                        </small>
+                    </div>
                 </div>
                 <p class="text-muted mt-2">카테고리: <span th:text="${board.category.getKoreanName()}"></span> | 방식: <span th:text="${board.method.getKoreanName()}"></span></p>
             </div>

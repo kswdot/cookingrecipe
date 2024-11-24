@@ -77,8 +77,10 @@ public class BoardController {
                             @AuthenticationPrincipal CustomUserDetails userDetails,
                             Model model) {
 
+        boardService.addViewCount(boardId);
+
         // 게시글과 속한 레시피 조회
-        Board board = boardService.findBoardWithRecipeSteps(boardId);
+        Board board = boardService.findById(boardId);
 
         // 좋아요, 북마크 초기 false 설정
         boolean isLiked = false;
@@ -89,6 +91,7 @@ public class BoardController {
             isLiked = boardService.isLikedByUser(boardId, userDetails.getId());
             isBookmarked = boardService.isBookmarkedByUser(boardId, userDetails.getId());
         }
+
 
 
         model.addAttribute("board", board);
