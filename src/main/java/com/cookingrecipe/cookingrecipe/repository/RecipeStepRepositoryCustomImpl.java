@@ -3,12 +3,14 @@ package com.cookingrecipe.cookingrecipe.repository;
 import com.cookingrecipe.cookingrecipe.domain.QRecipeStep;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
 @Repository
 @RequiredArgsConstructor
+@Slf4j
 public class RecipeStepRepositoryCustomImpl implements RecipeStepRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
@@ -28,12 +30,10 @@ public class RecipeStepRepositoryCustomImpl implements RecipeStepRepositoryCusto
                 .fetch(); // 모든 이미지를 반환
 
         if (imagePaths != null && !imagePaths.isEmpty()) {
-            // 마지막 이미지를 가져옵니다 (정렬되어 있으므로 첫 번째가 가장 마지막 이미지)
-            String lastImagePath = imagePaths.get(0);
-            System.out.println("Last Image Path: " + lastImagePath);  // 이미지 경로 출력
-            return lastImagePath;
+            // 마지막 이미지 반환 (정렬되어 있으므로 첫 번째가 가장 마지막 이미지)
+            return imagePaths.get(0);
         } else {
-            System.out.println("No image found for boardId: " + boardId);  // 이미지가 없을 경우
+            log.info("No image found for boardId: {}", boardId);  // 이미지가 없을 경우
             return null;
         }
     }

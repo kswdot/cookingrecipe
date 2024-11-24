@@ -2,50 +2,59 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>글 작성</title>
+    <title>게시글 작성</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <style>
     .form-label {
         font-weight: bold;
     }
+    .error {
+        color: red;
+        font-size: 0.9rem;
+    }
 </style>
 <body>
 <div class="container mt-4">
-    <h2 class="text-center mb-4">레시피 작성</h2>
+    <h2 class="text-center mb-4">게시글 작성</h2>
 
+    <!-- 서버 에러 메시지 -->
     <div th:if="${errorMessage}" class="alert alert-danger">
         <span th:text="${errorMessage}"></span>
     </div>
 
-    <form action="/board" method="post" enctype="multipart/form-data">
-        <!-- 닉네임 -->
-        <input type="hidden" name="nickname" th:value="${form.nickname}">
-
+    <form th:action="@{/board}" th:object="${form}" method="post" enctype="multipart/form-data">
 
         <!-- 제목 -->
         <div class="mb-3">
-            <label for="title" class="form-label" style="">제목</label>
-            <input type="text" class="form-control" id="title" name="title" placeholder="제목을 입력하세요" required>
+            <label for="title" class="form-label">제목</label>
+            <input type="text" class="form-control" id="title" name="title" th:field="*{title}" placeholder="제목을 입력하세요">
+            <div class="error" th:if="${#fields.hasErrors('title')}" th:errors="*{title}">Invalid title</div>
         </div>
 
         <!-- 재료 -->
         <div class="mb-3">
             <label for="ingredient" class="form-label">재료</label>
-            <textarea class="form-control" id="ingredient" name="ingredient" rows="4" placeholder="메인 재료를 입력해주세요" required></textarea>
+            <textarea class="form-control" id="ingredient" name="ingredient" th:field="*{ingredient}" rows="4" placeholder="재료를 입력하세요"></textarea>
+            <div class="error" th:if="${#fields.hasErrors('ingredient')}" th:errors="*{ingredient}">Invalid ingredient</div>
         </div>
 
         <!-- 내용 -->
         <div class="mb-3">
-            <label for="content" class="form-label">내용</label>
-            <textarea class="form-control" id="content" name="content" rows="6" placeholder="레시피 내용을 입력하세요" required></textarea>
+            <label for="content" class="form-label">소개</label>
+            <textarea class="form-control" id="content" name="content" th:field="*{content}" rows="2" placeholder="간단한 소개를 입력하세요"></textarea>
+            <div class="error" th:if="${#fields.hasErrors('content')}" th:errors="*{content}">Invalid content</div>
         </div>
+
+        <input type="hidden" name="userId" th:value="${user.id}">
+        <input type="hidden" name="nickname" th:value="${user.nickname}">
 
         <!-- 카테고리 -->
         <div class="mb-3">
             <label for="category" class="form-label">카테고리</label>
-            <select class="form-select" id="category" name="category" required>
-                <option value="">카테고리를 선택하세요</option>
+            <select class="form-select" id="category" name="category" th:field="*{category}">
+                <option value="" disabled>카테고리를 선택하세요</option>
                 <option value="KOREAN">한식</option>
                 <option value="CHINESE">중식</option>
                 <option value="JAPANESE">일식</option>
@@ -55,13 +64,14 @@
                 <option value="DESSERT">후식</option>
                 <option value="ETC">기타</option>
             </select>
+            <div class="error" th:if="${#fields.hasErrors('category')}" th:errors="*{category}">Invalid category</div>
         </div>
 
-        <!-- 방법 -->
+        <!-- 조리 방법 -->
         <div class="mb-3">
             <label for="method" class="form-label">조리 방법</label>
-            <select class="form-select" id="method" name="method" required>
-                <option value="">조리 방법을 선택하세요</option>
+            <select class="form-select" id="method" name="method" th:field="*{method}">
+                <option value="" disabled>조리 방법을 선택하세요</option>
                 <option value="STIR_FRY">볶음</option>
                 <option value="STEAM">찜</option>
                 <option value="SOUP">탕</option>
@@ -72,13 +82,36 @@
                 <option value="SALAD">샐러드</option>
                 <option value="ETC">기타</option>
             </select>
+            <div class="error" th:if="${#fields.hasErrors('method')}" th:errors="*{method}">Invalid method</div>
         </div>
 
-        <!-- 이미지 업로드 -->
+        <!-- 레시피 단계 -->
         <div class="mb-3">
-            <label for="images" class="form-label">이미지 업로드</label>
-            <input type="file" class="form-control" id="images" name="images" multiple>
-            <small class="text-muted">여러 장의 이미지를 업로드하려면 Ctrl 키를 누르고 선택하세요.</small>
+            <label class="form-label">레시피 단계</label>
+            <div id="recipe-steps">
+                <div class="recipe-step border p-3 mb-3" th:each="step, iter : ${form.recipeSteps}">
+                    <div class="mb-2">
+                        <label class="form-label">단계 설명</label>
+                        <textarea class="form-control" name="recipeSteps[__${iter.index}__].description" rows="3" th:text="${step.description}" required></textarea>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">이미지 업로드</label>
+                        <input type="file" class="form-control" name="recipeSteps[__${iter.index}__].image">
+                    </div>
+                </div>
+                <!-- 기본적으로 한 단계라도 렌더링 -->
+                <div class="recipe-step border p-3 mb-3" th:if="${#lists.isEmpty(form.recipeSteps)}">
+                    <div class="mb-2">
+                        <label class="form-label">단계 설명</label>
+                        <textarea class="form-control" name="recipeSteps[0].description" rows="3" required></textarea>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">이미지 업로드</label>
+                        <input type="file" class="form-control" name="recipeSteps[0].image">
+                    </div>
+                </div>
+            </div>
+            <button type="button" id="add-step" class="btn btn-outline-primary btn-sm">+ 단계 추가</button>
         </div>
 
         <!-- 제출 버튼 -->
@@ -88,5 +121,29 @@
         </div>
     </form>
 </div>
+
+<script>
+    $(document).ready(function () {
+        let stepIndex = $('#recipe-steps .recipe-step').length; // 현재 단계 수 확인
+
+        // 단계 추가 버튼 이벤트
+        $('#add-step').click(function () {
+            stepIndex++; // 단계 인덱스 증가
+            const newStep = `
+                <div class="recipe-step border p-3 mb-3">
+                    <div class="mb-2">
+                        <label class="form-label">단계 설명</label>
+                        <textarea class="form-control" name="recipeSteps[${stepIndex}].description" rows="3" required></textarea>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">이미지 업로드</label>
+                        <input type="file" class="form-control" name="recipeSteps[${stepIndex}].image">
+                    </div>
+                </div>`;
+            $('#recipe-steps').append(newStep); // 새로운 단계 추가
+        });
+    });
+</script>
+
 </body>
 </html>

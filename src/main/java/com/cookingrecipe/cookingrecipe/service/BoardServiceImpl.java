@@ -50,13 +50,12 @@ public class BoardServiceImpl implements BoardService {
     @Override
     @Transactional
     public Long save(BoardSaveDto boardSaveDto, List<RecipeStepDto> recipeStepDto, CustomUserDetails userDetails) throws IOException {
-
-        // 1. 사용자 정보 확인
+        // 사용자 정보 확인
         if (userDetails == null || userDetails.getUser() == null) {
             throw new UserNotFoundException("해당 사용자를 찾을 수 없습니다");
         }
 
-        // 2. Board 생성 및 저장
+        // Board 생성 및 저장
         Board board = Board.builder()
                 .title(boardSaveDto.getTitle())
                 .content(boardSaveDto.getContent())
@@ -68,9 +67,12 @@ public class BoardServiceImpl implements BoardService {
                 .build();
 
         boardRepository.save(board);
+        // 로그 추가: 전달된 레시피 단계 확인
+
+        log.info("Recipe steps before processing: {}", recipeStepDto);
 
 
-        // 3. RecipeStep 저장
+        // RecipeStep 저장
         if (recipeStepDto != null && !recipeStepDto.isEmpty()) {
             saveRecipeSteps(board, recipeStepDto);
         }
@@ -83,13 +85,26 @@ public class BoardServiceImpl implements BoardService {
     private void saveRecipeSteps(Board board, List<RecipeStepDto> recipeStepDto) throws IOException {
         String uploadDir = System.getProperty("user.dir") + "/uploaded-images";
 
-        for (RecipeStepDto stepDto : recipeStepDto) {
-            String fileName = saveFile(stepDto.getImage(), uploadDir);
+        int stepOrder = 1;
 
+        for (RecipeStepDto stepDto : recipeStepDto) {
+            if (stepDto.getDescription() == null || stepDto.getDescription().isBlank()) {
+                log.warn("설명을 입력해주세요");
+                continue;
+            }
+
+            if (stepDto.getImage() == null || stepDto.getImage().isEmpty()) {
+                String errorMessage = "레시피 단계 " + stepOrder + "에 이미지가 필요합니다";
+                log.error("Validation error: {}", errorMessage);
+                throw new IllegalArgumentException(errorMessage);
+            }
+
+            String fileName = saveFile(stepDto.getImage(), uploadDir);
+            log.info("File successfully saved: {}", fileName);
 
             // RecipeStep 생성 및 저장
             RecipeStep recipeStep = RecipeStep.builder()
-                    .stepOrder(stepDto.getStepOrder())
+                    .stepOrder(stepOrder++) // 단계 번호 자동 증가
                     .description(stepDto.getDescription())
                     .imagePath(fileName)
                     .board(board)
@@ -97,6 +112,8 @@ public class BoardServiceImpl implements BoardService {
             recipeStepRepository.save(recipeStep);
         }
     }
+
+
 
 
     // 이미지 파일 저장 및 처리
@@ -120,7 +137,6 @@ public class BoardServiceImpl implements BoardService {
         Path filePath = Paths.get(uploadDir, fileName);
 
         try {
-            // 디렉토리 생성 및 파일 저장
             Files.createDirectories(filePath.getParent());
             Files.copy(file.getInputStream(), filePath);
             log.info("File saved successfully: {}", filePath);
@@ -131,7 +147,6 @@ public class BoardServiceImpl implements BoardService {
 
         return "/uploads/" + fileName;
     }
-
 
 
     // 게시글 수정
@@ -191,7 +206,7 @@ public class BoardServiceImpl implements BoardService {
         String fileName = saveFile(stepDto.getImage(), uploadDir);
 
         // 단계 내용 업데이트
-        existingStep.update(stepDto.getDescription(), fileName != null ? fileName : existingStep.getImagePath());
+        existingStep.update(stepDto.getDescription(), fileName);
     }
 
 
@@ -343,6 +358,7 @@ public class BoardServiceImpl implements BoardService {
 
     // 조회수 증가
     @Override
+    @Transactional
     public void addViewCount(Long boardId) {
         boardRepository.updateViewCount(boardId);
     }
@@ -350,6 +366,7 @@ public class BoardServiceImpl implements BoardService {
 
     // 게시글 삭제
     @Override
+    @Transactional
     public void deleteById(Long boardId) {
         boardRepository.deleteById(boardId);
     }
@@ -357,6 +374,7 @@ public class BoardServiceImpl implements BoardService {
 
     // 좋아요 추가
     @Override
+    @Transactional
     public void addLike(Long boardId) {
         boardRepository.incrementLikeCount(boardId);
     }
@@ -364,6 +382,7 @@ public class BoardServiceImpl implements BoardService {
 
     // 좋아요 삭제
     @Override
+    @Transactional
     public void removeLike(Long boardId) {
         boardRepository.decrementLikeCount(boardId);
     }
@@ -385,6 +404,7 @@ public class BoardServiceImpl implements BoardService {
 
     // 좋아요 토글
     @Override
+    @Transactional
     public void toggleLike(Long boardId, Long userId) {
 
         // 좋아요 여부 확인
@@ -410,6 +430,7 @@ public class BoardServiceImpl implements BoardService {
 
     // 북마크 토글
     @Override
+    @Transactional
     public void toggleBookmark(Long boardId, Long userId) {
         Optional<Bookmark> existingBookmark = bookmarkRepository.findByBoardIdAndUserId(boardId, userId);
 
@@ -428,6 +449,7 @@ public class BoardServiceImpl implements BoardService {
     }
 
 
+    @Transactional
     // InitData 삽입 위한 메서드 생성
     public void saveForInitData(BoardSaveDto boardSaveDto, List<RecipeStepDto> recipeStepDto, User user) {
         FileService.createUploadDir();

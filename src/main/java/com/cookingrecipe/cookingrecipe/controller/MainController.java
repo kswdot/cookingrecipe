@@ -20,12 +20,6 @@ public class MainController {
     public String index(Model model) {
         List<BoardWithImageDto> boards = boardService.findAllByDateDesc();
 
-        // 디버깅: 각 게시글의 대표 이미지 경로 확인
-        for (BoardWithImageDto dto : boards) {
-            System.out.println("게시글 ID: " + dto.getBoard().getId());
-            System.out.println("대표 이미지 경로: " + dto.getLastImagePath());
-        }
-
         model.addAttribute("boards", boards);
         return "index";
     }

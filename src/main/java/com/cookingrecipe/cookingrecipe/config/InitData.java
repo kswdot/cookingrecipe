@@ -75,8 +75,6 @@ public class InitData {
     private void createBoardWithSteps(String title, String content, Category category, Method method,
                                       String ingredient, User user, List<String> imageFileNames) {
 
-        log.info("Creating board with title: {}", title);
-
         // 1. BoardSaveDto 생성
         BoardSaveDto boardDto = BoardSaveDto.builder()
                 .title(title)
@@ -96,7 +94,6 @@ public class InitData {
             // 파일 경로 검증
             Path filePath = Path.of(imagePath);
             if (!Files.exists(filePath)) {
-                log.error("File does not exist: {}", filePath);
                 throw new IllegalArgumentException("파일이 존재하지 않습니다: " + filePath);
             }
 
@@ -121,7 +118,6 @@ public class InitData {
 
                 steps.add(stepDto);
             } catch (IOException e) {
-                log.error("Failed to load file: {}", imagePath, e);
                 throw new IllegalStateException("이미지 파일 로드 중 문제가 발생했습니다: " + imagePath, e);
             }
         }
