@@ -80,7 +80,7 @@ public class BoardController {
 
 
     // 특정 게시글 조회
-    @GetMapping("/boards/{id}")
+    @GetMapping("/boards/{id:\\d+}")
     public String view(@PathVariable("id") Long boardId,
                             @AuthenticationPrincipal CustomUserDetails userDetails,
                             Model model) {
@@ -171,7 +171,7 @@ public class BoardController {
     }
 
 
-    // 전체글 반환
+    // 전체 레시피 조회
     @GetMapping("/boards")
     public String all(Model model) {
 
@@ -183,5 +183,25 @@ public class BoardController {
 
 
     // 전체 레시피 TOP 10
+    @GetMapping("/boards/top")
+    public String top(Model model) {
+
+        List<BoardWithImageDto> boards = boardService.findTopRecipesByLikes(10);
+
+        model.addAttribute("boards", boards);
+        return "board/top";
+    }
+
+
+    // 이달의 레시피 TOP 10
+    @GetMapping("/boards/monthly")
+    public String monthly(Model model) {
+
+        List<BoardWithImageDto> boards = boardService.findMonthlyRecipesByLikes(10);
+        model.addAttribute("boards", boards);
+        return "board/monthly";
+    }
+
+
 
 }

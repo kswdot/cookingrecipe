@@ -73,9 +73,14 @@
                         </small>
                     </div>
                 </div>
-                <p class="text-muted mt-2">카테고리: <span th:text="${board.category.getKoreanName()}"></span> | 방식: <span th:text="${board.method.getKoreanName()}"></span></p>
+                <p class="text-muted mt-2">
+                    카테고리: <span th:text="${board.category.getKoreanName()}"></span> |
+                    방식: <span th:text="${board.method.getKoreanName()}"></span>
+                </p>
+                <p class="text-muted text-end mt-2" style="font-size: 0.9rem;">
+                    작성일: <span th:text="${#temporals.format(board.createdDate, 'yyyy-MM-dd HH:mm')}"></span>
+                </p>
             </div>
-
             <!-- 재료 -->
             <div>
                 <h5 style="font-weight: bold">[재료]</h5>

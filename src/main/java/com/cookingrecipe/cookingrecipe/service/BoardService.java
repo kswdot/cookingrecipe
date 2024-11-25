@@ -1,14 +1,12 @@
 package com.cookingrecipe.cookingrecipe.service;
 
 import com.cookingrecipe.cookingrecipe.domain.*;
-import com.cookingrecipe.cookingrecipe.dto.BoardSaveDto;
-import com.cookingrecipe.cookingrecipe.dto.BoardUpdateDto;
-import com.cookingrecipe.cookingrecipe.dto.BoardWithImageDto;
-import com.cookingrecipe.cookingrecipe.dto.RecipeStepDto;
+import com.cookingrecipe.cookingrecipe.dto.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -88,7 +86,7 @@ public interface BoardService {
     void toggleBookmark(Long boardId, Long userId);
 
     // InitData 삽입 위한 메서드 생성
-    void saveForInitData(BoardSaveDto boardSaveDto, List<RecipeStepDto> recipeStepDto, User user);
+    void saveForInitData(InitBoardSaveDto initBoardSaveDto, List<RecipeStepDto> recipeStepDto, User user, LocalDateTime createdDate);
 
 
 }

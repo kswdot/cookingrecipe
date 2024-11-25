@@ -4,6 +4,7 @@ import com.cookingrecipe.cookingrecipe.domain.Category;
 import com.cookingrecipe.cookingrecipe.domain.Method;
 import com.cookingrecipe.cookingrecipe.domain.User;
 import com.cookingrecipe.cookingrecipe.dto.BoardSaveDto;
+import com.cookingrecipe.cookingrecipe.dto.InitBoardSaveDto;
 import com.cookingrecipe.cookingrecipe.dto.RecipeStepDto;
 import com.cookingrecipe.cookingrecipe.dto.UserSignupDto;
 import com.cookingrecipe.cookingrecipe.exception.UserNotFoundException;
@@ -21,6 +22,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,13 +48,16 @@ public class InitData {
 
         // 게시글과 레시피 단계 생성
         createBoardWithSteps("레시피1", "간단한 레시피1입니다.", Category.CHINESE, Method.SOUP,
-                "재료1, 재료2, 재료3", user1, List.of("1.jpg", "2.jpg", "3.jpg"));
+                "재료1, 재료2, 재료3", user1, List.of("1.jpg", "2.jpg", "3.jpg"),
+                20, LocalDateTime.of(2024, 9, 15, 12, 0));
 
         createBoardWithSteps("레시피2", "간단한 레시피2입니다.", Category.KOREAN, Method.STIR_FRY,
-                "재료A, 재료B, 재료C", user2, List.of("2.jpg", "3.jpg", "1.jpg"));
+                "재료A, 재료B, 재료C", user2, List.of("2.jpg", "3.jpg", "1.jpg"),
+                50, LocalDateTime.of(2024, 11, 11, 13, 0));
 
         createBoardWithSteps("레시피3", "간단한 레시피3입니다.", Category.FUSION, Method.SALAD,
-                "재료X, 재료Y, 재료Z", user3, List.of("3.jpg", "1.jpg", "2.jpg"));
+                "재료X, 재료Y, 재료Z", user3, List.of("3.jpg", "1.jpg", "2.jpg"),
+                30, LocalDateTime.of(2024, 11, 24, 14, 0));
     }
 
     private User createUser(String loginId, String nickname, String password, String email, String number, LocalDate birth) {
@@ -73,10 +78,11 @@ public class InitData {
     }
 
     private void createBoardWithSteps(String title, String content, Category category, Method method,
-                                      String ingredient, User user, List<String> imageFileNames) {
+                                      String ingredient, User user, List<String> imageFileNames, int likeCount,
+                                      LocalDateTime createdDate) {
 
         // 1. BoardSaveDto 생성
-        BoardSaveDto boardDto = BoardSaveDto.builder()
+        InitBoardSaveDto boardDto = InitBoardSaveDto.builder()
                 .title(title)
                 .content(content)
                 .category(category)
@@ -84,6 +90,7 @@ public class InitData {
                 .ingredient(ingredient)
                 .nickname(user.getNickname())
                 .userId(user.getId())
+                .likeCount(likeCount)
                 .build();
 
         // 2. RecipeStepDto 리스트 생성
@@ -123,7 +130,7 @@ public class InitData {
         }
 
         // 3. Board, RecipeStep 저장
-        boardService.saveForInitData(boardDto, steps, user);
+        boardService.saveForInitData(boardDto, steps, user, createdDate);
     }
 
 

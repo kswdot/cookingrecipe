@@ -2,10 +2,7 @@ package com.cookingrecipe.cookingrecipe.service;
 
 import com.cookingrecipe.cookingrecipe.config.FileService;
 import com.cookingrecipe.cookingrecipe.domain.*;
-import com.cookingrecipe.cookingrecipe.dto.BoardSaveDto;
-import com.cookingrecipe.cookingrecipe.dto.BoardUpdateDto;
-import com.cookingrecipe.cookingrecipe.dto.BoardWithImageDto;
-import com.cookingrecipe.cookingrecipe.dto.RecipeStepDto;
+import com.cookingrecipe.cookingrecipe.dto.*;
 import com.cookingrecipe.cookingrecipe.exception.BadRequestException;
 import com.cookingrecipe.cookingrecipe.exception.UserNotFoundException;
 import com.cookingrecipe.cookingrecipe.repository.*;
@@ -16,9 +13,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -449,19 +448,23 @@ public class BoardServiceImpl implements BoardService {
 
     @Transactional
     // InitData 삽입 위한 메서드 생성
-    public void saveForInitData(BoardSaveDto boardSaveDto, List<RecipeStepDto> recipeStepDto, User user) {
+    public void saveForInitData(InitBoardSaveDto initBoardSaveDto, List<RecipeStepDto> recipeStepDto, User user, LocalDateTime createdDate) {
         FileService.createUploadDir();
 
         // Board 생성 및 저장
         Board board = Board.builder()
-                .title(boardSaveDto.getTitle())
-                .content(boardSaveDto.getContent())
-                .category(boardSaveDto.getCategory())
-                .method(boardSaveDto.getMethod())
-                .ingredient(boardSaveDto.getIngredient())
+                .title(initBoardSaveDto.getTitle())
+                .content(initBoardSaveDto.getContent())
+                .category(initBoardSaveDto.getCategory())
+                .method(initBoardSaveDto.getMethod())
+                .ingredient(initBoardSaveDto.getIngredient())
                 .nickname(user.getNickname()) // User 엔티티에서 닉네임 가져옴
                 .user(user)                   // User 엔티티 저장
+                .likeCount(initBoardSaveDto.getLikeCount())
                 .build();
+
+        // 리플렉션을 이용해 createdDate 강제 설정
+        setCreatedDate(board, createdDate);
 
         boardRepository.save(board);
 
@@ -472,6 +475,18 @@ public class BoardServiceImpl implements BoardService {
         }
 
     }
+
+    private void setCreatedDate(Object entity, LocalDateTime createdDate) {
+        try {
+            // 슈퍼클래스(BaseEntity)의 createdDate 필드를 가져온다.
+            Field field = entity.getClass().getSuperclass().getDeclaredField("createdDate");
+            field.setAccessible(true); // 필드 접근 허용
+            field.set(entity, createdDate); // 필드 값 설정
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            throw new RuntimeException("Created date 설정 중 문제가 발생했습니다.", e);
+        }
+    }
+
 
 
 }
