@@ -43,18 +43,19 @@
     <h5>검색</h5>
 
     <div class="mb-2">
-        <form action="/search" method="get">
+        <form action="/boards/search" method="get">
             <div class="mb-2">
                 <!-- 검색 기준 선택 -->
                 <select name="searchCriteria" class="form-select sidebar-select">
-                    <option value="title">레시피 제목+내용</option>
-                    <option value="ingredients">재료</option>
-                    <option value="nickname">닉네임</option>
+                    <option value="title" th:selected="${searchCriteria == 'title'}">레시피 제목+내용</option>
+                    <option value="ingredient" th:selected="${searchCriteria == 'ingredient'}">재료</option>
+                    <option value="nickname" th:selected="${searchCriteria == 'nickname'}">닉네임</option>
                 </select>
             </div>
             <!-- 검색어 입력 -->
             <div class="mb-2 d-flex">
-                <input type="text" name="keyword" class="form-control me-2 sidebar-search-input" placeholder="검색">
+                <input type="text" name="keyword" class="form-control me-2 sidebar-search-input"
+                       th:value="${keyword}" placeholder="검색">
                 <button type="submit" class="btn btn-dark sidebar-search-button">검색</button>
             </div>
         </form>
@@ -62,9 +63,17 @@
 </div>
 
 <div class="mb-4">
+    <h5>전체보기</h5>
+    <ul class="list-styled">
+        <li><a th:href="@{/boards}">전체 레시피</a></li>
+        <li><a href="/top10">전체 레시피 TOP 10</a></li>
+        <li><a href="/monthly-top10">이달의 레시피 TOP 10</a></li>
+    </ul>
+</div>
+
+<div class="mb-4">
     <h5>카테고리</h5>
     <ul class="list-styled">
-        <li><a href="/category/all">전체</a></li>
         <li><a href="/category/KOREAN">한식</a></li>
         <li><a href="/category/CHINESE">중식</a></li>
         <li><a href="/category/JAPANESE">일식</a></li>
@@ -79,7 +88,6 @@
 <div class="mb-4">
     <h5>요리 방식</h5>
     <ul class="list-styled">
-        <li><a href="/method/all">전체</a></li>
         <li><a href="/method/STIR_FRY">볶음</a></li>
         <li><a href="/method/STEAM">찜</a></li>
         <li><a href="/method/SOUP">탕</a></li>

@@ -40,10 +40,10 @@ public interface BoardService {
     Board findBoardWithRecipeSteps(Long boardId);
 
     // 게시글 검색 - 검색 조건 - 최신순
-    List<BoardWithImageDto> searchBoards(String keyword, String material, String writer);
+    List<BoardWithImageDto> searchBoards(String searchCriteria, String keyword);
 
     // 게시글 검색 -검색 조건 - 좋아요 순
-    List<BoardWithImageDto> searchBoardsOrderByLikes(String keyword, String material, String writer);
+    List<BoardWithImageDto> searchBoardsOrderByLikes(String searchCriteria, String keyword);
 
     // 게시글 검색 - 카테고리 - 최신순
     List<BoardWithImageDto> findByCategory(Category category);

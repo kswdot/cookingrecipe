@@ -15,9 +15,11 @@ public interface BoardRepository extends JpaRepository<Board, Long> {
     @Query("SELECT b FROM Board b JOIN FETCH b.user WHERE b.id = :boardId")
     Optional<Board> findByIdWithUser(@Param("boardId") Long boardId);
 
+    @Modifying
     @Query("UPDATE Board b SET b.likeCount = b.likeCount + 1 WHERE b.id = :boardId")
     void incrementLikeCount(@Param("boardId") Long boardId);
 
+    @Modifying
     @Query("UPDATE Board b SET b.likeCount = b.likeCount - 1 WHERE b.id = :boardId AND b.likeCount > 0")
     void decrementLikeCount(@Param("boardId") Long boardId);
 

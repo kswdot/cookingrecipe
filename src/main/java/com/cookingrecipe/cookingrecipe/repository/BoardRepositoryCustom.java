@@ -14,10 +14,10 @@ public interface BoardRepositoryCustom {
     List<Board> findAllByDateDesc();
 
     // 게시글 조회 - 검색조건 - 최신순
-    List<Board> searchBoards(String keyword, String ingredient, String nickname);
+    List<Board> searchBoards(String searchCriteria, String keyword);
 
     // 게시글 조회 - 검색조건 - 좋아요 순
-    List<Board> searchBoardsOrderByLikes(String keyword, String ingredient, String nickname);
+    List<Board> searchBoardsOrderByLikes(String searchCriteria, String keyword);
 
     // 게시글 조회 - 카테고리 - 최신순
     List<Board> findByCategory(Category category);

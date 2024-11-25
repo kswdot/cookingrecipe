@@ -4,6 +4,7 @@ import com.cookingrecipe.cookingrecipe.service.UserDetailsServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -34,10 +35,12 @@ public class SecurityConfig {
                 .securityContext(securityContext -> securityContext
                         .securityContextRepository(new HttpSessionSecurityContextRepository()))
                 .authorizeHttpRequests(auth -> auth // 최신 메서드인 authorizeHttpRequests로 변경
-                        .requestMatchers("/", "/login", "/join", "/board/{id}").permitAll() // 모두 접근 가능
-                        .requestMatchers("/images/**", "/css/**", "/js/**", "/static/**", "/uploads/**").permitAll()
-                        .requestMatchers("/myPage/**", "/board").hasRole("USER") // "USER" 역할을 가진 사용자만 접근 가능
+                        .requestMatchers("/", "/login", "/join", "/boards/{id}").permitAll() // 모두 접근 가능
+                        .requestMatchers(HttpMethod.GET, "/boards").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/boards").hasRole("USER")
+                        .requestMatchers("/myPage/**", "/boards/new").hasRole("USER") // "USER" 역할을 가진 사용자만 접근 가능
                         .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/images/**", "/css/**", "/js/**", "/static/**", "/uploads/**").permitAll()
                         .anyRequest().permitAll()
                 )
                 .formLogin(form -> form

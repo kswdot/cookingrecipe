@@ -3,6 +3,7 @@ package com.cookingrecipe.cookingrecipe.controller;
 import com.cookingrecipe.cookingrecipe.domain.Board;
 import com.cookingrecipe.cookingrecipe.domain.CustomUserDetails;
 import com.cookingrecipe.cookingrecipe.dto.BoardSaveDto;
+import com.cookingrecipe.cookingrecipe.dto.BoardWithImageDto;
 import com.cookingrecipe.cookingrecipe.dto.RecipeStepDto;
 import com.cookingrecipe.cookingrecipe.exception.UserNotFoundException;
 import com.cookingrecipe.cookingrecipe.repository.LikeRepository;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
@@ -30,8 +32,12 @@ public class BoardController {
 
 
     // 게시글 작성 폼
-    @GetMapping("/board")
+    @GetMapping("/boards/new")
     public String saveForm(@AuthenticationPrincipal CustomUserDetails userDetails, Model model) {
+
+        if (userDetails == null) {
+            return "redirect:/login";
+        }
 
         model.addAttribute("user", userDetails.getUser());
 
@@ -44,9 +50,13 @@ public class BoardController {
 
 
     // 게시글 작성
-    @PostMapping("/board")
+    @PostMapping("/boards")
     public String save(@Validated @ModelAttribute("form") BoardSaveDto boardSaveDto, BindingResult bindingResult,
                        @AuthenticationPrincipal CustomUserDetails userDetails, Model model) {
+
+        if (userDetails == null) {
+            return "redirect:/login";
+        }
 
         model.addAttribute("user", userDetails.getUser());
 
@@ -58,13 +68,11 @@ public class BoardController {
         try {
             // 성공
             Long boardId = boardService.save(boardSaveDto, boardSaveDto.getRecipeSteps(), userDetails);
-            return "redirect:/board/" + boardId;
+            return "redirect:/boards/" + boardId;
         } catch (IllegalArgumentException e) {
-            log.error("Validation error: {}", e.getMessage());
             model.addAttribute("errorMessage", e.getMessage());
             return "board/save";
         } catch (Exception e) {
-            log.error("Unexpected error: {}", e.getMessage());
             model.addAttribute("errorMessage", "게시글 저장 중 오류가 발생했습니다. 다시 시도해주세요.");
             return "board/save";
         }
@@ -72,7 +80,7 @@ public class BoardController {
 
 
     // 특정 게시글 조회
-    @GetMapping("/board/{id}")
+    @GetMapping("/boards/{id}")
     public String view(@PathVariable("id") Long boardId,
                             @AuthenticationPrincipal CustomUserDetails userDetails,
                             Model model) {
@@ -105,7 +113,7 @@ public class BoardController {
 
 
     // 게시글 좋아요 토글
-    @PostMapping("/board/{id}/like")
+    @PatchMapping("/boards/{id}/like")
     public String like(@PathVariable("id") Long boardId,
                        @AuthenticationPrincipal CustomUserDetails userDetails) {
 
@@ -115,15 +123,14 @@ public class BoardController {
             return "redirect:/login";
         }
 
-
         boardService.toggleLike(boardId, userDetails.getId());
 
-        return "redirect:/board/" + boardId;
+        return "redirect:/boards/" + boardId;
     }
 
 
     // 게시글 북마크 토글
-    @PostMapping("/board/{id}/bookmark")
+    @PatchMapping("/boards/{id}/bookmark")
     public String toggleBookmark(@PathVariable("id") Long boardId,
                                  @AuthenticationPrincipal CustomUserDetails userDetails) {
 
@@ -132,6 +139,49 @@ public class BoardController {
         }
 
         boardService.toggleBookmark(boardId, userDetails.getId());
-        return "redirect:/board/" + boardId;
+        return "redirect:/boards/" + boardId;
     }
+    
+    
+    // 게시글 검색 : 검색 조건
+    @GetMapping("/boards/search")
+    public String search(@RequestParam(required = false) String searchCriteria,
+                         @RequestParam(required = false) String keyword,
+                         @RequestParam(defaultValue = "date") String sort,
+                         Model model) {
+
+        if (keyword == null || keyword.trim().isEmpty()) {
+            model.addAttribute("errorMessage", "검색어를 입력하세요");
+            return "board/search";
+        }
+
+        List<BoardWithImageDto> boards;
+        if ("likes".equals(sort)) {
+            boards = boardService.searchBoardsOrderByLikes(searchCriteria, keyword);
+        } else {
+            boards = boardService.searchBoards(searchCriteria, keyword);
+        }
+
+        model.addAttribute("boards", boards);
+        model.addAttribute("searchCriteria", searchCriteria);
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("sort", sort);
+
+        return "board/search";
+    }
+
+
+    // 전체글 반환
+    @GetMapping("/boards")
+    public String all(Model model) {
+
+        List<BoardWithImageDto> boards = boardService.findAllByDateDesc();
+
+        model.addAttribute("boards", boards);
+        return "board/all";
+    }
+
+
+    // 전체 레시피 TOP 10
+
 }

@@ -89,7 +89,6 @@ public class BoardServiceImpl implements BoardService {
 
         for (RecipeStepDto stepDto : recipeStepDto) {
             if (stepDto.getDescription() == null || stepDto.getDescription().isBlank()) {
-                log.warn("설명을 입력해주세요");
                 continue;
             }
 
@@ -100,7 +99,6 @@ public class BoardServiceImpl implements BoardService {
             }
 
             String fileName = saveFile(stepDto.getImage(), uploadDir);
-            log.info("File successfully saved: {}", fileName);
 
             // RecipeStep 생성 및 저장
             RecipeStep recipeStep = RecipeStep.builder()
@@ -261,8 +259,8 @@ public class BoardServiceImpl implements BoardService {
 
     // 게시글 검색 - 검색 조건 : 최신순
     @Override
-    public List<BoardWithImageDto> searchBoards(String keyword, String ingredient, String nickname) {
-        List<Board> boards = boardRepositoryCustom.searchBoards(keyword, ingredient, nickname);
+    public List<BoardWithImageDto> searchBoards(String searchCriteria, String keyword) {
+        List<Board> boards = boardRepositoryCustom.searchBoards(searchCriteria, keyword);
 
         return findBoardsWithMainImages(boards);
     }
@@ -270,8 +268,8 @@ public class BoardServiceImpl implements BoardService {
 
     // 게시글 검색 - 검색 조건 : 좋아요 순
     @Override
-    public List<BoardWithImageDto> searchBoardsOrderByLikes(String keyword, String material, String writer) {
-        List<Board> boards = boardRepositoryCustom.searchBoardsOrderByLikes(keyword, material, writer);
+    public List<BoardWithImageDto> searchBoardsOrderByLikes(String searchCriteria, String keyword) {
+        List<Board> boards = boardRepositoryCustom.searchBoardsOrderByLikes(searchCriteria, keyword);
 
         return findBoardsWithMainImages(boards);
     }

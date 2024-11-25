@@ -4,6 +4,7 @@ import com.cookingrecipe.cookingrecipe.domain.*;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
@@ -12,6 +13,7 @@ import java.util.List;
 
 @Repository
 @RequiredArgsConstructor
+@Slf4j
 public class BoardRepositoryCustomImpl implements BoardRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
@@ -39,11 +41,11 @@ public class BoardRepositoryCustomImpl implements BoardRepositoryCustom {
 
     // 검색 조건에 따른 게시글 조회 - 최신순
     @Override
-    public List<Board> searchBoards(String keyword, String ingredient, String nickname) {
+    public List<Board> searchBoards(String searchCriteria, String keyword) {
         QBoard board = QBoard.board;
 
-        BooleanExpression condition = chooseSingleCondition(keyword, ingredient, nickname);
-        
+        BooleanExpression condition = createCondition(searchCriteria, keyword);
+
         // 검색 조건이 없을 때 전체 게시글 반환
         if (condition == null) {
             return queryFactory
@@ -63,11 +65,12 @@ public class BoardRepositoryCustomImpl implements BoardRepositoryCustom {
 
     // 검색 조건에 따른 게시글 조회 - 좋아요 순
     @Override
-    public List<Board> searchBoardsOrderByLikes(String keyword, String ingredient, String nickname) {
+    public List<Board> searchBoardsOrderByLikes(String searchCriteria, String keyword) {
         QBoard board = QBoard.board;
 
-        BooleanExpression condition = chooseSingleCondition(keyword, ingredient, nickname);
+        BooleanExpression condition = createCondition(searchCriteria, keyword);
 
+        // 검색 조건이 없을 때 전체 게시글 반환
         if (condition == null) {
             return queryFactory
                     .selectFrom(board)
@@ -75,6 +78,7 @@ public class BoardRepositoryCustomImpl implements BoardRepositoryCustom {
                     .fetch();
         }
 
+        // 검색 조건이 있을 때만 검색 실행
         return queryFactory
                 .selectFrom(board)
                 .where(condition)
@@ -82,35 +86,27 @@ public class BoardRepositoryCustomImpl implements BoardRepositoryCustom {
                 .fetch();
     }
 
-    // 검색 조건이 있을 때
-    private BooleanExpression chooseSingleCondition(String keyword, String ingredient, String nickname) {
-        if (keyword != null) {
-            return titleOrContentContains(keyword);
-        } else if (ingredient != null) {
-            return ingredientContains(ingredient);
-        } else if (nickname != null) {
-            return writerContains(nickname);
+
+    // 검색 조건 생성 메서드
+    private BooleanExpression createCondition(String searchCriteria, String keyword) {
+        QBoard board = QBoard.board;
+
+        log.info("createCondition 호출: searchCriteria={}, keyword={}", searchCriteria, keyword);
+
+        if (searchCriteria == null || keyword == null || keyword.isBlank()) {
+            return null; // 검색 조건 없음
         }
 
-        return null;
-    }
-
-    // 제목+내용 검색
-    private BooleanExpression titleOrContentContains(String keyword) {
-        QBoard board = QBoard.board;
-        return board.title.contains(keyword).or(board.content.contains(keyword));
-    }
-
-    // 재료 검색
-    private BooleanExpression ingredientContains(String ingredient) {
-        QBoard board = QBoard.board;
-        return board.ingredient.contains(ingredient);
-    }
-
-    // 작성자 검색
-    private BooleanExpression writerContains(String nickname) {
-        QBoard board = QBoard.board;
-        return board.nickname.contains(nickname);
+        switch (searchCriteria) {
+            case "title":
+                return board.title.contains(keyword).or(board.content.contains(keyword));
+            case "ingredient":
+                return board.ingredient.contains(keyword);
+            case "nickname":
+                return board.nickname.contains(keyword);
+            default:
+                throw new IllegalArgumentException("Invalid searchCriteria: " + searchCriteria);
+        }
     }
 
 
