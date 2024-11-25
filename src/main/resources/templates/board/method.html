@@ -11,75 +11,74 @@
             position: relative;
             transition: transform 0.2s, box-shadow 0.2s;
         }
-
         .card:hover {
             transform: scale(1.05);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
-
         .card-img-top {
             height: 200px;
             object-fit: cover;
         }
-
         .card-body .card-title {
             font-weight: bold;
         }
-
         .card-body .author {
             font-size: 0.85rem;
             color: #6c757d;
         }
-
         .card-body .stats {
             font-size: 0.85rem;
             color: #6c757d;
             margin-bottom: 10px;
         }
-
         .btn-detail {
             position: absolute;
             bottom: 10px;
             right: 10px;
         }
-
         .write-button {
             margin-bottom: 20px;
             float: right;
         }
-
-
     </style>
 </head>
 <body>
-<!-- 헤더 fragment 포함 -->
 <div th:replace="~{fragments/header.html}"></div>
-
 <div class="container mt-3">
     <div class="row">
-        <!-- 사이드바 fragment 포함 -->
-        <div class="col-md-3" style="margin-left: -1cm;">
+        <div class="col-md-3">
             <div th:replace="~{fragments/sidebar.html}"></div>
         </div>
 
         <div class="col-md-9">
-            <!-- 글쓰기 버튼 -->
-            <a th:href="@{/boards/new}" class="btn btn-info write-button">글쓰기</a>
+            <!-- 최신순/인기순 버튼, 카테고리 이름, 글쓰기 버튼 -->
+            <div class="row mb-3">
+                <div class="col text-start">
+                    <a th:href="@{'/boards/method/{method}'(method=${method}, sort='date')}"
+                       class="btn btn-light"
+                       th:classappend="${sort == 'date'} ? 'btn-primary' : 'btn-light'">최신순</a>
+                    <a th:href="@{'/boards/method/{method}'(method=${method}, sort='likes')}"
+                       class="btn btn-light"
+                       th:classappend="${sort == 'likes'} ? 'btn-primary' : 'btn-light'">인기순</a>
+                </div>
+                <div class="col text-center">
+                    <h2 th:text="'요리 방법: ' + ${method.getKoreanName()}"></h2>
+                </div>
+                <div class="col text-end">
+                    <a th:href="@{/boards/new}" class="btn btn-info">글쓰기</a>
+                </div>
+            </div>
 
-            <h2 class="mb-4 text-center">전체 레시피 TOP10</h2>
+            <!-- 게시글 목록 -->
             <div class="row">
-                <!-- 게시글 목록 -->
                 <div th:each="boardWithImage : ${boards}" class="col-md-4 mb-3">
                     <div class="card">
-                        <!-- 이미지 처리 -->
                         <img th:src="${boardWithImage.lastImagePath}" alt="대표 이미지" class="card-img-top">
-
-                        <!-- 카드 내용 -->
                         <div class="card-body">
                             <h5 class="card-title" th:text="${boardWithImage.board.title}"></h5>
                             <p class="author">작성자: <span th:text="${boardWithImage.board.user.nickname}"></span></p>
                             <p class="stats">
-                                ❤️ <span th:text="${boardWithImage.board.likeCount}"></span> &nbsp;&nbsp;
+                                ❤️ <span th:text="${boardWithImage.board.likeCount}"></span>
                                 👁️ <span th:text="${boardWithImage.board.view}"></span>
                             </p>
                             <a th:href="@{/boards/{id}(id=${boardWithImage.board.id})}" class="btn btn-light btn-detail">자세히 보기</a>
@@ -90,7 +89,6 @@
         </div>
     </div>
 </div>
-
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

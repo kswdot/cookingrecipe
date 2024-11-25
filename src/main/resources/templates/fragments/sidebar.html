@@ -74,29 +74,28 @@
 <div class="mb-4">
     <h5>카테고리</h5>
     <ul class="list-styled">
-        <li><a href="/category/KOREAN">한식</a></li>
-        <li><a href="/category/CHINESE">중식</a></li>
-        <li><a href="/category/JAPANESE">일식</a></li>
-        <li><a href="/category/WESTERN">양식</a></li>
-        <li><a href="/category/SOUTHEAST">동남아식</a></li>
-        <li><a href="/category/FUSION">퓨전</a></li>
-        <li><a href="/category/DESSERT">후식</a></li>
-        <li><a href="/category/ETC">기타</a></li>
+        <li><a th:href="@{/boards/category/{category}(category='KOREAN')}">한식</a></li>
+        <li><a th:href="@{/boards/category/{category}(category='JAPANESE')}">중식</a></li>
+        <li><a th:href="@{/boards/category/{category}(category='WESTERN')}">양식</a></li>
+        <li><a th:href="@{/boards/category/{category}(category='SOUTHEAST')}">동남아식</a></li>
+        <li><a th:href="@{/boards/category/{category}(category='FUSION')}">퓨전</a></li>
+        <li><a th:href="@{/boards/category/{category}(category='DESSERT')}">후식</a></li>
+        <li><a th:href="@{/boards/category/{category}(category='ETC')}">기타</a></li>
     </ul>
 </div>
 
 <div class="mb-4">
     <h5>요리 방식</h5>
     <ul class="list-styled">
-        <li><a href="/method/STIR_FRY">볶음</a></li>
-        <li><a href="/method/STEAM">찜</a></li>
-        <li><a href="/method/SOUP">탕</a></li>
-        <li><a href="/method/DEEP_FRY">튀김</a></li>
-        <li><a href="/method/GRILL">구이</a></li>
-        <li><a href="/method/MIX">무침</a></li>
-        <li><a href="/method/RAW">회</a></li>
-        <li><a href="/method/SALAD">샐러드</a></li>
-        <li><a href="/method/ETC">기타</a></li>
+        <li><a th:href="@{/boards/method/{method}(method='STIR_FRY')}">볶음</a></li>
+        <li><a th:href="@{/boards/method/{method}(method='STEAM')}">찜</a></li>
+        <li><a th:href="@{/boards/method/{method}(method='SOUP')}">탕</a></li>
+        <li><a th:href="@{/boards/method/{method}(method='DEEP_FRY')}">튀김</a></li>
+        <li><a th:href="@{/boards/method/{method}(method='GRILL')}">구이</a></li>
+        <li><a th:href="@{/boards/method/{method}(method='MIX')}">무침</a></li>
+        <li><a th:href="@{/boards/method/{method}(method='RAW')}">회</a></li>
+        <li><a th:href="@{/boards/method/{method}(method='SALAD')}">샐러드</a></li>
+        <li><a th:href="@{/boards/method/{method}(method='ETC')}">기타</a></li>
     </ul>
 </div>
 </body>

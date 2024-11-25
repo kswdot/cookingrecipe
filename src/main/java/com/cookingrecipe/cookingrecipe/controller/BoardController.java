@@ -1,7 +1,9 @@
 package com.cookingrecipe.cookingrecipe.controller;
 
 import com.cookingrecipe.cookingrecipe.domain.Board;
+import com.cookingrecipe.cookingrecipe.domain.Category;
 import com.cookingrecipe.cookingrecipe.domain.CustomUserDetails;
+import com.cookingrecipe.cookingrecipe.domain.Method;
 import com.cookingrecipe.cookingrecipe.dto.BoardSaveDto;
 import com.cookingrecipe.cookingrecipe.dto.BoardWithImageDto;
 import com.cookingrecipe.cookingrecipe.dto.RecipeStepDto;
@@ -82,8 +84,8 @@ public class BoardController {
     // 특정 게시글 조회
     @GetMapping("/boards/{id:\\d+}")
     public String view(@PathVariable("id") Long boardId,
-                            @AuthenticationPrincipal CustomUserDetails userDetails,
-                            Model model) {
+                       @AuthenticationPrincipal CustomUserDetails userDetails,
+                       Model model) {
 
         boardService.addViewCount(boardId);
 
@@ -99,7 +101,6 @@ public class BoardController {
             isLiked = boardService.isLikedByUser(boardId, userDetails.getId());
             isBookmarked = boardService.isBookmarkedByUser(boardId, userDetails.getId());
         }
-
 
 
         model.addAttribute("board", board);
@@ -141,8 +142,8 @@ public class BoardController {
         boardService.toggleBookmark(boardId, userDetails.getId());
         return "redirect:/boards/" + boardId;
     }
-    
-    
+
+
     // 게시글 검색 : 검색 조건
     @GetMapping("/boards/search")
     public String search(@RequestParam(required = false) String searchCriteria,
@@ -203,5 +204,44 @@ public class BoardController {
     }
 
 
+    // 카테고리 검색
+    @GetMapping("/boards/category/{category}")
+    public String category(@PathVariable Category category,
+                           @RequestParam(defaultValue = "date") String sort,
+                           Model model) {
 
+        List<BoardWithImageDto> boards;
+
+        if ("likes".equals(sort)) {
+            boards = boardService.findByCategoryOrderByLikes(category);
+        } else {
+            boards = boardService.findByCategory(category);
+        }
+
+        model.addAttribute("boards", boards);
+        model.addAttribute("category", category);
+        model.addAttribute("sort", sort);
+        return "board/category";
+    }
+
+
+    // 요리방법 검색
+    @GetMapping("/boards/method/{method}")
+    public String method(@PathVariable Method method,
+                         @RequestParam(defaultValue = "date") String sort,
+                         Model model) {
+
+        List<BoardWithImageDto> boards;
+
+        if ("likes".equals(sort)) {
+            boards = boardService.findByMethodOrderByLikes(method);
+        } else {
+            boards = boardService.findByMethod(method);
+        }
+
+        model.addAttribute("boards", boards);
+        model.addAttribute("method", method);
+        model.addAttribute("sort", sort);
+        return "board/method";
+    }
 }
