@@ -16,7 +16,7 @@
                 <span th:text="'[' + ${#authentication.principal.nickname} + ']'"
                       style="display: block; font-weight: bold; margin-top: 30px; margin-right: 20px;"></span>
                 <a class="nav-link" th:href="@{/myPage}" style="color: black;">마이페이지</a>
-                <a class="nav-link" th:href="@{/bookmark}" style="color: black;">북마크</a>
+                <a class="nav-link" th:href="@{/myPage/bookmark}" style="color: black;">북마크</a>
                 <a class="nav-link" th:href="@{/logout}" style="color: black;">로그아웃</a>
             </div>
             <div sec:authorize="isAnonymous()" style="display: flex; gap: 10px;">

@@ -18,6 +18,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.List;
+
 @Controller
 @RequiredArgsConstructor
 public class UserController {
@@ -235,19 +237,29 @@ public class UserController {
 
     // 마이페이지 - 내가 쓴 글 조회
     @GetMapping("/myPage/boardList")
-    public String boardList(@AuthenticationPrincipal CustomUserDetails customUserDetails,
+    public String boardList(@AuthenticationPrincipal CustomUserDetails userDetails,
                             Model model) {
 
-        userService.findByUserId(customUserDetails.getId());
+        List<BoardWithImageDto> boards = userService.findByUserId(userDetails.getId());
 
+        model.addAttribute("user", userDetails);
+        model.addAttribute("boards", boards);
 
+        return "user/myPageBoardList";
     }
 
 
-    @GetMapping("/bookmark")
-    public String bookMark() {
+    // 마이페이지 - 북마크한 글 조회
+    @GetMapping("/myPage/bookmark")
+    public String bookMark(@AuthenticationPrincipal CustomUserDetails userDetails,
+                           Model model) {
 
-        return "user/bookmark";
+        List<BoardWithImageDto> boards = userService.findBookmarkedRecipeByUser(userDetails.getId());
+
+        model.addAttribute("user", userDetails);
+        model.addAttribute("boards", boards);
+
+        return "user/myPageBookmark";
     }
 
     // 마이페이지 - 회원 탈퇴 폼
