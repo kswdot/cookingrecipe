@@ -2,6 +2,7 @@ package com.cookingrecipe.cookingrecipe.service;
 
 import com.cookingrecipe.cookingrecipe.domain.Board;
 import com.cookingrecipe.cookingrecipe.domain.User;
+import com.cookingrecipe.cookingrecipe.dto.BoardWithImageDto;
 import com.cookingrecipe.cookingrecipe.dto.UserSignupDto;
 import com.cookingrecipe.cookingrecipe.dto.UserUpdateDto;
 import org.springframework.stereotype.Service;
@@ -40,10 +41,10 @@ public interface UserService {
     void updatePassword(Long userId, String currentPassword, String newPassword, String confirmPassword);
 
     // 마이 페이지 - 내가 쓴 글 조회
-    List<Board> findByUserId(Long userId);
+    List<BoardWithImageDto> findByUserId(Long userId);
 
     // 마이 페이지 - 북마크한 글 조회
-    List<Board> findBookmarkedRecipeByUser(Long userId);
+    List<BoardWithImageDto> findBookmarkedRecipeByUser(Long userId);
 
     // 아이디 찾기 - 이메일, 전화번호
     String findLoginIdByNumberAndBirth(String number, LocalDate birth);

@@ -179,7 +179,7 @@ public class BoardRepositoryCustomImpl implements BoardRepositoryCustom {
     }
 
 
-    // 사용자의 ID로 레시피 조회
+    // 사용자의 ID로 레시피 조회 - 마이페이지 사용
     @Override
     public List<Board> findByUserId(Long userId) {
         QBoard board = QBoard.board;

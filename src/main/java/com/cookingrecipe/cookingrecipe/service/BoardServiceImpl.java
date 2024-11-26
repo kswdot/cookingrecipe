@@ -35,6 +35,7 @@ public class BoardServiceImpl implements BoardService {
     private final BookmarkRepository bookmarkRepository;
     private final LikeRepository likeRepository;
     private final RecipeStepRepository recipeStepRepository;
+    private final BoardMapper boardMapper;
 
 
     // Board Entity 생성
@@ -223,21 +224,6 @@ public class BoardServiceImpl implements BoardService {
     }
 
 
-    // 게시글 + 대표 이미지 반환
-    public List<BoardWithImageDto> findBoardsWithMainImages(List<Board> boards) {
-        return boards.stream()
-                .map(board -> new BoardWithImageDto(board, getMainImage(board.getId())))
-                .collect(Collectors.toList());
-    }
-
-
-    // 대표 이미지 설정
-    public String getMainImage(Long boardId) {
-        String lastImagePath = recipeStepRepository.findLastImagePathByBoardId(boardId);
-        return lastImagePath != null ? lastImagePath : "/static/images/default-recipe.jpg";
-    }
-
-
     // 게시글 검색 - 시스템 ID
     @Override
     public Board findById(Long boardId) {
@@ -261,7 +247,7 @@ public class BoardServiceImpl implements BoardService {
     public List<BoardWithImageDto> searchBoards(String searchCriteria, String keyword) {
         List<Board> boards = boardRepositoryCustom.searchBoards(searchCriteria, keyword);
 
-        return findBoardsWithMainImages(boards);
+        return boardMapper.findBoardsWithMainImages(boards);
     }
 
 
@@ -270,7 +256,7 @@ public class BoardServiceImpl implements BoardService {
     public List<BoardWithImageDto> searchBoardsOrderByLikes(String searchCriteria, String keyword) {
         List<Board> boards = boardRepositoryCustom.searchBoardsOrderByLikes(searchCriteria, keyword);
 
-        return findBoardsWithMainImages(boards);
+        return boardMapper.findBoardsWithMainImages(boards);
     }
 
 
@@ -279,7 +265,7 @@ public class BoardServiceImpl implements BoardService {
     public List<BoardWithImageDto> findByCategory(Category category) {
         List<Board> boards = boardRepositoryCustom.findByCategory(category);
 
-        return findBoardsWithMainImages(boards);
+        return boardMapper.findBoardsWithMainImages(boards);
     }
 
 
@@ -288,7 +274,7 @@ public class BoardServiceImpl implements BoardService {
     public List<BoardWithImageDto> findByCategoryOrderByLikes(Category category) {
         List<Board> boards = boardRepositoryCustom.findByCategoryOrderByLikes(category);
 
-        return findBoardsWithMainImages(boards);
+        return boardMapper.findBoardsWithMainImages(boards);
     }
 
 
@@ -297,7 +283,7 @@ public class BoardServiceImpl implements BoardService {
     public List<BoardWithImageDto> findByMethod(Method method) {
         List<Board> boards = boardRepositoryCustom.findByMethod(method);
 
-        return findBoardsWithMainImages(boards);
+        return boardMapper.findBoardsWithMainImages(boards);
     }
 
 
@@ -306,7 +292,7 @@ public class BoardServiceImpl implements BoardService {
     public List<BoardWithImageDto> findByMethodOrderByLikes(Method method) {
         List<Board> boards = boardRepositoryCustom.findByMethodOrderByLikes(method);
 
-        return findBoardsWithMainImages(boards);
+        return boardMapper.findBoardsWithMainImages(boards);
     }
 
 
@@ -315,7 +301,7 @@ public class BoardServiceImpl implements BoardService {
     public List<BoardWithImageDto> findTopRecipesByLikes(int limit) {
         List<Board> boards = boardRepositoryCustom.findTopRecipesByLikes(limit);
 
-        return findBoardsWithMainImages(boards);
+        return boardMapper.findBoardsWithMainImages(boards);
     }
 
 
@@ -324,7 +310,7 @@ public class BoardServiceImpl implements BoardService {
     public List<BoardWithImageDto> findMonthlyRecipesByLikes(int limit) {
         List<Board> boards = boardRepositoryCustom.findMonthlyRecipesByLikes(limit);
 
-        return findBoardsWithMainImages(boards);
+        return boardMapper.findBoardsWithMainImages(boards);
     }
 
 
@@ -333,7 +319,7 @@ public class BoardServiceImpl implements BoardService {
     public List<BoardWithImageDto> findAll() {
         List<Board> boards = boardRepository.findAll();
 
-        return findBoardsWithMainImages(boards);
+        return boardMapper.findBoardsWithMainImages(boards);
     }
 
 
@@ -342,13 +328,13 @@ public class BoardServiceImpl implements BoardService {
     public List<BoardWithImageDto> findAllByDateDesc() {
         List<Board> boards = boardRepositoryCustom.findAllByDateDesc();
 
-        return findBoardsWithMainImages(boards);
+        return boardMapper.findBoardsWithMainImages(boards);
     }
 
 
     // 게시글 검색 - 유저
     @Override
-    public Optional<Board> findByUser(Long boardId) {
+    public Optional<Board> findByIdWithUser(Long boardId) {
         return boardRepository.findByIdWithUser(boardId);
     }
 

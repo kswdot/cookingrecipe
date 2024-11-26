@@ -29,7 +29,7 @@ public interface BoardService {
     List<BoardWithImageDto> findAllByDateDesc();
 
     // 게시글 검색 - 유저
-    Optional<Board> findByUser(Long boardId);
+    Optional<Board> findByIdWithUser(Long userId);
 
     // 게시글 검색 - 시스템 ID
     Board findById(Long boardId);

@@ -3,6 +3,7 @@ package com.cookingrecipe.cookingrecipe.service;
 import com.cookingrecipe.cookingrecipe.domain.Board;
 import com.cookingrecipe.cookingrecipe.domain.Role;
 import com.cookingrecipe.cookingrecipe.domain.User;
+import com.cookingrecipe.cookingrecipe.dto.BoardWithImageDto;
 import com.cookingrecipe.cookingrecipe.dto.UserSignupDto;
 import com.cookingrecipe.cookingrecipe.dto.UserUpdateDto;
 import com.cookingrecipe.cookingrecipe.exception.BadRequestException;
@@ -27,6 +28,7 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final BoardRepositoryCustom boardRepositoryCustom;
+    private final BoardMapper boardMapper;
     private final PasswordEncoder passwordEncoder;
 
 
@@ -129,15 +131,19 @@ public class UserServiceImpl implements UserService {
 
     // 마이 페이지 - 내가 쓴 글 조회
     @Override
-    public List<Board> findByUserId(Long userId) {
-        return boardRepositoryCustom.findByUserId(userId);
+    public List<BoardWithImageDto> findByUserId(Long userId) {
+        List<Board> boards = boardRepositoryCustom.findByUserId(userId);
+
+        return boardMapper.findBoardsWithMainImages(boards);
     }
 
 
     // 마이 페이지 - 북마크한 글 조회
     @Override
-    public List<Board> findBookmarkedRecipeByUser(Long userId) {
-        return boardRepositoryCustom.findBookmarkedRecipeByUser(userId);
+    public List<BoardWithImageDto> findBookmarkedRecipeByUser(Long userId) {
+        List<Board> boards = boardRepositoryCustom.findBookmarkedRecipeByUser(userId);
+
+        return boardMapper.findBoardsWithMainImages(boards);
     }
 
 

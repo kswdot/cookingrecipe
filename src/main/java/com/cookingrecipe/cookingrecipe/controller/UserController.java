@@ -5,6 +5,7 @@ import com.cookingrecipe.cookingrecipe.domain.User;
 import com.cookingrecipe.cookingrecipe.dto.*;
 import com.cookingrecipe.cookingrecipe.exception.BadRequestException;
 import com.cookingrecipe.cookingrecipe.exception.UserNotFoundException;
+import com.cookingrecipe.cookingrecipe.service.BoardService;
 import com.cookingrecipe.cookingrecipe.service.UserService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -22,6 +23,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class UserController {
 
     private final UserService userService;
+    private final BoardService boardService;
 
 
     // 회원가입 폼 제공
@@ -228,6 +230,17 @@ public class UserController {
         redirectAttributes.addFlashAttribute("successMessage", "비밀번호가 변경되었습니다.");
 
         return "redirect:/myPage/info";
+    }
+
+
+    // 마이페이지 - 내가 쓴 글 조회
+    @GetMapping("/myPage/boardList")
+    public String boardList(@AuthenticationPrincipal CustomUserDetails customUserDetails,
+                            Model model) {
+
+        userService.findByUserId(customUserDetails.getId());
+
+
     }
 
 
