@@ -10,17 +10,30 @@ import com.cookingrecipe.cookingrecipe.exception.BadRequestException;
 import com.cookingrecipe.cookingrecipe.exception.UserNotFoundException;
 import com.cookingrecipe.cookingrecipe.repository.BoardRepositoryCustom;
 import com.cookingrecipe.cookingrecipe.repository.UserRepository;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
-import javax.inject.Qualifier;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -30,6 +43,13 @@ public class UserServiceImpl implements UserService {
     private final BoardRepositoryCustom boardRepositoryCustom;
     private final BoardMapper boardMapper;
     private final PasswordEncoder passwordEncoder;
+    private AuthenticationManager authenticationManager;
+
+
+    @Autowired
+    public void setAuthenticationManager(AuthenticationManager authenticationManager) {
+        this.authenticationManager = authenticationManager;
+    }
 
 
     // User Entity 생성
@@ -59,9 +79,38 @@ public class UserServiceImpl implements UserService {
         // User 엔티티 저장
         joinEntity(user);
 
-
         return user;
     }
+
+
+    @Override
+    public void autoLogin(String loginId, String password) {
+
+        // 인증 토큰 생성
+        UsernamePasswordAuthenticationToken authToken =
+                new UsernamePasswordAuthenticationToken(loginId, password);
+
+        try {
+            Authentication authentication = authenticationManager.authenticate(authToken);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+
+            HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+            HttpSession session = request.getSession(true);
+            session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, SecurityContextHolder.getContext());
+
+            Authentication contextAuth = SecurityContextHolder.getContext().getAuthentication();
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
+
+
+
+
+
+
+
 
 
     // 회원 가입 시 아이디 중복 검사 - 이미 존재하는 경우 true / 그렇지 않은 경우 false 반환

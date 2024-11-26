@@ -13,6 +13,7 @@ import com.cookingrecipe.cookingrecipe.service.UserService;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -29,14 +30,15 @@ import java.util.List;
 @Configuration
 @RequiredArgsConstructor
 @Slf4j
-public class InitData {
+public class InitData implements CommandLineRunner {
 
     private final UserService userService;
     private final BoardService boardService;
 
-    @PostConstruct
+
+    @Override
     @Transactional
-    public void init() {
+    public void run(String... args) throws Exception {
         User user1 = createUser("tester1", "테스터1", "@tester1111",
                 "tester1@gmail.com", "010-1111-1111", LocalDate.parse("2024-11-11"));
 
@@ -59,6 +61,7 @@ public class InitData {
                 "재료X, 재료Y, 재료Z", user3, List.of("3.jpg", "1.jpg", "2.jpg"),
                 30, LocalDateTime.of(2024, 11, 24, 14, 0));
     }
+
 
     private User createUser(String loginId, String nickname, String password, String email, String number, LocalDate birth) {
         if (!userService.isLoginIdDuplicated(loginId) && !userService.isEmailDuplicated(email)) {
@@ -132,6 +135,5 @@ public class InitData {
         // 3. Board, RecipeStep 저장
         boardService.saveForInitData(boardDto, steps, user, createdDate);
     }
-
 
 }

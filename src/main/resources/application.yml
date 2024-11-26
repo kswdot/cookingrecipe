@@ -36,6 +36,7 @@ file:
 
 logging:
   level:
+    root: WARN
     org:
       springframework:
         security: DEBUG  # Spring Security 디버그 모드

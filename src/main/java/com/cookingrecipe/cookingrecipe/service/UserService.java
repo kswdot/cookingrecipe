@@ -22,6 +22,9 @@ public interface UserService {
     // 회원 가입 - UserSignupDto 사용
     User join(UserSignupDto userSignupDto);
 
+    // 회원 가입 - 자동 로그인
+    void autoLogin(String loginId, String rawPassword);
+
     // 회원 가입 - 아이디 중복 검사
     boolean isLoginIdDuplicated(String loginId);
 

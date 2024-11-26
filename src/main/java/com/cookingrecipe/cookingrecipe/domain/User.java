@@ -57,13 +57,13 @@ public class User extends BaseTimeEntity {
         return new CustomUserDetails(this);
     }
 
-    @OneToMany(mappedBy = "user", fetch = LAZY)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, fetch = LAZY)
     private List<Board> boards = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user", fetch = LAZY)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, fetch = LAZY)
     private List<Bookmark> bookmarks = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user", fetch = LAZY)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, fetch = LAZY)
     private List<Like> likes = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = LAZY)

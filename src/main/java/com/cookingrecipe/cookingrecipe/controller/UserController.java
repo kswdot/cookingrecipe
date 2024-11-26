@@ -10,6 +10,7 @@ import com.cookingrecipe.cookingrecipe.service.UserService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -22,6 +23,7 @@ import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
+@Slf4j
 public class UserController {
 
     private final UserService userService;
@@ -35,7 +37,6 @@ public class UserController {
     }
 
 
-    // 회원가입
     @PostMapping("/join")
     public String join(@Validated @ModelAttribute("form") UserSignupDto userSignupDto,
                        BindingResult bindingResult, Model model) {
@@ -62,16 +63,21 @@ public class UserController {
 
         // 회원가입 성공 로직
         try {
-            userService.join(userSignupDto);
+            User user = userService.join(userSignupDto);
+            log.warn("User joined successfully: {}", user.getLoginId()); // 회원가입 성공 로그
+            log.warn("Attempting auto login for user: {}", user.getLoginId()); // 자동 로그인 호출 전 로그
+            userService.autoLogin(user.getLoginId(), userSignupDto.getPassword());
+            log.warn("Auto login completed for user: {}", user.getLoginId()); // 자동 로그인 호출 후 로그
         } catch (Exception e) {
+            log.warn("Error occurred during signup or auto login", e);
             model.addAttribute("errorMessage", "회원가입 중 문제가 발생했습니다. 다시 시도해주세요.");
             return "user/join";
         }
 
-        // 회원 가입 후 로그인 페이지로 이동
-        // 추후 회원 가입 후 자동 로그인이 되어 메인 페이지로 이동하게 리팩토링 예정
-        return "redirect:/login";
+        // 자동 로그인 후 메인 페이지로 이동
+        return "redirect:/";
     }
+
 
 
     // 로그인 폼 - 로그인 과정은 Spring Security 관여
