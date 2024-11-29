@@ -45,6 +45,26 @@
             display: block;
         }
     </style>
+    <script>
+        function confirmDeletion(boardId) {
+            const confirmation = window.confirm("정말로 이 게시글을 삭제하시겠습니까?");
+            if (confirmation) {
+                const form = document.createElement('form');
+                form.method = 'post'; // Method Override로 DELETE 처리
+                form.action = `/boards/delete/${boardId}`; // 경로 수정
+
+                // Method Override
+                const methodInput = document.createElement('input');
+                methodInput.type = 'hidden';
+                methodInput.name = '_method';
+                methodInput.value = 'delete';
+                form.appendChild(methodInput);
+
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+    </script>
 </head>
 <body>
 <!-- 헤더 fragment 포함 -->
@@ -96,9 +116,8 @@
             <div th:each="recipe : ${recipes}" class="recipe-step">
                 <h6 th:text="'Step ' + ${recipe.stepOrder}"></h6>
                 <div>
-                    <!-- 이미지 경로 수정 -->
                     <img th:if="${recipe.imagePath}"
-                         th:src="@{/uploads/} + ${recipe.imagePath}"
+                         th:src="|/uploads/${recipe.imagePath}|"
                          alt="레시피 이미지" class="img-fluid mb-2">
                     <p th:text="${recipe.description}"></p>
                 </div>
@@ -137,10 +156,7 @@
                     <!-- 작성자가 본인인 경우 -->
                     <div th:if="${currentUserId != null and currentUserId == authorId}">
                         <a th:href="@{/boards/update/{id}(id=${board.id})}" class="btn btn-primary">수정</a>
-                        <form th:action="@{/boards/delete/{id}(id=${board.id})}" method="post" style="display: inline;">
-                            <input type="hidden" name="_method" value="DELETE">
-                            <button type="submit" class="btn btn-danger">삭제</button>
-                        </form>
+                        <button type="button" class="btn btn-danger" th:attr="onclick=|confirmDeletion(${board.id})|">삭제</button>
                     </div>
 
                     <div th:if="${currentUserId == null or currentUserId != authorId}">

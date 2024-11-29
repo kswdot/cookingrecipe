@@ -275,6 +275,7 @@ public class UserController {
         return "user/withdrawForm";
     }
 
+
     // 마이페이지 - 회원 탈퇴
     @PostMapping("/myPage/withdraw")
     public String withdraw(@AuthenticationPrincipal CustomUserDetails userDetails,

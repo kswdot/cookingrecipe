@@ -125,8 +125,7 @@ public class BoardController {
     }
 
 
-
-
+    // 게시글 수정 폼 반환
     @GetMapping("/boards/update/{id}")
     public String updateForm(@PathVariable Long id,
                              @AuthenticationPrincipal CustomUserDetails userDetails,
@@ -159,10 +158,6 @@ public class BoardController {
                 )
                 .build();
 
-        // 디버그 로그 추가
-        log.warn("Loaded Board: {}", board);
-        log.warn("Generated Update DTO: {}", updateDto);
-
         // board가 null이 아니면 모델에 전달
         model.addAttribute("board", board);
         model.addAttribute("form", updateDto);
@@ -171,15 +166,12 @@ public class BoardController {
     }
 
 
+    // 게시글 수정
     @PostMapping("/boards/update/{id}")
     public String update(@PathVariable Long id,
                          @ModelAttribute("form") BoardUpdateDto boardUpdateDto,
                          BindingResult bindingResult,
                          Model model) {
-
-        // 디버그 로그 추가
-        log.warn("Received BoardUpdateDto: {}", boardUpdateDto);
-        log.warn("RecipeSteps: {}", boardUpdateDto.getRecipeSteps());
 
         if (bindingResult.hasErrors()) {
             model.addAttribute("errorMessage", "입력값을 확인해주세요.");
@@ -230,17 +222,27 @@ public class BoardController {
     }
 
 
-//    // 게시글 삭제
-//    @PostMapping("/boards/delete/{id}")
-//    public String delete(@PathVariable("id") Long id,
-//                         @AuthenticationPrincipal CustomUserDetails userDetails,
-//                         RedirectAttributes redirectAttributes,
-//                         Model model) {
-//
-//        boardService.deleteById(id);
-//
-//
-//    }
+    // 게시글 삭제
+    @DeleteMapping("/boards/delete/{id}")
+    public String delete(@PathVariable("id") Long boardId,
+                         @AuthenticationPrincipal CustomUserDetails userDetails,
+                         RedirectAttributes redirectAttributes,
+                         Model model) {
+
+        if (userDetails == null) {
+            redirectAttributes.addFlashAttribute("errorMessage", "로그인이 필요합니다");
+            return "redirect:/login";
+        }
+
+        try {
+            boardService.deleteById(boardId);
+            redirectAttributes.addFlashAttribute("successMessage", "게시글이 삭제되었습니다.");
+            return "redirect:/boards";
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "게시글 삭제 중 오류가 발생했습니다.");
+            return "redirect:/boards";
+        }
+    }
 
 
     // 게시글 검색 : 검색 조건
