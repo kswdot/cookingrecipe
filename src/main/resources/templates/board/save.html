@@ -98,6 +98,9 @@
                         <label class="form-label">이미지 업로드</label>
                         <input type="file" class="form-control" name="recipeSteps[__${iter.index}__].image">
                     </div>
+
+                    <!-- stepOrder 추가: 단계 번호 -->
+                    <input type="hidden" name="recipeSteps[__${iter.index}__].stepOrder" th:value="${iter.index + 1}"> <!-- 1부터 시작 -->
                 </div>
                 <!-- 기본적으로 한 단계라도 렌더링 -->
                 <div class="recipe-step border p-3 mb-3" th:if="${#lists.isEmpty(form.recipeSteps)}">
@@ -109,6 +112,8 @@
                         <label class="form-label">이미지 업로드</label>
                         <input type="file" class="form-control" name="recipeSteps[0].image">
                     </div>
+                    <!-- stepOrder 추가: 단계 번호 -->
+                    <input type="hidden" name="recipeSteps[0].stepOrder" value="1">
                 </div>
             </div>
             <button type="button" id="add-step" class="btn btn-outline-primary btn-sm">+ 단계 추가</button>
@@ -139,6 +144,8 @@
                         <label class="form-label">이미지 업로드</label>
                         <input type="file" class="form-control" name="recipeSteps[${stepIndex}].image">
                     </div>
+                    <!-- 단계 번호 -->
+                    <input type="hidden" name="recipeSteps[${stepIndex}].stepOrder" value="${stepIndex + 1}">
                 </div>`;
             $('#recipe-steps').append(newStep); // 새로운 단계 추가
         });

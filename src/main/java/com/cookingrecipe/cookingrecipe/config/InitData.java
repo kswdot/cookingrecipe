@@ -98,8 +98,10 @@ public class InitData implements CommandLineRunner {
 
         // 2. RecipeStepDto 리스트 생성
         List<RecipeStepDto> steps = new ArrayList<>();
+        String uploadDir = "C:/Users/user/.gradle/cookingrecipe/uploaded-images"; // 경로를 명확히 지정
+
         for (int i = 0; i < imageFileNames.size(); i++) {
-            String imagePath = "C:/Users/user/.gradle/cookingrecipe/src/main/resources/static/images/" + imageFileNames.get(i);
+            String imagePath = uploadDir + "/" + imageFileNames.get(i); // 업로드 경로로 변경
 
             // 파일 경로 검증
             Path filePath = Path.of(imagePath);
@@ -115,7 +117,7 @@ public class InitData implements CommandLineRunner {
                 MultipartFile image = new MockMultipartFile(
                         imageFileNames.get(i),  // 파일 이름
                         imageFileNames.get(i),  // 원본 파일 이름
-                        "image/jpeg",           // MIME 타입 (필요 시 변경)
+                        "image/jpeg",           // MIME 타입
                         fileBytes               // 파일 데이터
                 );
 
@@ -135,5 +137,6 @@ public class InitData implements CommandLineRunner {
         // 3. Board, RecipeStep 저장
         boardService.saveForInitData(boardDto, steps, user, createdDate);
     }
+
 
 }

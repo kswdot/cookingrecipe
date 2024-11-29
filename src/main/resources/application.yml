@@ -1,27 +1,25 @@
 spring:
   jpa:
     hibernate:
-      ddl-auto: create  # (1) 스키마 자동 생성 (운영 환경에서는 "update" 또는 "validate" 권장)
-    show-sql: true      # (2) SQL 쿼리 출력 활성화
+      ddl-auto: create  # 운영 환경에서는 "update" 또는 "validate" 권장
+    show-sql: true      # SQL 쿼리 출력 활성화
     properties:
       hibernate:
         use_reflection_optimizer: false
-        format_sql: true  # (3) SQL 포맷팅
+        format_sql: true  # SQL 포맷팅
   messages:
     basename: message, errors
-
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://127.0.0.1:3306/cooking_recipe?serverTimezone=UTC&allowPublicKeyRetrieval=true
     username: root
     password: 0309
   thymeleaf:
-    cache: false  # (4) Thymeleaf 캐시 비활성화
+    cache: false  # Thymeleaf 캐시 비활성화
   mvc:
     hiddenmethod:
       filter:
         enabled: true  # HiddenHttpMethodFilter 활성화
-
   servlet:
     multipart:
       enabled: true

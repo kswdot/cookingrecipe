@@ -18,15 +18,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@Transactional
 public class BoardServiceImpl implements BoardService {
 
     private final BoardRepository boardRepository;
@@ -40,7 +38,6 @@ public class BoardServiceImpl implements BoardService {
 
     // Board Entity 생성
     @Override
-    @Transactional
     public Board joinEntity(Board board) {
         return boardRepository.save(board);
     }
@@ -48,7 +45,6 @@ public class BoardServiceImpl implements BoardService {
 
     // 게시글 저장
     @Override
-    @Transactional
     public Long save(BoardSaveDto boardSaveDto, List<RecipeStepDto> recipeStepDto, CustomUserDetails userDetails) throws IOException {
         // 사용자 정보 확인
         if (userDetails == null || userDetails.getUser() == null) {
@@ -69,7 +65,7 @@ public class BoardServiceImpl implements BoardService {
         boardRepository.save(board);
         // 로그 추가: 전달된 레시피 단계 확인
 
-        log.info("Recipe steps before processing: {}", recipeStepDto);
+        log.warn("Recipe steps before processing: {}", recipeStepDto);
 
 
         // RecipeStep 저장
@@ -83,7 +79,7 @@ public class BoardServiceImpl implements BoardService {
 
     // 게시글 저장 - 레시피 생성 및 저장
     private void saveRecipeSteps(Board board, List<RecipeStepDto> recipeStepDto) throws IOException {
-        String uploadDir = System.getProperty("user.dir") + "/uploaded-images";
+        String uploadDir = FileService.createUploadDir(); // 통일된 경로 사용
 
         int stepOrder = 1;
 
@@ -114,114 +110,164 @@ public class BoardServiceImpl implements BoardService {
 
 
 
-    // 이미지 파일 저장 및 처리
     private String saveFile(MultipartFile file, String uploadDir) throws IOException {
         if (file == null || file.isEmpty()) {
-            log.error("File is empty or null: {}", file);
-            throw new IllegalArgumentException("파일이 비어있거나 null입니다.");
+            return null;
         }
 
         String originalFileName = file.getOriginalFilename();
-        if (originalFileName == null || originalFileName.isBlank()) {
-            log.error("Invalid file name: {}", originalFileName);
-            throw new IllegalArgumentException("파일 이름이 유효하지 않습니다.");
-        }
-
-        String fileExtension = originalFileName.contains(".")
-                ? originalFileName.substring(originalFileName.lastIndexOf("."))
-                : ".jpg";
-
+        String fileExtension = originalFileName.substring(originalFileName.lastIndexOf("."));
         String fileName = UUID.randomUUID() + fileExtension;
+
         Path filePath = Paths.get(uploadDir, fileName);
+        Files.createDirectories(filePath.getParent());
+        Files.copy(file.getInputStream(), filePath);
 
-        try {
-            Files.createDirectories(filePath.getParent());
-            Files.copy(file.getInputStream(), filePath);
-            log.info("File saved successfully: {}", filePath);
-        } catch (IOException e) {
-            log.error("Failed to save file: {}", filePath, e);
-            throw new IOException("파일 저장 중 문제가 발생했습니다.", e);
-        }
+        log.warn("File saved successfully at path: {}", filePath.toAbsolutePath());
 
-        return "/uploads/" + fileName;
+        return fileName;
     }
 
 
-    // 게시글 수정
     @Override
     @Transactional
     public Long update(Long boardId, BoardUpdateDto boardUpdateDto, List<RecipeStepDto> steps) throws IOException {
-        FileService.createUploadDir();
+        // 1. 업로드 경로 생성 및 반환
+        String uploadDir = FileService.createUploadDir();
 
-        // 1. 게시글 가져오기
+        // 2. 게시글 가져오기
         Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new BadRequestException("해당 게시글을 찾을 수 없습니다."));
 
-        // 2. 게시글 업데이트
+        // 3. 게시글 업데이트
         board.update(boardUpdateDto.getTitle(), boardUpdateDto.getCategory(),
                 boardUpdateDto.getMethod(), boardUpdateDto.getIngredient(),
                 boardUpdateDto.getContent());
 
-        // 3. 기존 레시피 호출
+        // 4. 기존 레시피 호출
         List<RecipeStep> existingSteps = recipeStepRepository.findByBoardId(boardId);
 
-        // 4. 요청 데이터와 기존 데이터를 비교하여 업데이트
-        updateRecipeSteps(board, existingSteps, steps);
+        // 5. 요청 데이터와 기존 데이터를 비교하여 업데이트
+        updateRecipeSteps(board, existingSteps, steps, uploadDir);
 
         return board.getId();
     }
 
 
-    private void updateRecipeSteps(Board board, List<RecipeStep> existingSteps, List<RecipeStepDto> steps) throws IOException {
-        String uploadDir = System.getProperty("user.dir") + "/uploaded-images";
 
-        // 요청 데이터 기준으로 매핑 (stepOrder 키로 사용)
-        Map<Integer, RecipeStepDto> stepDtoMap = steps.stream()
-                .collect(Collectors.toMap(RecipeStepDto::getStepOrder, stepDto -> stepDto));
+    private String updateFile(MultipartFile file, String uploadDir, String existingFilePath) throws IOException {
+        log.warn("Entering updateFile method");
+        log.warn("Upload Directory: {}", uploadDir);
+        log.warn("Existing File Path: {}", existingFilePath);
 
-        // 1. 기존 단계 처리
-        for (RecipeStep existingStep : existingSteps) {
-            RecipeStepDto stepDto = stepDtoMap.remove(existingStep.getStepOrder());
-
-            if (stepDto != null) {
-                // 내용이 변경된 경우 업데이트
-                updateExistingStep(existingStep, stepDto, uploadDir);
-            } else {
-                // 요청에 없는 단계는 삭제
-                recipeStepRepository.delete(existingStep);
-            }
+        if (file == null || file.isEmpty()) {
+            log.warn("No new file uploaded. Keeping existing file: {}", existingFilePath);
+            return existingFilePath;
         }
 
-        // 2. 요청에 있지만 기존에 없는 단계는 새로 추가
-        for (RecipeStepDto stepDto : stepDtoMap.values()) {
-            saveNewStep(board, stepDto, uploadDir);
+        // 기존 파일 삭제
+        if (existingFilePath != null) {
+            Path existingPath = Paths.get(uploadDir, existingFilePath);
+            Files.deleteIfExists(existingPath);
+            log.warn("Deleted existing file: {}", existingPath);
+        }
+
+        // 새 파일 저장
+        String originalFileName = file.getOriginalFilename();
+        String fileExtension = originalFileName.substring(originalFileName.lastIndexOf("."));
+        String fileName = UUID.randomUUID() + fileExtension;
+
+        Path filePath = Paths.get(uploadDir, fileName);
+        Files.createDirectories(filePath.getParent());
+        Files.copy(file.getInputStream(), filePath);
+        log.warn("File copied to: {}", filePath.toAbsolutePath());
+        log.warn("Saved new file: {}", filePath);
+
+        return fileName;
+    }
+
+
+
+
+
+    private void updateRecipeSteps(Board board, List<RecipeStep> existingSteps,
+                                   List<RecipeStepDto> stepDtos, String uploadDir) throws IOException {
+        uploadDir = FileService.createUploadDir(); // 경로 통일
+
+        Map<Integer, RecipeStep> existingStepMap = existingSteps.stream()
+                .collect(Collectors.toMap(RecipeStep::getStepOrder, step -> step));
+
+        for (RecipeStepDto stepDto : stepDtos) {
+            RecipeStep step = existingStepMap.get(stepDto.getStepOrder());
+
+            if (step != null) {
+                // 기존 단계 업데이트
+                updateExistingStep(step, stepDto, uploadDir);
+            } else {
+                // 새로운 단계 추가
+                saveNewStep(board, stepDto, uploadDir);
+            }
+
+            // 업데이트된 단계는 맵에서 제거
+            existingStepMap.remove(stepDto.getStepOrder());
+        }
+
+        // 제거된 단계 처리
+        for (RecipeStep removedStep : existingStepMap.values()) {
+            deleteExistingStep(removedStep, uploadDir);
         }
     }
+
+
 
 
     private void updateExistingStep(RecipeStep existingStep, RecipeStepDto stepDto, String uploadDir) throws IOException {
-        // 파일 저장 로직을 saveFile 메서드로 대체
-        String fileName = saveFile(stepDto.getImage(), uploadDir);
+        String newImagePath;
 
-        // 단계 내용 업데이트
-        existingStep.update(stepDto.getDescription(), fileName);
+        if (stepDto.getImage() != null && !stepDto.getImage().isEmpty()) {
+            // 새 이미지를 저장하고 기존 파일 삭제
+            newImagePath = updateFile(stepDto.getImage(), uploadDir, existingStep.getImagePath());
+        } else {
+            // 새 이미지가 없으면 기존 경로 유지
+            newImagePath = existingStep.getImagePath();
+        }
+
+        existingStep.update(stepDto.getDescription(), newImagePath);
+        log.warn("Updated step: {}, ImagePath: {}", existingStep.getStepOrder(), newImagePath);
     }
 
 
-    private void saveNewStep(Board board, RecipeStepDto stepDto, String uploadDir) throws IOException {
-        // 파일 저장 로직을 saveFile 메서드로 대체
-        String fileName = saveFile(stepDto.getImage(), uploadDir);
 
-        // 새로운 RecipeStep 생성 및 저장
+
+    private void saveNewStep(Board board, RecipeStepDto stepDto, String uploadDir) throws IOException {
+        String fileName = stepDto.getImage() != null && !stepDto.getImage().isEmpty()
+                ? saveFile(stepDto.getImage(), uploadDir)
+                : null; // 이미지가 없으면 null 처리
+
         RecipeStep recipeStep = RecipeStep.builder()
                 .stepOrder(stepDto.getStepOrder())
                 .description(stepDto.getDescription())
-                .imagePath(fileName) // 저장된 파일 경로 설정
+                .imagePath(fileName)
                 .board(board)
                 .build();
 
         recipeStepRepository.save(recipeStep);
     }
+
+
+    private void deleteExistingStep(RecipeStep step, String uploadDir) throws IOException {
+        if (step.getImagePath() != null) {
+            Path filePath = Paths.get(uploadDir, step.getImagePath());
+            Files.deleteIfExists(filePath);
+            log.warn("Deleted image file for removed step: {}", filePath.toAbsolutePath());
+        }
+        recipeStepRepository.delete(step);
+    }
+
+
+
+
+
 
 
     // 게시글 검색 - 시스템 ID

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>게시글 수정</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<style>
+    .form-label {
+        font-weight: bold;
+    }
+    .error {
+        color: red;
+        font-size: 0.9rem;
+    }
+</style>
+<body>
+<div class="container mt-4">
+    <h2 class="text-center mb-4">게시글 수정</h2>
+
+    <!-- 서버 에러 메시지 -->
+    <div th:if="${errorMessage}" class="alert alert-danger">
+        <span th:text="${errorMessage}"></span>
+    </div>
+
+    <!-- 수정 폼 -->
+    <div th:if="${board != null}">
+        <form th:action="@{/boards/update/{id}(id=${board.id})}" th:object="${form}" method="post" enctype="multipart/form-data">
+
+            <!-- 제목 -->
+            <div class="mb-3">
+                <label for="title" class="form-label">제목</label>
+                <input type="text" class="form-control" id="title" name="title" th:field="*{title}" placeholder="제목을 입력하세요">
+                <div class="error" th:if="${#fields.hasErrors('title')}" th:errors="*{title}">Invalid title</div>
+            </div>
+
+            <!-- 재료 -->
+            <div class="mb-3">
+                <label for="ingredient" class="form-label">재료</label>
+                <textarea class="form-control" id="ingredient" name="ingredient" th:field="*{ingredient}" rows="4" placeholder="재료를 입력하세요"></textarea>
+                <div class="error" th:if="${#fields.hasErrors('ingredient')}" th:errors="*{ingredient}">Invalid ingredient</div>
+            </div>
+
+            <!-- 소개 -->
+            <div class="mb-3">
+                <label for="content" class="form-label">소개</label>
+                <textarea class="form-control" id="content" name="content" th:field="*{content}" rows="2" placeholder="간단한 소개를 입력하세요"></textarea>
+                <div class="error" th:if="${#fields.hasErrors('content')}" th:errors="*{content}">Invalid content</div>
+            </div>
+
+            <!-- 카테고리 -->
+            <div class="mb-3">
+                <label for="category" class="form-label">카테고리</label>
+                <select class="form-select" id="category" name="category" th:field="*{category}">
+                    <option value="" disabled>카테고리를 선택하세요</option>
+                    <option value="KOREAN" th:selected="${form.category == 'KOREAN'}">한식</option>
+                    <option value="CHINESE" th:selected="${form.category == 'CHINESE'}">중식</option>
+                    <option value="JAPANESE" th:selected="${form.category == 'JAPANESE'}">일식</option>
+                    <option value="WESTERN" th:selected="${form.category == 'WESTERN'}">양식</option>
+                    <option value="SOUTHEAST" th:selected="${form.category == 'SOUTHEAST'}">동남아식</option>
+                    <option value="FUSION" th:selected="${form.category == 'FUSION'}">퓨전</option>
+                    <option value="DESSERT" th:selected="${form.category == 'DESSERT'}">후식</option>
+                    <option value="ETC" th:selected="${form.category == 'ETC'}">기타</option>
+                </select>
+                <div class="error" th:if="${#fields.hasErrors('category')}" th:errors="*{category}">Invalid category</div>
+            </div>
+
+            <!-- 조리 방법 -->
+            <div class="mb-3">
+                <label for="method" class="form-label">조리 방법</label>
+                <select class="form-select" id="method" name="method" th:field="*{method}">
+                    <option value="" disabled>조리 방법을 선택하세요</option>
+                    <option value="STIR_FRY" th:selected="${form.method == 'STIR_FRY'}">볶음</option>
+                    <option value="STEAM" th:selected="${form.method == 'STEAM'}">찜</option>
+                    <option value="SOUP" th:selected="${form.method == 'SOUP'}">탕</option>
+                    <option value="DEEP_FRY" th:selected="${form.method == 'DEEP_FRY'}">튀김</option>
+                    <option value="GRILL" th:selected="${form.method == 'GRILL'}">구이</option>
+                    <option value="MIX" th:selected="${form.method == 'MIX'}">무침</option>
+                    <option value="RAW" th:selected="${form.method == 'RAW'}">회</option>
+                    <option value="SALAD" th:selected="${form.method == 'SALAD'}">샐러드</option>
+                    <option value="ETC" th:selected="${form.method == 'ETC'}">기타</option>
+                </select>
+                <div class="error" th:if="${#fields.hasErrors('method')}" th:errors="*{method}">Invalid method</div>
+            </div>
+
+            <!-- 레시피 단계 -->
+            <div class="mb-3">
+                <label class="form-label">레시피 단계</label>
+                <div id="recipe-steps">
+                    <div class="recipe-step border p-3 mb-3" th:each="step, iterStat : ${form.recipeSteps}">
+                        <!-- 단계 ID -->
+                        <input type="hidden" th:field="*{recipeSteps[__${iterStat.index}__].id}" />
+
+                        <!-- 단계 설명 -->
+                        <label for="description">단계 설명</label>
+                        <textarea th:field="*{recipeSteps[__${iterStat.index}__].description}"
+                                  name="recipeSteps[__${iterStat.index}__].description"
+                                  rows="3" class="form-control"></textarea>
+
+                        <!-- 기존 이미지 -->
+                        <div th:if="${step.imagePath}">
+                            <label>기존 이미지</label>
+                            <img th:src="@{${step.imagePath}}" alt="이미지" class="img-thumbnail mb-2" style="max-width: 300px;" />
+                        </div>
+
+                        <!-- 새 이미지 업로드 -->
+                        <label>새 이미지 업로드</label>
+                        <input type="file" th:field="*{recipeSteps[__${iterStat.index}__].image}" class="form-control" />
+
+                        <!-- 단계 순서 -->
+                        <input type="hidden" th:field="*{recipeSteps[__${iterStat.index}__].stepOrder}" />
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- 제출 버튼 -->
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary">수정하기</button>
+                <a th:href="@{/boards/{id}(id=${board.id})}" class="btn btn-secondary">취소</a>
+            </div>
+        </form>
+    </div>
+
+    <!-- board 객체가 null인 경우 -->
+    <div th:if="${board == null}">
+        <p class="alert alert-danger">게시글을 찾을 수 없습니다.</p>
+    </div>
+</div>
+</body>
+</html>

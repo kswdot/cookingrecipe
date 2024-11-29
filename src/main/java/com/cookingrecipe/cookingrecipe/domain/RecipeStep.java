@@ -45,10 +45,28 @@ public class RecipeStep {
     }
 
 
+    public void update(String description, String imagePath, @NotNull int stepOrder) {
+        if (stepOrder < 1) {
+            throw new IllegalArgumentException("단계 번호는 1 이상이어야 합니다.");
+        }
+        this.description = description;
+        this.imagePath = imagePath;
+        this.stepOrder = stepOrder;
+    }
+
+    // 기존 메서드 유지
     public void update(String description, String imagePath) {
         this.description = description;
         this.imagePath = imagePath;
     }
+
+    public void update(String description, int stepOrder, String imagePath) {
+        this.description = description;
+        this.stepOrder = stepOrder;
+        this.imagePath = imagePath;
+    }
+
+
 
 
     // 연관 관계 편의 메서드

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="https://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,7 +14,6 @@
             background-color: #f9f9f9;
         }
 
-        /* step 스타일 - 실선 유지, 마지막 단계 실선 제거 */
         .recipe-step {
             border-bottom: 1px solid #bbb;
             margin-bottom: 20px;
@@ -27,11 +26,10 @@
             padding-bottom: 0;
         }
 
-        /* 좋아요와 북마크 위치 및 크기 설정 */
-        .like-bookmark-box {
+        .action-box {
             display: flex;
-            gap: 15px;
-            justify-content: flex-end;
+            justify-content: space-between;
+            align-items: center;
             margin-top: 20px;
         }
 
@@ -40,7 +38,6 @@
             cursor: pointer;
         }
 
-        /* 이미지 스타일 */
         .recipe-step img {
             max-width: 100%;
             height: auto;
@@ -81,6 +78,7 @@
                     작성일: <span th:text="${#temporals.format(board.createdDate, 'yyyy-MM-dd HH:mm')}"></span>
                 </p>
             </div>
+
             <!-- 재료 -->
             <div>
                 <h5 style="font-weight: bold">[재료]</h5>
@@ -98,38 +96,57 @@
             <div th:each="recipe : ${recipes}" class="recipe-step">
                 <h6 th:text="'Step ' + ${recipe.stepOrder}"></h6>
                 <div>
+                    <!-- 이미지 경로 수정 -->
                     <img th:if="${recipe.imagePath}"
-                         th:src="${recipe.imagePath}" alt="레시피 이미지" class="img-fluid mb-2">
+                         th:src="@{/uploads/} + ${recipe.imagePath}"
+                         alt="레시피 이미지" class="img-fluid mb-2">
                     <p th:text="${recipe.description}"></p>
                 </div>
             </div>
 
             <!-- 좋아요 & 북마크 -->
-            <div class="like-bookmark-box">
-                <!-- 좋아요 -->
-                <form th:action="@{/boards/{id}/like(id=${board.id})}" method="post" style="display: inline;">
-                    <input type="hidden" name="_method" value="PATCH">
-                    <button type="submit"
-                            th:classappend="${isLiked} ? 'text-danger' : 'text-secondary'"
-                            class="like-bookmark"
-                            style="background: none; border: none; cursor: pointer;">
-                        <span th:if="${isLiked}">❤️</span>
-                        <span th:if="${!isLiked}">🤍</span>
-                        <span th:text="${board.likeCount}"></span>
-                    </button>
-                </form>
+            <div class="action-box">
+                <div>
+                    <!-- 좋아요 -->
+                    <form th:action="@{/boards/{id}/like(id=${board.id})}" method="post" style="display: inline;">
+                        <input type="hidden" name="_method" value="PATCH">
+                        <button type="submit"
+                                th:classappend="${isLiked} ? 'text-danger' : 'text-secondary'"
+                                class="like-bookmark"
+                                style="background: none; border: none; cursor: pointer;">
+                            <span th:if="${isLiked}">❤️</span>
+                            <span th:if="${!isLiked}">🤍</span>
+                            <span th:text="${board.likeCount}"></span>
+                        </button>
+                    </form>
 
-                <!-- 북마크 -->
-                <form th:action="@{/boards/{id}/bookmark(id=${board.id})}" method="post" style="display: inline;">
-                    <input type="hidden" name="_method" value="PATCH">
-                    <button type="submit"
-                            th:classappend="${isBookmarked} ? 'text-warning' : 'text-secondary'"
-                            class="like-bookmark"
-                            style="background: none; border: none; cursor: pointer;">
-                        <span th:if="${isBookmarked}">📌</span>
-                        <span th:if="${!isBookmarked}">🔖</span>
-                    </button>
-                </form>
+                    <!-- 북마크 -->
+                    <form th:action="@{/boards/{id}/bookmark(id=${board.id})}" method="post" style="display: inline;">
+                        <input type="hidden" name="_method" value="PATCH">
+                        <button type="submit"
+                                th:classappend="${isBookmarked} ? 'text-warning' : 'text-secondary'"
+                                class="like-bookmark"
+                                style="background: none; border: none; cursor: pointer;">
+                            <span th:if="${isBookmarked}">📌</span>
+                            <span th:if="${!isBookmarked}">🔖</span>
+                        </button>
+                    </form>
+                </div>
+
+                <div>
+                    <!-- 작성자가 본인인 경우 -->
+                    <div th:if="${currentUserId != null and currentUserId == authorId}">
+                        <a th:href="@{/boards/update/{id}(id=${board.id})}" class="btn btn-primary">수정</a>
+                        <form th:action="@{/boards/delete/{id}(id=${board.id})}" method="post" style="display: inline;">
+                            <input type="hidden" name="_method" value="DELETE">
+                            <button type="submit" class="btn btn-danger">삭제</button>
+                        </form>
+                    </div>
+
+                    <div th:if="${currentUserId == null or currentUserId != authorId}">
+                        <a th:href="@{/}" class="btn btn-secondary">목록으로</a>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
