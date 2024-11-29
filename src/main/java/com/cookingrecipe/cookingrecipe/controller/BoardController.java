@@ -12,6 +12,7 @@ import com.cookingrecipe.cookingrecipe.exception.BadRequestException;
 import com.cookingrecipe.cookingrecipe.exception.UserNotFoundException;
 import com.cookingrecipe.cookingrecipe.repository.LikeRepository;
 import com.cookingrecipe.cookingrecipe.service.BoardService;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -25,7 +26,9 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Controller
@@ -86,13 +89,25 @@ public class BoardController {
     }
 
 
-    // 특정 게시글 조회
     @GetMapping("/boards/{id:\\d+}")
     public String view(@PathVariable("id") Long boardId,
                        @AuthenticationPrincipal CustomUserDetails userDetails,
+                       HttpSession session, // 세션 객체 추가
                        Model model) {
 
-        boardService.addViewCount(boardId);
+        // 세션에서 조회된 게시글 ID 목록 가져오기
+        Set<Long> viewedBoards = (Set<Long>) session.getAttribute("viewedBoards");
+        if (viewedBoards == null) {
+            // 세션에 데이터가 없으면 새로 생성
+            viewedBoards = new HashSet<>();
+        }
+
+        // 현재 게시글이 조회된 적이 없으면 조회수 증가
+        if (!viewedBoards.contains(boardId)) {
+            boardService.addViewCount(boardId); // 조회수 증가 서비스 호출
+            viewedBoards.add(boardId); // 조회 목록에 추가
+            session.setAttribute("viewedBoards", viewedBoards); // 세션 갱신
+        }
 
         // 게시글과 속한 레시피 조회
         Board board = boardService.findByIdWithUser(boardId)
@@ -102,14 +117,10 @@ public class BoardController {
         boolean isLiked = false;
         boolean isBookmarked = false;
 
-        // 로그인 한 사용자의 좋아요, 북마크 여부 조회 후 설정
         if (userDetails != null) {
             isLiked = boardService.isLikedByUser(boardId, userDetails.getId());
             isBookmarked = boardService.isBookmarkedByUser(boardId, userDetails.getId());
         }
-
-        // 랜덤 숫자 생성 (0 ~ 9999) -> 캐시 무효화를 위해
-        int randomValue = (int) (Math.random() * 10000);
 
         // 모델에 필요한 데이터 추가
         model.addAttribute("board", board);
@@ -117,12 +128,12 @@ public class BoardController {
         model.addAttribute("isLiked", isLiked);
         model.addAttribute("isBookmarked", isBookmarked);
         model.addAttribute("isLoggedIn", userDetails != null);
-        model.addAttribute("authorId", board.getUser().getId()); // 작성자 ID 추가
-        model.addAttribute("currentUserId", userDetails != null ? userDetails.getId() : null); // 현재 사용자 ID 추가
-        model.addAttribute("randomValue", randomValue); // 랜덤 값 추가
+        model.addAttribute("authorId", board.getUser().getId());
+        model.addAttribute("currentUserId", userDetails != null ? userDetails.getId() : null);
 
         return "board/view";
     }
+
 
 
     // 게시글 수정 폼 반환

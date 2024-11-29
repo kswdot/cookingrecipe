@@ -265,11 +265,6 @@ public class BoardServiceImpl implements BoardService {
     }
 
 
-
-
-
-
-
     // 게시글 검색 - 시스템 ID
     @Override
     public Board findById(Long boardId) {
