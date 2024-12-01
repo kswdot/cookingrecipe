@@ -5,13 +5,18 @@ import com.cookingrecipe.cookingrecipe.domain.User;
 import com.cookingrecipe.cookingrecipe.dto.*;
 import com.cookingrecipe.cookingrecipe.exception.BadRequestException;
 import com.cookingrecipe.cookingrecipe.exception.UserNotFoundException;
+import com.cookingrecipe.cookingrecipe.repository.UserRepository;
 import com.cookingrecipe.cookingrecipe.service.BoardService;
 import com.cookingrecipe.cookingrecipe.service.UserService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -19,6 +24,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.Collections;
 import java.util.List;
 
 @Controller
@@ -27,7 +33,8 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
-    private final BoardService boardService;
+    private final HttpSession httpSession;
+    private final UserRepository userRepository;
 
 
     // 회원가입 폼 제공
@@ -37,6 +44,7 @@ public class UserController {
     }
 
 
+    // 회원가입
     @PostMapping("/join")
     public String join(@Validated @ModelAttribute("form") UserSignupDto userSignupDto,
                        BindingResult bindingResult, Model model) {
@@ -77,6 +85,71 @@ public class UserController {
         // 자동 로그인 후 메인 페이지로 이동
         return "redirect:/";
     }
+
+
+    // 소셜 간편 회원가입 후 추가 정보 입력 폼
+    @GetMapping("/additional-info")
+    public String showAdditionalInfoForm(Model model) {
+        model.addAttribute("form", new SocialSignupDto()); // 폼 초기화
+        return "user/additional-info";
+    }
+    
+    
+    // 소셜 간편 회원가입 후 추가 정보 저장/취소
+    @PostMapping("/additional-info")
+    public String saveAdditionalInfo(@Validated @ModelAttribute("form") SocialSignupDto socialSignupDto,
+                                     @RequestParam String action, BindingResult bindingResult,
+                                     HttpSession session, Model model) {
+
+        // 세션에서 소셜 회원가입 사용자 정보 가져오기
+        User user = (User) session.getAttribute("user");
+
+        if (user == null) {
+            model.addAttribute("errorMessage", "세션이 만료되었습니다. 다시 시도해주세요.");
+            return "redirect:/join";
+        }
+
+        // 저장 버튼 처리
+        if ("save".equals(action)) {
+            // 유효성 검사
+            if (bindingResult.hasErrors()) {
+                return "user/additional-info";
+            }
+
+            // 추가 정보 저장
+            userService.joinBySocial(socialSignupDto, user);
+
+            // 최신화된 사용자 정보를 다시 조회
+            User updatedUser = userService.findById(user.getId())
+                    .orElseThrow(() -> new UserNotFoundException("사용자를 찾을 수 없습니다"));
+
+            // 세션 및 SecurityContext 업데이트
+            updateSecurityContextAndSession(updatedUser, session);
+        }
+
+        // 취소 버튼 처리
+        if ("cancel".equals(action)) {
+            session.removeAttribute("user");
+            return "redirect:/";
+        }
+
+        return "redirect:/";
+    }
+
+    // SecurityContext와 세션을 업데이트하는 메서드
+    private void updateSecurityContextAndSession(User updatedUser, HttpSession session) {
+        // SecurityContext 업데이트
+        UsernamePasswordAuthenticationToken newAuth = new UsernamePasswordAuthenticationToken(
+                updatedUser, null, Collections.singleton(new SimpleGrantedAuthority(updatedUser.getRole().name()))
+        );
+        SecurityContextHolder.getContext().setAuthentication(newAuth);
+
+        // 세션 업데이트
+        session.setAttribute("SPRING_SECURITY_CONTEXT", SecurityContextHolder.getContext());
+        session.setAttribute("user", updatedUser);
+    }
+
+
 
 
 

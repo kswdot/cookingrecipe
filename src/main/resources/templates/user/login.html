@@ -32,7 +32,6 @@
                 아이디 또는 비밀번호가 일치하지 않습니다.
             </div>
 
-
             <form th:action="@{/login}" method="post" th:object="${form}">
                 <div class="mb-3">
                     <label for="loginId" class="form-label">아이디</label>
@@ -52,9 +51,16 @@
                 <!--공백 추가-->
                 <div class="mt-4"></div>
 
-                    <div class="col" style="margin-bottom: 10px;">
-                        <button type="submit" class="btn btn-primary w-100">로그인</button>
-                    </div>
+                <div class="col" style="margin-bottom: 10px;">
+                    <button type="submit" class="btn btn-primary w-100">로그인</button>
+                </div>
+
+                <!-- 카카오 로그인 버튼 -->
+                <div class="col" style="margin-bottom: 20px;">
+                    <a href="/oauth2/authorization/kakao" class="btn btn-warning w-100" style="color: #ffffff;">
+                        카카오로 로그인
+                    </a>
+                </div>
 
                 <div class="row">
                     <div class="col text-center">

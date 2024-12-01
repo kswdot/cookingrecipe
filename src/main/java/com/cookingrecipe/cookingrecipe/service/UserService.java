@@ -3,6 +3,7 @@ package com.cookingrecipe.cookingrecipe.service;
 import com.cookingrecipe.cookingrecipe.domain.Board;
 import com.cookingrecipe.cookingrecipe.domain.User;
 import com.cookingrecipe.cookingrecipe.dto.BoardWithImageDto;
+import com.cookingrecipe.cookingrecipe.dto.SocialSignupDto;
 import com.cookingrecipe.cookingrecipe.dto.UserSignupDto;
 import com.cookingrecipe.cookingrecipe.dto.UserUpdateDto;
 import org.springframework.stereotype.Service;
@@ -16,11 +17,12 @@ import java.util.Optional;
 @Transactional
 public interface UserService {
 
-    // User Entity 생성
-    User joinEntity(User user);
 
-    // 회원 가입 - UserSignupDto 사용
+    // 일반 회원 가입 - UserSignupDto 사용
     User join(UserSignupDto userSignupDto);
+
+    // 소셜 간편 회원 가입 - SocialSignupDto 사용
+    User joinBySocial(SocialSignupDto socialSignupDto, User user);
 
     // 회원 가입 - 자동 로그인
     void autoLogin(String loginId, String rawPassword);
@@ -55,7 +57,10 @@ public interface UserService {
     // 비밀번호 재발급 - 로그인 ID, 이메일, 전화번호
     String findPassword(String LoginId, String number, LocalDate birth);
 
-    // 회원 탈퇴
+    // 일반 회원 탈퇴
     void deleteUser(Long userId, String enteredPassword);
+
+    // 소셜 회원 탈퇴
+    void deleteUser(User user);
 
 }

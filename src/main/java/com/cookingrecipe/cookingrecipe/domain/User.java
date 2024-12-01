@@ -15,7 +15,7 @@ import static jakarta.persistence.FetchType.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Getter
-@ToString(of = {"id", "nickname",  "password", "email"})
+@ToString(of = {"id", "nickname", "email"})
 public class User extends BaseTimeEntity {
 
 
@@ -32,6 +32,7 @@ public class User extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+
     @Builder
     private User(String loginId, String nickname, String password, String email, String number, LocalDate birth, Role role) {
         this.loginId = loginId;
@@ -43,14 +44,27 @@ public class User extends BaseTimeEntity {
         this.role = role;
     }
 
+
+    // 사용자 정보 수정
     public void updateUser(String nickname, String email, String number) {
         this.nickname = nickname;
         this.email = email;
         this.number = number;
     }
 
+
+    // 사용자 비밀번호 수정
     public void updatePassword(String newPassword) {
         this.password = newPassword;
+    }
+
+
+    // 간편 회원 가입 사용자 정보 추가
+    public void addUserInfo(String email, String number, LocalDate birth, String nickname) {
+        this.email = email;
+        this.number = number;
+        this.birth = birth;
+        this.nickname = nickname;
     }
 
     public CustomUserDetails toCustomUserDetails() {

@@ -4,6 +4,7 @@ import com.cookingrecipe.cookingrecipe.domain.Board;
 import com.cookingrecipe.cookingrecipe.domain.Role;
 import com.cookingrecipe.cookingrecipe.domain.User;
 import com.cookingrecipe.cookingrecipe.dto.BoardWithImageDto;
+import com.cookingrecipe.cookingrecipe.dto.SocialSignupDto;
 import com.cookingrecipe.cookingrecipe.dto.UserSignupDto;
 import com.cookingrecipe.cookingrecipe.dto.UserUpdateDto;
 import com.cookingrecipe.cookingrecipe.exception.BadRequestException;
@@ -16,8 +17,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -52,14 +51,7 @@ public class UserServiceImpl implements UserService {
     }
 
 
-    // User Entity 생성
-    @Override
-    public User joinEntity(User user) {
-        return userRepository.save(user);
-    }
-
-
-    // UserSignupDto 사용해 회원 가입
+    // 일반 회원 가입 - UserSignupDto 사용
     @Override
     public User join(UserSignupDto userSignupDto) {
 
@@ -76,13 +68,25 @@ public class UserServiceImpl implements UserService {
                 .role(Role.ROLE_USER)
                 .build();
 
-        // User 엔티티 저장
-        joinEntity(user);
-
-        return user;
+        return userRepository.save(user);
     }
 
 
+    // 소셜 간편 회원가입 - SocialSignupDto 사용
+    @Override
+    public User joinBySocial(SocialSignupDto socialSignupDto, User user) {
+        user.addUserInfo(
+                socialSignupDto.getEmail(),
+                socialSignupDto.getNumber(),
+                socialSignupDto.getBirth(),
+                socialSignupDto.getNickname()
+        );
+
+        return userRepository.save(user);
+    }
+
+
+    // 자동 로그인
     @Override
     public void autoLogin(String loginId, String password) {
 
@@ -105,14 +109,6 @@ public class UserServiceImpl implements UserService {
     }
 
 
-
-
-
-
-
-
-
-
     // 회원 가입 시 아이디 중복 검사 - 이미 존재하는 경우 true / 그렇지 않은 경우 false 반환
     @Override
     public boolean isLoginIdDuplicated(String loginId) {
@@ -132,6 +128,7 @@ public class UserServiceImpl implements UserService {
     public Optional<User> findById(Long userId) {
         return userRepository.findById(userId);
     }
+
 
     // 로그인 ID를 이용하여 회원 조회
     @Override
@@ -204,6 +201,7 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new UserNotFoundException("해당 유저를 찾을 수 없습니다. 입력한 정보를 다시 확인해주세요."));
     }
 
+
     // 비밀번호 찾기(재발급)
     @Override
     public String findPassword(String LoginId, String number, LocalDate birth) {
@@ -223,7 +221,7 @@ public class UserServiceImpl implements UserService {
     }
 
 
-    // 회원 탈퇴
+    // 일반 회원 탈퇴
     @Override
     public void deleteUser(Long userId, String enteredPassword) {
 
@@ -235,6 +233,12 @@ public class UserServiceImpl implements UserService {
             throw new BadRequestException("비밀번호가 일치하지 않습니다.");
         }
 
+        userRepository.delete(user);
+    }
+
+    // 소셜 회원 데이터 지우기
+    @Override
+    public void deleteUser(User user) {
         userRepository.delete(user);
     }
 

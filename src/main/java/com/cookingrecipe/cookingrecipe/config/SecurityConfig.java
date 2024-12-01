@@ -1,30 +1,32 @@
 package com.cookingrecipe.cookingrecipe.config;
 
+import com.cookingrecipe.cookingrecipe.repository.UserRepository;
 import com.cookingrecipe.cookingrecipe.service.UserDetailsServiceImpl;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.client.endpoint.DefaultAuthorizationCodeTokenResponseClient;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.firewall.StrictHttpFirewall;
-import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+    private final HttpSession httpSession;
+    private final CustomOAuth2UserService customOAuth2UserService;
 
     // 회원가입 -> 자동 로그인
     // AuthenticationManager 직접 등록하지 않고 AuthenticationConfiguration 통해 제공
@@ -41,10 +43,23 @@ public class SecurityConfig {
 
 
     @Bean
+    public CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler() {
+        return new CustomAuthenticationSuccessHandler(httpSession);
+    }
+
+    @Bean
+    public DefaultAuthorizationCodeTokenResponseClient customAuthorizationCodeTokenResponseClient() {
+        DefaultAuthorizationCodeTokenResponseClient client = new DefaultAuthorizationCodeTokenResponseClient();
+        client.setRequestEntityConverter(new CustomRequestEntityConverter()::convert); // 우리가 만든 변환기 사용
+        return client;
+    }
+
+    @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, UserDetailsServiceImpl userDetailsServiceImpl) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())  // 개발 단계에서는 CSRF 보호 비활성화
                 .securityContext(securityContext -> securityContext
+                        .requireExplicitSave(false)
                         .securityContextRepository(new HttpSessionSecurityContextRepository()))
                 .authorizeHttpRequests(auth -> auth // 최신 메서드인 authorizeHttpRequests로 변경
                         .requestMatchers("/", "/login", "/join", "/boards/{id}", "/boards/top").permitAll() // 모두 접근 가능
@@ -55,6 +70,25 @@ public class SecurityConfig {
                         .requestMatchers("/images/**", "/css/**", "/js/**", "/static/**", "/uploads/**").permitAll()
                         .anyRequest().permitAll()
                 )
+                .oauth2Login(oauth2 -> oauth2
+                        .loginPage("/login")
+                        .userInfoEndpoint(userInfoEndpoint -> userInfoEndpoint
+                                .userService(customOAuth2UserService) // CustomOAuth2UserService 등록
+                        )
+                        .successHandler(customAuthenticationSuccessHandler()) // 성공 핸들러
+                        .failureHandler((request, response, exception) -> { // 실패 핸들러
+                            if (exception instanceof OAuth2AuthenticationException oauth2Exception) {
+                                String errorCode = oauth2Exception.getError().getErrorCode();
+                                if ("additional_info_required".equals(errorCode)) { // 추가 정보 입력 필요
+                                    response.sendRedirect("/additional-info");
+                                    return;
+                                }
+                            }
+                            // 기타 오류 처리
+                            response.sendRedirect("/login?error");
+                        })
+                )
+
                 .formLogin(form -> form
                         .loginPage("/login") // 로그인 페이지 경로
                         .defaultSuccessUrl("/") // 로그인 성공 기본

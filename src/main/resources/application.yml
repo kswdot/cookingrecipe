@@ -29,6 +29,24 @@ spring:
     resources:
       static-locations: classpath:/static/, file:C:/Users/user/.gradle/cookingrecipe/uploaded-images/
 
+  security:
+    oauth2:
+      client:
+        registration:
+          kakao:
+            client-id: 2e7c317af863128ca7f60f4ff69217cf # REST API 키
+            client-secret: ""              # 카카오는 secret 값이 필요하지 않음
+            redirect-uri: "{baseUrl}/login/oauth2/code/kakao" # 기본 Redirect URI - baseUrl 설정
+            client-authentication-method: post
+            authorization-grant-type: authorization_code
+            scope: profile_nickname
+        provider:
+          kakao:
+            authorization-uri: https://kauth.kakao.com/oauth/authorize
+            token-uri: https://kauth.kakao.com/oauth/token
+            user-info-uri: https://kapi.kakao.com/v2/user/me
+            user-name-attribute: id
+
 file:
   upload-dir: C:/Users/user/.gradle/cookingrecipe/uploaded-images/ # 파일 업로드 경로
 
