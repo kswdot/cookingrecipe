@@ -65,7 +65,6 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
 
     private User processKakaoUser(Map<String, Object> attributes) {
-        System.out.println("[DEBUG] Processing Kakao user with attributes: " + attributes);
 
         Long kakaoId = Long.parseLong(attributes.get("id").toString());
 
