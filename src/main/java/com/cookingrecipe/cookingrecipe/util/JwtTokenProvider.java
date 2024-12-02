@@ -2,15 +2,17 @@ package com.cookingrecipe.cookingrecipe.util;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
 import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.stereotype.Component;
 
+import java.security.Key;
 import java.util.Date;
 
 @Component
 public class JwtTokenProvider {
 
-    private final String SECRET_KEY = "yourSecretKey";
+    private final Key SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
     private final long EXPIRATION_MS = 3600000;
 
     // JWT 생성
@@ -19,7 +21,7 @@ public class JwtTokenProvider {
                 .setSubject(username) // 사용자 정보 설정
                 .setIssuedAt(new Date()) // 토큰 발급 시간
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_MS)) // 만료 시간
-                .signWith(SignatureAlgorithm.HS256, SECRET_KEY) // 서명 알고리즘과 비밀 키 설정
+                .signWith(SECRET_KEY) // 서명 알고리즘과 비밀 키 설정
                 .compact();
     }
 
