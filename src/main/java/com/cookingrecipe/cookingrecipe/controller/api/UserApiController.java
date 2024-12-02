@@ -13,6 +13,7 @@ import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -194,6 +195,38 @@ public class UserApiController {
 
 
         return ResponseEntity.ok().body(Map.of("message","비밀번호가 성공적으로 변경되었습니다."));
+    }
+
+
+    // 마이페이지 - 내가 쓴 글 조회
+    @GetMapping("/boardList")
+    public ResponseEntity<?> boardList(@AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        try {
+            List<BoardWithImageDto> boards = userService.findByUserId(userDetails.getId());
+
+            return ResponseEntity.ok(boards);
+        } catch (Exception e){
+
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "게시글을 조회하던 중 문제가 발생했습니다"));
+        }
+    }
+
+
+    // 마이페이지 - 북마크한 글 조회
+    @GetMapping("/bookmark")
+    public ResponseEntity<?> bookmark(@AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        try {
+            List<BoardWithImageDto> boards = userService.findBookmarkedRecipeByUser(userDetails.getId());
+
+            return ResponseEntity.ok().body(boards);
+        } catch (Exception e){
+
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "북마크를 조회하던 중 문제가 발생했습니다."));
+        }
     }
 
 

@@ -76,7 +76,6 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         // 사용자 DB에 저장 또는 조회
         User userEntity = userRepository.findByLoginId("kakao-" + kakaoId)
                 .orElseGet(() -> {
-                    log.info("[DEBUG] User not found, saving new user with Kakao ID: " + kakaoId);
                     return saveUser("kakao-" + kakaoId, nickname);
                 });
 
