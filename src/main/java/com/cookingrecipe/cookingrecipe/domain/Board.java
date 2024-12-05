@@ -1,6 +1,6 @@
 package com.cookingrecipe.cookingrecipe.domain;
 
-import com.cookingrecipe.cookingrecipe.entity.BaseTimeEntity;
+import com.cookingrecipe.cookingrecipe.domain.BaseTimeEntity;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;

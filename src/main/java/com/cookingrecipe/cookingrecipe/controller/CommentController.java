@@ -6,6 +6,8 @@ import com.cookingrecipe.cookingrecipe.service.CommentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,8 +24,12 @@ public class CommentController {
 
     // 댓글 작성
     @PostMapping("/comments/create")
-    public String create(@ModelAttribute CommentRequestDto commentRequestDto,
-                         @AuthenticationPrincipal CustomUserDetails userDetails) {
+    public String create(@Validated @ModelAttribute CommentRequestDto commentRequestDto,
+                         BindingResult bindingResult, @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        if (bindingResult.hasErrors()) {
+            return "redirect:/comments/create";
+        }
 
         // 로그인된 사용자 ID 가져오기
         Long userId = userDetails.getUser().getId();
