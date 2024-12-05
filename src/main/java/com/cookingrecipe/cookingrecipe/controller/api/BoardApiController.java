@@ -10,6 +10,7 @@ import com.cookingrecipe.cookingrecipe.exception.BadRequestException;
 import com.cookingrecipe.cookingrecipe.service.BoardService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -221,31 +222,63 @@ public class BoardApiController {
         }
     }
 
+
     // 게시글 검색 : 검색 조건
-    @GetMapping("/boards/search")
-    public String search(@RequestParam(required = false) String searchCriteria,
-                         @RequestParam(required = false) String keyword,
-                         @RequestParam(defaultValue = "date") String sort,
-                         Model model) {
+    @GetMapping("/search")
+    public ResponseEntity<?> search(@RequestParam(required = false) String searchCriteria,
+                                    @RequestParam(required = false) String keyword,
+                                    @RequestParam(defaultValue = "date") String sort) {
 
         if (keyword == null || keyword.trim().isEmpty()) {
-            model.addAttribute("errorMessage", "검색어를 입력하세요");
-            return "board/search";
+            return ResponseEntity.badRequest().body(Map.of("errorMessage", "검색어를 입력하세요"));
         }
 
-        List<BoardWithImageDto> boards;
-        if ("likes".equals(sort)) {
-            boards = boardService.searchBoardsOrderByLikes(searchCriteria, keyword);
-        } else {
-            boards = boardService.searchBoards(searchCriteria, keyword);
+
+        try {
+            List<BoardWithImageDto> boards;
+
+            if ("likes".equals(sort)) {
+                boards = boardService.searchBoardsOrderByLikes(searchCriteria, keyword);
+            } else {
+                boards = boardService.searchBoards(searchCriteria, keyword);
+            }
+
+            List<BoardResponseDto> response = boards.stream()
+                    .map(BoardResponseDto::from)
+                    .toList();
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("errorMessage", "검색 중 문제가 발생하였습니다. 다시 시도해주세요."));
         }
-
-        model.addAttribute("boards", boards);
-        model.addAttribute("searchCriteria", searchCriteria);
-        model.addAttribute("keyword", keyword);
-        model.addAttribute("sort", sort);
-
-        return "board/search";
     }
 
+
+    // 전체 레시피 TOP 10
+    @GetMapping("/top")
+    public ResponseEntity<?> top() {
+
+        List<BoardWithImageDto> boards = boardService.findTopRecipesByLikes(10);
+
+        List<BoardResponseDto> response = boards.stream()
+                .map(BoardResponseDto::from)
+                .toList();
+
+        return ResponseEntity.ok(response);
+    }
+
+
+    // 이달의 레시피 TOP 10
+    @GetMapping("/monthly")
+    public ResponseEntity<?> monthly() {
+
+        List<BoardWithImageDto> boards = boardService.findMonthlyRecipesByLikes(10);
+
+        List<BoardResponseDto> response = boards.stream()
+                .map(BoardResponseDto::from)
+                .toList();
+
+        return ResponseEntity.ok(response);
+    }
 }
