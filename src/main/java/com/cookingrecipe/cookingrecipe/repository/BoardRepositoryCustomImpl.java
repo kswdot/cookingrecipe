@@ -5,8 +5,10 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
@@ -17,6 +19,9 @@ import java.util.List;
 public class BoardRepositoryCustomImpl implements BoardRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
+    private final StringRedisTemplate redisTemplate;
+    private final BoardRepository boardRepository;
+
 
 
 
@@ -227,4 +232,23 @@ public class BoardRepositoryCustomImpl implements BoardRepositoryCustom {
                 .orderBy(board.likeCount.desc())
                 .fetch();
     }
+
+
+    // 특정 게시글 조회 시 조회 수 증가 - Redis 사용
+    @Override
+    public boolean addViewCountWithRedis(Long boardId, Long userId) {
+        String redisKey = "viewed:board:" + boardId + ":user:" + userId; // 고유 키 생성
+
+        // Redis에 key 저장 (없으면 true 반환)
+        boolean isNewView = Boolean.TRUE
+                .equals(redisTemplate.opsForValue().setIfAbsent(redisKey, "1", Duration.ofHours(1)));
+
+        if (isNewView) {
+            // Redis에서 처음 본 경우에만 DB 업데이트
+            boardRepository.updateViewCount(boardId);
+        }
+
+        return isNewView;
+    }
 }
+

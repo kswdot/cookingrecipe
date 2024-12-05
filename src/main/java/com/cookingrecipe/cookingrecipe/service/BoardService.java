@@ -61,8 +61,11 @@ public interface BoardService {
     // 게시글 검색 - 이 달(한 달)의 레시피 TOP10
     List<BoardWithImageDto> findMonthlyRecipesByLikes(int limit);
 
-    // 조회수 증가
+    // 조회수 증가 - HTTP Session 사용
     void addViewCount(Long boardId);
+
+    // 조회수 증가 - Redis 사용
+    boolean addViewCountWithRedis(Long boardId, Long userId);
 
     // 게시글 삭제
     void deleteById(Long boardId);

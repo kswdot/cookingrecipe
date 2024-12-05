@@ -16,10 +16,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/boards")
@@ -83,43 +80,20 @@ public class BoardApiController {
                        @AuthenticationPrincipal CustomUserDetails userDetails,
                        HttpSession session) {
 
-        // 세션에서 조회된 게시글 ID 목록 가져오기
-        Set<Long> viewedBoards = (Set<Long>) session.getAttribute("viewedBoards");
+        Long userId = userDetails != null ? userDetails.getId() : 0L; // 로그인되지 않은 경우 0L로 처리
 
-        if (viewedBoards == null) {
-            // 세션에 데이터가 없으면 새로 생성
-            viewedBoards = new HashSet<>();
-        }
-
-        // 현재 게시글이 조회된 적이 없으면 조회수 증가
-        if (!viewedBoards.contains(boardId)) {
-            boardService.addViewCount(boardId); // 조회수 증가 서비스 호출
-            viewedBoards.add(boardId); // 조회 목록에 추가
-            session.setAttribute("viewedBoards", viewedBoards); // 세션 갱신
-        }
+        boolean isNewView = boardService.addViewCountWithRedis(boardId, userId);
 
         // 게시글과 속한 레시피 조회
         Board board = boardService.findByIdWithUser(boardId)
                 .orElseThrow(() -> new BadRequestException("게시글을 찾을 수 없습니다"));
 
-        // 좋아요, 북마크 초기 false 설정
-        boolean isLiked = false;
-        boolean isBookmarked = false;
+        // 응답 데이터 생성
+        Map<String, Object> response = new HashMap<>();
+        response.put("board", board);
+        response.put("viewCount", board.getView()); // DB에서 가져온 조회수
+        response.put("likeCount", board.getLikeCount()); // 좋아요 수
 
-        if (userDetails != null) {
-            isLiked = boardService.isLikedByUser(boardId, userDetails.getId());
-            isBookmarked = boardService.isBookmarkedByUser(boardId, userDetails.getId());
-        }
-
-        // 모델에 필요한 데이터 추가
-        model.addAttribute("board", board);
-        model.addAttribute("recipes", board.getRecipeSteps());
-        model.addAttribute("isLiked", isLiked);
-        model.addAttribute("isBookmarked", isBookmarked);
-        model.addAttribute("isLoggedIn", userDetails != null);
-        model.addAttribute("authorId", board.getUser().getId());
-        model.addAttribute("currentUserId", userDetails != null ? userDetails.getId() : null);
-
-        return "board/view";
+        return ResponseEntity.ok(response);
     }
 }
