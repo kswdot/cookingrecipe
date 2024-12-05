@@ -1,6 +1,5 @@
 package com.cookingrecipe.cookingrecipe.domain;
 
-import com.cookingrecipe.cookingrecipe.entity.BaseTimeEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;

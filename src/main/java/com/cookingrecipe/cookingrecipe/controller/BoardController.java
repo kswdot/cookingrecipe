@@ -4,14 +4,12 @@ import com.cookingrecipe.cookingrecipe.domain.Board;
 import com.cookingrecipe.cookingrecipe.domain.Category;
 import com.cookingrecipe.cookingrecipe.domain.CustomUserDetails;
 import com.cookingrecipe.cookingrecipe.domain.Method;
-import com.cookingrecipe.cookingrecipe.dto.BoardSaveDto;
-import com.cookingrecipe.cookingrecipe.dto.BoardUpdateDto;
-import com.cookingrecipe.cookingrecipe.dto.BoardWithImageDto;
-import com.cookingrecipe.cookingrecipe.dto.RecipeStepDto;
+import com.cookingrecipe.cookingrecipe.dto.*;
 import com.cookingrecipe.cookingrecipe.exception.BadRequestException;
 import com.cookingrecipe.cookingrecipe.exception.UserNotFoundException;
 import com.cookingrecipe.cookingrecipe.repository.LikeRepository;
 import com.cookingrecipe.cookingrecipe.service.BoardService;
+import com.cookingrecipe.cookingrecipe.service.CommentService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,7 +36,7 @@ public class BoardController {
 
 
     private final BoardService boardService;
-    private final LikeRepository likeRepository;
+    private final CommentService commentService;
 
 
     // 게시글 작성 폼
@@ -122,6 +120,9 @@ public class BoardController {
             isBookmarked = boardService.isBookmarkedByUser(boardId, userDetails.getId());
         }
 
+        List<CommentResponseDto> comments = commentService.findByBoard(boardId);
+
+
         // 모델에 필요한 데이터 추가
         model.addAttribute("board", board);
         model.addAttribute("recipes", board.getRecipeSteps());
@@ -130,6 +131,7 @@ public class BoardController {
         model.addAttribute("isLoggedIn", userDetails != null);
         model.addAttribute("authorId", board.getUser().getId());
         model.addAttribute("currentUserId", userDetails != null ? userDetails.getId() : null);
+        model.addAttribute("comments", comments);
 
         return "board/view";
     }

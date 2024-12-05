@@ -1,8 +1,10 @@
 package com.cookingrecipe.cookingrecipe.domain;
 
 import com.cookingrecipe.cookingrecipe.entity.BaseTimeEntity;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
@@ -55,6 +57,7 @@ public class Board extends BaseTimeEntity {
 
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "user_id")
+    @JsonBackReference
     private User user;
 
     @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, fetch = LAZY)
@@ -71,6 +74,7 @@ public class Board extends BaseTimeEntity {
 
     @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, fetch = LAZY)
     @Builder.Default
+    @JsonManagedReference
     private List<RecipeStep> recipeSteps = new ArrayList<>();
 
 

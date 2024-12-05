@@ -44,27 +44,22 @@
             margin: 10px 0;
             display: block;
         }
-    </style>
-    <script>
-        function confirmDeletion(boardId) {
-            const confirmation = window.confirm("정말로 이 게시글을 삭제하시겠습니까?");
-            if (confirmation) {
-                const form = document.createElement('form');
-                form.method = 'post'; // Method Override로 DELETE 처리
-                form.action = `/boards/delete/${boardId}`; // 경로 수정
 
-                // Method Override
-                const methodInput = document.createElement('input');
-                methodInput.type = 'hidden';
-                methodInput.name = '_method';
-                methodInput.value = 'delete';
-                form.appendChild(methodInput);
-
-                document.body.appendChild(form);
-                form.submit();
-            }
+        .comment-section hr {
+            margin: 30px 0 20px;
+            border: 1px solid #ccc;
         }
-    </script>
+
+        .comment-actions {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .readonly-textarea {
+            cursor: not-allowed;
+            background-color: #f5f5f5;
+        }
+    </style>
 </head>
 <body>
 <!-- 헤더 fragment 포함 -->
@@ -164,6 +159,114 @@
                     </div>
                 </div>
             </div>
+
+            <!-- 댓글 섹션 -->
+            <div class="comment-section">
+                <hr />
+                <h3>댓글</h3>
+
+                <!-- 댓글 작성 폼 -->
+                <form th:action="@{/comments/create}" method="post" class="mt-3">
+                    <input type="hidden" name="boardId" th:value="${board.id}" />
+                    <textarea name="content"
+                              placeholder="댓글을 입력하세요"
+                              class="form-control mb-2"
+                              th:if="${currentUserId != null}"
+                              required></textarea>
+                    <textarea readonly
+                              placeholder="댓글을 작성하려면 로그인 해주세요."
+                              class="form-control mb-2 readonly-textarea"
+                              onclick="window.location.href='/login'"
+                              th:if="${currentUserId == null}"></textarea>
+                    <div class="d-flex justify-content-end">
+                        <button type="submit" class="btn btn-success" th:if="${currentUserId != null}">댓글 작성</button>
+                    </div>
+                </form>
+
+                <!-- 댓글 목록 -->
+                <ul>
+                    <li th:each="comment : ${comments}" class="mb-3">
+                        <!-- 댓글 컨테이너 -->
+                        <div class="border rounded p-3">
+                            <p>
+                                <strong th:text="${comment.nickname}"></strong>
+                                <span class="text-muted ms-2" th:text="${#temporals.format(comment.createdAt, 'yyyy-MM-dd HH:mm')}"></span>
+                            </p>
+
+                            <!-- 댓글 내용 -->
+                            <p id="comment-text-[[${comment.id}]]" th:text="${comment.content}" class="mb-2"></p>
+
+                            <!-- 수정 입력창 (기본적으로 숨김) -->
+                            <div id="edit-form-[[${comment.id}]]" style="display: none;">
+                                <textarea class="form-control mb-2" id="edit-content-[[${comment.id}]]" th:text="${comment.content}"></textarea>
+                                <div class="d-flex justify-content-end">
+                                    <button class="btn btn-success btn-sm me-2"
+                                            th:onclick="'submitEdit(' + ${comment.id} + ');'">완료</button>
+                                    <button class="btn btn-secondary btn-sm"
+                                            th:onclick="'cancelEdit(' + ${comment.id} + ');'">취소</button>
+
+                                </div>
+                            </div>
+
+                            <!-- 수정/삭제 버튼 -->
+                            <div class="d-flex justify-content-end">
+                                <button class="btn btn-primary btn-sm me-2"
+                                        th:if="${currentUserId != null and currentUserId == comment.userId}"
+                                        th:onclick="'enableEdit(' + ${comment.id} + ');'">수정</button>
+                                <form th:if="${currentUserId != null and currentUserId == comment.userId}"
+                                      th:action="@{/comments/delete/{id}(id=${comment.id})}" method="post">
+                                    <input type="hidden" name="boardId" th:value="${board.id}" />
+                                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('댓글을 삭제하시겠습니까?')">삭제</button>
+                                </form>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+
+            <script>
+                function enableEdit(commentId) {
+                    // 기존 댓글 숨기기
+                    document.getElementById(`comment-text-${commentId}`).style.display = 'none';
+                    // 수정 입력창 보이기
+                    document.getElementById(`edit-form-${commentId}`).style.display = 'block';
+                }
+
+                function cancelEdit(commentId) {
+                    // 기존 댓글 다시 보이기
+                    document.getElementById(`comment-text-${commentId}`).style.display = 'block';
+                    // 수정 입력창 숨기기
+                    document.getElementById(`edit-form-${commentId}`).style.display = 'none';
+                }
+
+                function submitEdit(commentId) {
+                    // 수정된 내용 가져오기
+                    const updatedContent = document.getElementById(`edit-content-${commentId}`).value;
+
+                    // 서버로 수정 요청 보내기
+                    fetch(`/comments/update/${commentId}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ content: updatedContent }),
+                    })
+                        .then((response) => {
+                            if (response.ok) {
+                                // 성공 시 댓글 내용 업데이트
+                                document.getElementById(`comment-text-${commentId}`).textContent = updatedContent;
+                                cancelEdit(commentId); // 수정 창 닫기
+                            } else {
+                                alert('댓글 수정에 실패했습니다.');
+                            }
+                        })
+                        .catch((error) => {
+                            console.error('Error:', error);
+                            alert('댓글 수정 중 오류가 발생했습니다.');
+                        });
+                }
+            </script>
+
         </div>
     </div>
 </div>
