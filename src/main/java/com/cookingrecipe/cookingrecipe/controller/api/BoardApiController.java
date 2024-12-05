@@ -3,6 +3,7 @@ package com.cookingrecipe.cookingrecipe.controller.api;
 import com.cookingrecipe.cookingrecipe.domain.Board;
 import com.cookingrecipe.cookingrecipe.domain.CustomUserDetails;
 import com.cookingrecipe.cookingrecipe.dto.BoardSaveDto;
+import com.cookingrecipe.cookingrecipe.dto.BoardUpdateDto;
 import com.cookingrecipe.cookingrecipe.dto.BoardWithImageDto;
 import com.cookingrecipe.cookingrecipe.exception.BadRequestException;
 import com.cookingrecipe.cookingrecipe.service.BoardService;
@@ -15,7 +16,9 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.io.IOException;
 import java.util.*;
 
 @RestController
@@ -91,9 +94,124 @@ public class BoardApiController {
         // 응답 데이터 생성
         Map<String, Object> response = new HashMap<>();
         response.put("board", board);
-        response.put("viewCount", board.getView()); // DB에서 가져온 조회수
+        response.put("viewCount", board.getView()); // DB 조회
         response.put("likeCount", board.getLikeCount()); // 좋아요 수
+        response.put("isNewView", isNewView);
+
 
         return ResponseEntity.ok(response);
     }
+
+
+    // 게시글 수정
+    @PatchMapping("/{id}")
+    public ResponseEntity<?> update(@PathVariable Long id,
+                         @ModelAttribute("form") BoardUpdateDto boardUpdateDto,
+                         BindingResult bindingResult, @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        if (userDetails == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", "로그인이 필요합니다"));
+        }
+
+
+        if (bindingResult.hasErrors()) {
+            List<Map<String, String>> errorMessages = bindingResult.getFieldErrors().stream()
+                    .map(error -> Map.of(
+                            "field", error.getField(),
+                            "message", error.getDefaultMessage()
+                    ))
+                    .toList();
+
+            return ResponseEntity.badRequest().body(errorMessages);
+        }
+
+        try {
+            boardService.update(id, boardUpdateDto, boardUpdateDto.getRecipeSteps());
+            return ResponseEntity.ok(Map.of("message", "게시글이 성공적으로 수정되었습니다"));
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("errorMessage", "게시글 수정 중 오류가 발생했습니다"));
+        }
+    }
+
+
+    // 게시글 좋아요 토글
+    @PatchMapping("/{id}/like")
+    public ResponseEntity<?> like(@PathVariable("id") Long boardId,
+                       @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        if (userDetails == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", "로그인이 필요합니다"));
+        }
+
+        try {
+            boardService.toggleLike(boardId, userDetails.getId());
+            return ResponseEntity.ok(Map.of(
+                    "message", "좋아요 상태가 변경되었습니다."
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "좋아요 설정 중 오류가 발생했습니다"));
+        }
+    }
+
+
+    // 게시글 북마크 토글
+    @PatchMapping("/boards/{id}/bookmark")
+    public ResponseEntity<?> toggleBookmark(@PathVariable("id") Long boardId,
+                                 @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        if (userDetails == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", "로그인이 필요합니다"));
+        }
+
+        try {
+            boardService.toggleBookmark(boardId, userDetails.getId());
+            return ResponseEntity.ok(Map.of(
+                    "message", "북마크 상태가 변경되었습니다."
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "북마크 설정 중 오류가 발생했습니다"));
+        }
+    }
+
+
+    // 게시글 삭제
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> delete(@PathVariable("id") Long boardId,
+                         @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        if (userDetails == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", "로그인이 필요합니다"));
+        }
+
+        try {
+            // 게시글 작성자 확인
+            Board board = boardService.findByIdWithUser(boardId)
+                    .orElseThrow(() -> new BadRequestException("게시글을 찾을 수 없습니다"));
+
+            if (!board.getUser().getId().equals(userDetails.getId())) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body(Map.of("error", "게시글 삭제 권한이 없습니다"));
+            }
+
+            // 삭제 로직 실행
+            boardService.deleteById(boardId);
+
+            return ResponseEntity.ok(Map.of("message", "게시글이 성공적으로 삭제되었습니다."));
+        } catch (BadRequestException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "게시글 삭제 중 오류가 발생했습니다."));
+        }
+    }
+
+
 }
