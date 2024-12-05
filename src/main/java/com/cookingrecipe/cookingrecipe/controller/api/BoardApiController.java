@@ -2,6 +2,7 @@ package com.cookingrecipe.cookingrecipe.controller.api;
 
 import com.cookingrecipe.cookingrecipe.domain.Board;
 import com.cookingrecipe.cookingrecipe.domain.CustomUserDetails;
+import com.cookingrecipe.cookingrecipe.dto.BoardResponseDto;
 import com.cookingrecipe.cookingrecipe.dto.BoardSaveDto;
 import com.cookingrecipe.cookingrecipe.dto.BoardUpdateDto;
 import com.cookingrecipe.cookingrecipe.dto.BoardWithImageDto;
@@ -26,7 +27,9 @@ import java.util.*;
 @RequiredArgsConstructor
 public class BoardApiController {
 
+
     private final BoardService boardService;
+
 
     // 전체 게시글 조회
     @GetMapping("")
@@ -34,7 +37,12 @@ public class BoardApiController {
 
         try {
             List<BoardWithImageDto> boards = boardService.findAllByDateDesc();
-            return ResponseEntity.ok().body(boards);
+
+            List<BoardResponseDto> response = boards.stream()
+                    .map(BoardResponseDto::from)
+                    .toList();
+
+            return ResponseEntity.ok().body(response);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "게시글을 조회하던 중 문제가 발생했습니다"));
@@ -213,5 +221,31 @@ public class BoardApiController {
         }
     }
 
+    // 게시글 검색 : 검색 조건
+    @GetMapping("/boards/search")
+    public String search(@RequestParam(required = false) String searchCriteria,
+                         @RequestParam(required = false) String keyword,
+                         @RequestParam(defaultValue = "date") String sort,
+                         Model model) {
+
+        if (keyword == null || keyword.trim().isEmpty()) {
+            model.addAttribute("errorMessage", "검색어를 입력하세요");
+            return "board/search";
+        }
+
+        List<BoardWithImageDto> boards;
+        if ("likes".equals(sort)) {
+            boards = boardService.searchBoardsOrderByLikes(searchCriteria, keyword);
+        } else {
+            boards = boardService.searchBoards(searchCriteria, keyword);
+        }
+
+        model.addAttribute("boards", boards);
+        model.addAttribute("searchCriteria", searchCriteria);
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("sort", sort);
+
+        return "board/search";
+    }
 
 }
