@@ -5,6 +5,7 @@ import com.cookingrecipe.cookingrecipe.domain.User;
 import com.cookingrecipe.cookingrecipe.dto.*;
 import com.cookingrecipe.cookingrecipe.exception.BadRequestException;
 import com.cookingrecipe.cookingrecipe.exception.UserNotFoundException;
+import com.cookingrecipe.cookingrecipe.service.BoardService;
 import com.cookingrecipe.cookingrecipe.service.UserService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -27,6 +28,7 @@ public class UserApiController {
 
 
     private final UserService userService;
+    private final BoardService boardService;
 
 
     // 회원가입
@@ -202,9 +204,12 @@ public class UserApiController {
         try {
             List<BoardWithImageDto> boards = userService.findByUserId(userDetails.getId());
 
-            return ResponseEntity.ok(boards);
-        } catch (Exception e){
+            List<BoardResponseDto> response = boards.stream()
+                    .map(BoardResponseDto::from)
+                    .toList();
 
+            return ResponseEntity.ok(response);
+        } catch (Exception e){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "게시글을 조회하던 중 문제가 발생했습니다"));
         }
@@ -218,9 +223,12 @@ public class UserApiController {
         try {
             List<BoardWithImageDto> boards = userService.findBookmarkedRecipeByUser(userDetails.getId());
 
-            return ResponseEntity.ok().body(boards);
-        } catch (Exception e){
+            List<BoardResponseDto> response = boards.stream()
+                    .map(BoardResponseDto::from)
+                    .toList();
 
+            return ResponseEntity.ok().body(response);
+        } catch (Exception e){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "북마크를 조회하던 중 문제가 발생했습니다."));
         }
@@ -250,8 +258,5 @@ public class UserApiController {
                     .body(Map.of("error", "에러가 발생했습니다. 다시 시도해주세요."));
         }
     }
-
-
-
 
 }

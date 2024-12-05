@@ -1,7 +1,9 @@
 package com.cookingrecipe.cookingrecipe.controller.api;
 
 import com.cookingrecipe.cookingrecipe.domain.Board;
+import com.cookingrecipe.cookingrecipe.domain.Category;
 import com.cookingrecipe.cookingrecipe.domain.CustomUserDetails;
+import com.cookingrecipe.cookingrecipe.domain.Method;
 import com.cookingrecipe.cookingrecipe.dto.BoardResponseDto;
 import com.cookingrecipe.cookingrecipe.dto.BoardSaveDto;
 import com.cookingrecipe.cookingrecipe.dto.BoardUpdateDto;
@@ -54,7 +56,7 @@ public class BoardApiController {
     // 게시글 작성
     @PostMapping("")
     public ResponseEntity<?> save(@RequestBody @Validated BoardSaveDto boardSaveDto, BindingResult bindingResult,
-                       @AuthenticationPrincipal CustomUserDetails userDetails) {
+                                  @AuthenticationPrincipal CustomUserDetails userDetails) {
 
         if (userDetails == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -89,8 +91,8 @@ public class BoardApiController {
     // 특정 게시글 조회
     @GetMapping("/{id}")
     public ResponseEntity<?> view(@PathVariable("id") Long boardId,
-                       @AuthenticationPrincipal CustomUserDetails userDetails,
-                       HttpSession session) {
+                                  @AuthenticationPrincipal CustomUserDetails userDetails,
+                                  HttpSession session) {
 
         Long userId = userDetails != null ? userDetails.getId() : 0L; // 로그인되지 않은 경우 0L로 처리
 
@@ -99,6 +101,8 @@ public class BoardApiController {
         // 게시글과 속한 레시피 조회
         Board board = boardService.findByIdWithUser(boardId)
                 .orElseThrow(() -> new BadRequestException("게시글을 찾을 수 없습니다"));
+
+
 
         // 응답 데이터 생성
         Map<String, Object> response = new HashMap<>();
@@ -115,8 +119,8 @@ public class BoardApiController {
     // 게시글 수정
     @PatchMapping("/{id}")
     public ResponseEntity<?> update(@PathVariable Long id,
-                         @ModelAttribute("form") BoardUpdateDto boardUpdateDto,
-                         BindingResult bindingResult, @AuthenticationPrincipal CustomUserDetails userDetails) {
+                                    @ModelAttribute("form") BoardUpdateDto boardUpdateDto,
+                                    BindingResult bindingResult, @AuthenticationPrincipal CustomUserDetails userDetails) {
 
         if (userDetails == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
@@ -148,7 +152,7 @@ public class BoardApiController {
     // 게시글 좋아요 토글
     @PatchMapping("/{id}/like")
     public ResponseEntity<?> like(@PathVariable("id") Long boardId,
-                       @AuthenticationPrincipal CustomUserDetails userDetails) {
+                                  @AuthenticationPrincipal CustomUserDetails userDetails) {
 
         if (userDetails == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
@@ -168,9 +172,9 @@ public class BoardApiController {
 
 
     // 게시글 북마크 토글
-    @PatchMapping("/boards/{id}/bookmark")
+    @PatchMapping("/{id}/bookmark")
     public ResponseEntity<?> toggleBookmark(@PathVariable("id") Long boardId,
-                                 @AuthenticationPrincipal CustomUserDetails userDetails) {
+                                            @AuthenticationPrincipal CustomUserDetails userDetails) {
 
         if (userDetails == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
@@ -192,7 +196,7 @@ public class BoardApiController {
     // 게시글 삭제
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable("id") Long boardId,
-                         @AuthenticationPrincipal CustomUserDetails userDetails) {
+                                    @AuthenticationPrincipal CustomUserDetails userDetails) {
 
         if (userDetails == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
@@ -259,13 +263,18 @@ public class BoardApiController {
     @GetMapping("/top")
     public ResponseEntity<?> top() {
 
-        List<BoardWithImageDto> boards = boardService.findTopRecipesByLikes(10);
+        try {
+            List<BoardWithImageDto> boards = boardService.findTopRecipesByLikes(10);
 
-        List<BoardResponseDto> response = boards.stream()
-                .map(BoardResponseDto::from)
-                .toList();
+            List<BoardResponseDto> response = boards.stream()
+                    .map(BoardResponseDto::from)
+                    .toList();
 
-        return ResponseEntity.ok(response);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("errorMessage", "검색 중 문제가 발생하였습니다. 다시 시도해주세요."));
+        }
     }
 
 
@@ -273,12 +282,69 @@ public class BoardApiController {
     @GetMapping("/monthly")
     public ResponseEntity<?> monthly() {
 
-        List<BoardWithImageDto> boards = boardService.findMonthlyRecipesByLikes(10);
+        try {
+            List<BoardWithImageDto> boards = boardService.findMonthlyRecipesByLikes(10);
 
-        List<BoardResponseDto> response = boards.stream()
-                .map(BoardResponseDto::from)
-                .toList();
+            List<BoardResponseDto> response = boards.stream()
+                    .map(BoardResponseDto::from)
+                    .toList();
 
-        return ResponseEntity.ok(response);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("errorMessage", "검색 중 문제가 발생하였습니다. 다시 시도해주세요."));
+        }
+    }
+
+
+    // 카테고리 검색
+    @GetMapping("/category/{category}")
+    public ResponseEntity<?> category(@PathVariable Category category,
+                                      @RequestParam(defaultValue = "date") String sort) {
+
+        try {
+            List<BoardWithImageDto> boards;
+
+            if ("likes".equals(sort)) {
+                boards = boardService.findByCategoryOrderByLikes(category);
+            } else {
+                boards = boardService.findByCategory(category);
+            }
+
+            List<BoardResponseDto> response = boards.stream()
+                    .map(BoardResponseDto::from)
+                    .toList();
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("errorMessage", "검색 중 문제가 발생하였습니다. 다시 시도해주세요."));
+        }
+    }
+
+
+    // 요리방법 검색
+    @GetMapping("/boards/method/{method}")
+    public ResponseEntity<?> method(@PathVariable Method method,
+                                    @RequestParam(defaultValue = "date") String sort) {
+
+        try {
+            List<BoardWithImageDto> boards;
+
+            if ("likes".equals(sort)) {
+                boards = boardService.findByMethodOrderByLikes(method);
+            } else {
+                boards = boardService.findByMethod(method);
+            }
+
+            List<BoardResponseDto> response = boards.stream()
+                    .map(BoardResponseDto::from)
+                    .toList();
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("errorMessage", "검색 중 문제가 발생하였습니다. 다시 시도해주세요."));
+        }
     }
 }

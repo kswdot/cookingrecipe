@@ -31,6 +31,7 @@ public class RecipeStep {
 
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "board_id")
+    @JsonBackReference
     private Board board;
 
 

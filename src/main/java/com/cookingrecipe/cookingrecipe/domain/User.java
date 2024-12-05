@@ -2,6 +2,7 @@ package com.cookingrecipe.cookingrecipe.domain;
 
 import com.cookingrecipe.cookingrecipe.entity.BaseTimeEntity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -72,7 +73,7 @@ public class User extends BaseTimeEntity {
     }
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, fetch = LAZY)
-    @JsonIgnore
+    @JsonManagedReference
     private List<Board> boards = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, fetch = LAZY)
