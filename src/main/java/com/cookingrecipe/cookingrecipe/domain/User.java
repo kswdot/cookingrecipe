@@ -1,6 +1,7 @@
 package com.cookingrecipe.cookingrecipe.domain;
 
 import com.cookingrecipe.cookingrecipe.domain.BaseTimeEntity;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -30,6 +31,21 @@ public class User extends BaseTimeEntity {
     private LocalDate birth; // 아이디, 비밀번호 찾기 시 사용되는 생년월일
     @Enumerated(EnumType.STRING)
     private Role role;
+
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, fetch = LAZY)
+    @JsonManagedReference
+    private List<Board> boards = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, fetch = LAZY)
+    private List<Bookmark> bookmarks = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, fetch = LAZY)
+    private List<Like> likes = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = LAZY)
+    @JsonManagedReference
+    private List<Comment> comments = new ArrayList<>();
 
 
     @Builder
@@ -69,17 +85,4 @@ public class User extends BaseTimeEntity {
     public CustomUserDetails toCustomUserDetails() {
         return new CustomUserDetails(this);
     }
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, fetch = LAZY)
-    private List<Board> boards = new ArrayList<>();
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, fetch = LAZY)
-    private List<Bookmark> bookmarks = new ArrayList<>();
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, fetch = LAZY)
-    private List<Like> likes = new ArrayList<>();
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = LAZY)
-    private List<Comment> comments = new ArrayList<>();
-
 }

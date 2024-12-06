@@ -4,12 +4,10 @@ import com.cookingrecipe.cookingrecipe.domain.Board;
 import com.cookingrecipe.cookingrecipe.domain.Category;
 import com.cookingrecipe.cookingrecipe.domain.CustomUserDetails;
 import com.cookingrecipe.cookingrecipe.domain.Method;
-import com.cookingrecipe.cookingrecipe.dto.BoardResponseDto;
-import com.cookingrecipe.cookingrecipe.dto.BoardSaveDto;
-import com.cookingrecipe.cookingrecipe.dto.BoardUpdateDto;
-import com.cookingrecipe.cookingrecipe.dto.BoardWithImageDto;
+import com.cookingrecipe.cookingrecipe.dto.*;
 import com.cookingrecipe.cookingrecipe.exception.BadRequestException;
 import com.cookingrecipe.cookingrecipe.service.BoardService;
+import com.cookingrecipe.cookingrecipe.service.CommentService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.Response;
@@ -32,6 +30,7 @@ public class BoardApiController {
 
 
     private final BoardService boardService;
+    private final CommentService commentService;
 
 
     // 전체 게시글 조회
@@ -91,8 +90,7 @@ public class BoardApiController {
     // 특정 게시글 조회
     @GetMapping("/{id}")
     public ResponseEntity<?> view(@PathVariable("id") Long boardId,
-                                  @AuthenticationPrincipal CustomUserDetails userDetails,
-                                  HttpSession session) {
+                                  @AuthenticationPrincipal CustomUserDetails userDetails) {
 
         Long userId = userDetails != null ? userDetails.getId() : 0L; // 로그인되지 않은 경우 0L로 처리
 
@@ -103,6 +101,8 @@ public class BoardApiController {
                 .orElseThrow(() -> new BadRequestException("게시글을 찾을 수 없습니다"));
 
 
+        List<CommentResponseDto> comments = commentService.findByBoard(boardId);
+
 
         // 응답 데이터 생성
         Map<String, Object> response = new HashMap<>();
@@ -110,6 +110,7 @@ public class BoardApiController {
         response.put("viewCount", board.getView()); // DB 조회
         response.put("likeCount", board.getLikeCount()); // 좋아요 수
         response.put("isNewView", isNewView);
+        response.put("comments", comments);
 
 
         return ResponseEntity.ok(response);

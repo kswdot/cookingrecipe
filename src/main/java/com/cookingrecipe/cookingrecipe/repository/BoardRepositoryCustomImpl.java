@@ -245,7 +245,10 @@ public class BoardRepositoryCustomImpl implements BoardRepositoryCustom {
 
         if (isNewView) {
             // Redis에서 처음 본 경우에만 DB 업데이트
+            System.out.println("New view detected for boardId: " + boardId);
             boardRepository.updateViewCount(boardId);
+        } else {
+            System.out.println("View already counted for boardId: " + boardId);
         }
 
         return isNewView;

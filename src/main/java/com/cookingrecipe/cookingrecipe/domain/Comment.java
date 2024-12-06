@@ -1,5 +1,6 @@
 package com.cookingrecipe.cookingrecipe.domain;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -18,10 +19,12 @@ public class Comment extends BaseTimeEntity {
 
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "user_id")
+    @JsonBackReference
     private User user;
 
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "board_id")
+    @JsonBackReference
     private Board board;
 
     @NotNull
