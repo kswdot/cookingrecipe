@@ -16,7 +16,6 @@ public class FileService {
             Path uploadPath = Paths.get(UPLOAD_DIR);
             if (!Files.exists(uploadPath)) {
                 Files.createDirectories(uploadPath);
-                log.warn("업로드 폴더 생성 완료: {}", uploadPath.toAbsolutePath());
             }
             return uploadPath.toAbsolutePath().toString(); // 업로드 경로 반환
         } catch (Exception e) {

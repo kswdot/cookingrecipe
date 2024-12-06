@@ -3,9 +3,9 @@ package com.cookingrecipe.cookingrecipe.dto;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
+import lombok.Data;
 
-@Getter
+@Data
 @Builder
 @AllArgsConstructor
 public class UserLoginDto {

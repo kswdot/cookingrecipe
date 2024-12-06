@@ -43,5 +43,7 @@ public interface BoardRepositoryCustom {
     // 이 달(한 달)의 레시피 TOP10
     List<Board> findMonthlyRecipesByLikes(int limit);
 
+    // 게시글 조회 수 증가 - Redis 사용
+    public boolean addViewCountWithRedis(Long boardId, Long userId);
 
 }

@@ -19,7 +19,6 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
@@ -149,7 +148,6 @@ public class BoardController {
                 .orElseThrow(() -> new BadRequestException("게시글을 찾을 수 없습니다"));
 
         if (board == null) {
-            log.warn("게시글이 존재하지 않습니다. 게시글 ID: {}", id);  // 게시글이 없을 경우 경고 로그 출력
             model.addAttribute("errorMessage", "게시글을 찾을 수 없습니다.");
             return "error/404";  // 에러 페이지 반환
         }

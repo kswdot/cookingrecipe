@@ -380,11 +380,18 @@ public class BoardServiceImpl implements BoardService {
     }
 
 
-    // 조회수 증가
+    // 조회수 증가 - HTTP Session 사용
     @Override
     @Transactional
     public void addViewCount(Long boardId) {
         boardRepository.updateViewCount(boardId);
+    }
+
+    
+    // 조회수 증가 - Redis 사용
+    @Override
+    public boolean addViewCountWithRedis(Long boardId, Long userId) {
+        return boardRepositoryCustom.addViewCountWithRedis(boardId, userId);
     }
 
 

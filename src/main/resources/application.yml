@@ -28,7 +28,6 @@ spring:
   web:
     resources:
       static-locations: classpath:/static/, file:C:/Users/user/.gradle/cookingrecipe/uploaded-images/
-
   security:
     oauth2:
       client:
@@ -56,3 +55,15 @@ logging:
     org:
       springframework:
         security: DEBUG  # Spring Security 디버그 모드
+
+redis:
+  host: 127.0.0.1               # Redis 서버 호스트
+  port: 6379                    # Redis 기본 포트
+  password:                     # 필요 시 비밀번호 설정
+  timeout: 5000                 # 연결 시간 초과 (ms)
+  database: 0                   # 사용할 Redis 데이터베이스 (기본값: 0)
+  lettuce:
+    pool:
+      max-active: 10            # 최대 활성 연결
+      max-idle: 10              # 최대 유휴 연결
+      min-idle: 1               # 최소 유휴 연결

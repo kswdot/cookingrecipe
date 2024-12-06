@@ -2,6 +2,8 @@ package com.cookingrecipe.cookingrecipe.config;
 
 import com.cookingrecipe.cookingrecipe.repository.UserRepository;
 import com.cookingrecipe.cookingrecipe.service.UserDetailsServiceImpl;
+import com.cookingrecipe.cookingrecipe.util.JwtAuthenticationFilter;
+import com.cookingrecipe.cookingrecipe.util.JwtTokenProvider;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -17,6 +19,7 @@ import org.springframework.security.oauth2.client.endpoint.DefaultAuthorizationC
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.firewall.StrictHttpFirewall;
 
@@ -27,6 +30,8 @@ public class SecurityConfig {
 
     private final HttpSession httpSession;
     private final CustomOAuth2UserService customOAuth2UserService;
+    private final JwtTokenProvider jwtTokenProvider;
+    private final UserDetailsServiceImpl userDetailsService;
 
     // 회원가입 -> 자동 로그인
     // AuthenticationManager 직접 등록하지 않고 AuthenticationConfiguration 통해 제공
@@ -70,6 +75,7 @@ public class SecurityConfig {
                         .requestMatchers("/images/**", "/css/**", "/js/**", "/static/**", "/uploads/**").permitAll()
                         .anyRequest().permitAll()
                 )
+                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider, userDetailsService), UsernamePasswordAuthenticationFilter.class)
                 .oauth2Login(oauth2 -> oauth2
                         .loginPage("/login")
                         .userInfoEndpoint(userInfoEndpoint -> userInfoEndpoint

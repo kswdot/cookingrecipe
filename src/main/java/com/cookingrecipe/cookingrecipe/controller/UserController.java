@@ -72,12 +72,8 @@ public class UserController {
         // 회원가입 성공 로직
         try {
             User user = userService.join(userSignupDto);
-            log.warn("User joined successfully: {}", user.getLoginId()); // 회원가입 성공 로그
-            log.warn("Attempting auto login for user: {}", user.getLoginId()); // 자동 로그인 호출 전 로그
             userService.autoLogin(user.getLoginId(), userSignupDto.getPassword());
-            log.warn("Auto login completed for user: {}", user.getLoginId()); // 자동 로그인 호출 후 로그
         } catch (Exception e) {
-            log.warn("Error occurred during signup or auto login", e);
             model.addAttribute("errorMessage", "회원가입 중 문제가 발생했습니다. 다시 시도해주세요.");
             return "user/join";
         }
@@ -148,9 +144,6 @@ public class UserController {
         session.setAttribute("SPRING_SECURITY_CONTEXT", SecurityContextHolder.getContext());
         session.setAttribute("user", updatedUser);
     }
-
-
-
 
 
     // 로그인 폼 - 로그인 과정은 Spring Security 관여
