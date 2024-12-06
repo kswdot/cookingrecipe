@@ -1,6 +1,7 @@
-package com.cookingrecipe.cookingrecipe.dto;
+package com.cookingrecipe.cookingrecipe.dto.api;
 
 import com.cookingrecipe.cookingrecipe.domain.Board;
+import com.cookingrecipe.cookingrecipe.dto.BoardWithImageDto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 

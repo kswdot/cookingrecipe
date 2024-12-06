@@ -55,7 +55,7 @@ public class SecurityConfig {
     @Bean
     public DefaultAuthorizationCodeTokenResponseClient customAuthorizationCodeTokenResponseClient() {
         DefaultAuthorizationCodeTokenResponseClient client = new DefaultAuthorizationCodeTokenResponseClient();
-        client.setRequestEntityConverter(new CustomRequestEntityConverter()::convert); // 우리가 만든 변환기 사용
+        client.setRequestEntityConverter(new CustomRequestEntityConverter()::convert);
         return client;
     }
 
@@ -71,7 +71,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/boards").permitAll()
                         .requestMatchers(HttpMethod.POST, "/boards").hasRole("USER")
                         .requestMatchers("/myPage/**", "/boards/new").hasRole("USER") // "USER" 역할을 가진 사용자만 접근 가능
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers("/images/**", "/css/**", "/js/**", "/static/**", "/uploads/**").permitAll()
                         .anyRequest().permitAll()
                 )

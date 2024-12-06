@@ -3,6 +3,7 @@ package com.cookingrecipe.cookingrecipe.controller.api;
 import com.cookingrecipe.cookingrecipe.domain.CustomUserDetails;
 import com.cookingrecipe.cookingrecipe.domain.User;
 import com.cookingrecipe.cookingrecipe.dto.*;
+import com.cookingrecipe.cookingrecipe.dto.api.BoardResponseDto;
 import com.cookingrecipe.cookingrecipe.exception.BadRequestException;
 import com.cookingrecipe.cookingrecipe.exception.UserNotFoundException;
 import com.cookingrecipe.cookingrecipe.service.BoardService;

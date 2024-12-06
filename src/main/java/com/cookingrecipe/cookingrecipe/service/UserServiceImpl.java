@@ -72,6 +72,27 @@ public class UserServiceImpl implements UserService {
     }
 
 
+    // 관리자 회원 가입
+    @Override
+    public User joinAdmin(UserSignupDto userSignupDto) {
+
+        // 비밀번호 암호화
+        String encodedPassword = passwordEncoder.encode(userSignupDto.getPassword());
+
+        User user = User.builder()
+                .loginId(userSignupDto.getLoginId())
+                .nickname(userSignupDto.getNickname())
+                .password(encodedPassword)
+                .email(userSignupDto.getEmail())
+                .number(userSignupDto.getNumber())
+                .birth(userSignupDto.getBirth())
+                .role(Role.ROLE_ADMIN)
+                .build();
+
+        return userRepository.save(user);
+    }
+
+
     // 소셜 간편 회원가입 - SocialSignupDto 사용
     @Override
     public User joinBySocial(SocialSignupDto socialSignupDto, User user) {
@@ -236,12 +257,18 @@ public class UserServiceImpl implements UserService {
         userRepository.delete(user);
     }
 
-    // 소셜 회원 데이터 지우기
+
+    // 모든 회원 조회
     @Override
-    public void deleteUser(User user) {
-        userRepository.delete(user);
+    public List<User> findAll() {
+        return userRepository.findAll();
     }
 
+    // 관리자 - 회원 삭제
+    @Override
+    public void deleteById(Long userId) {
+        userRepository.deleteById(userId);
+    }
 
 
 }

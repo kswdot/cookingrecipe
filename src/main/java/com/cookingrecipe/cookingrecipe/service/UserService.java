@@ -1,6 +1,5 @@
 package com.cookingrecipe.cookingrecipe.service;
 
-import com.cookingrecipe.cookingrecipe.domain.Board;
 import com.cookingrecipe.cookingrecipe.domain.User;
 import com.cookingrecipe.cookingrecipe.dto.BoardWithImageDto;
 import com.cookingrecipe.cookingrecipe.dto.SocialSignupDto;
@@ -17,9 +16,11 @@ import java.util.Optional;
 @Transactional
 public interface UserService {
 
-
     // 일반 회원 가입 - UserSignupDto 사용
     User join(UserSignupDto userSignupDto);
+
+    // 관리자 회원 가입 - UserSignupDto 사용
+    User joinAdmin(UserSignupDto userSignupDto);
 
     // 소셜 간편 회원 가입 - SocialSignupDto 사용
     User joinBySocial(SocialSignupDto socialSignupDto, User user);
@@ -60,7 +61,9 @@ public interface UserService {
     // 일반 회원 탈퇴
     void deleteUser(Long userId, String enteredPassword);
 
-    // 소셜 회원 탈퇴
-    void deleteUser(User user);
+    // ADMIN - 모든 회원 조회
+    List<User> findAll();
 
+    // ADMIN - 회원 삭제
+    void deleteById(Long userId);
 }

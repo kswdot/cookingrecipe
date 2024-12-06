@@ -48,6 +48,9 @@ public class InitData implements CommandLineRunner {
         User user3 = createUser("tester3", "테스터3", "@tester3333",
                 "tester3@gmail.com", "010-3333-3333", LocalDate.parse("2020-11-18"));
 
+        User admin1 = createAdmin("admin1", "관리자1", "@admin1111",
+                "admin1@gmail.com", "010-9999-9999", LocalDate.parse("2020-09-09"));
+
         // 게시글과 레시피 단계 생성
         createBoardWithSteps("레시피1", "간단한 레시피1입니다.", Category.CHINESE, Method.SOUP,
                 "재료1, 재료2, 재료3", user1, List.of("1.jpg", "2.jpg", "3.jpg"),
@@ -79,6 +82,26 @@ public class InitData implements CommandLineRunner {
         return userService.findByLoginId(loginId)
                 .orElseThrow(() -> new UserNotFoundException("해당 사용자가 없습니다."));
     }
+
+
+    private User createAdmin(String loginId, String nickname, String password, String email, String number, LocalDate birth) {
+        if (!userService.isLoginIdDuplicated(loginId) && !userService.isEmailDuplicated(email)) {
+            UserSignupDto userSignupDto = UserSignupDto.builder()
+                    .loginId(loginId)
+                    .nickname(nickname)
+                    .password(password)
+                    .email(email)
+                    .number(number)
+                    .birth(birth)
+                    .build();
+
+            userService.joinAdmin(userSignupDto);
+        }
+
+        return userService.findByLoginId(loginId)
+                .orElseThrow(() -> new UserNotFoundException("해당 사용자가 없습니다."));
+    }
+
 
     private void createBoardWithSteps(String title, String content, Category category, Method method,
                                       String ingredient, User user, List<String> imageFileNames, int likeCount,
