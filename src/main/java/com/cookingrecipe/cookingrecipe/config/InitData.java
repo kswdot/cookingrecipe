@@ -1,14 +1,14 @@
 package com.cookingrecipe.cookingrecipe.config;
 
-import com.cookingrecipe.cookingrecipe.domain.Category;
-import com.cookingrecipe.cookingrecipe.domain.Method;
-import com.cookingrecipe.cookingrecipe.domain.User;
+import com.cookingrecipe.cookingrecipe.domain.*;
 import com.cookingrecipe.cookingrecipe.dto.BoardSaveDto;
 import com.cookingrecipe.cookingrecipe.dto.InitBoardSaveDto;
 import com.cookingrecipe.cookingrecipe.dto.RecipeStepDto;
 import com.cookingrecipe.cookingrecipe.dto.UserSignupDto;
 import com.cookingrecipe.cookingrecipe.exception.UserNotFoundException;
+import com.cookingrecipe.cookingrecipe.repository.NotificationRepository;
 import com.cookingrecipe.cookingrecipe.service.BoardService;
+import com.cookingrecipe.cookingrecipe.service.NotificationService;
 import com.cookingrecipe.cookingrecipe.service.UserService;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +34,7 @@ public class InitData implements CommandLineRunner {
 
     private final UserService userService;
     private final BoardService boardService;
+    private final NotificationRepository notificationRepository;
 
 
     @Override
@@ -63,6 +64,11 @@ public class InitData implements CommandLineRunner {
         createBoardWithSteps("레시피3", "간단한 레시피3입니다.", Category.FUSION, Method.SALAD,
                 "재료X, 재료Y, 재료Z", user3, List.of("3.jpg", "1.jpg", "2.jpg"),
                 30, LocalDateTime.of(2024, 11, 24, 14, 0));
+
+        // 테스트용 알림 생성
+        createNotification(user1, null, NotificationType.LIKE, 1L, null, null, false, LocalDateTime.now());
+        createNotification(user2, null, NotificationType.COMMENT, 1L, 101L, "테스트 댓글 내용", false, LocalDateTime.now());
+        createNotification(user3, null, NotificationType.COMMENT, 2L, 102L, "다른 댓글 내용", true, LocalDateTime.now());
     }
 
 
@@ -162,4 +168,20 @@ public class InitData implements CommandLineRunner {
     }
 
 
+    private void createNotification(User user, User sender, NotificationType type,
+                                    Long boardId, Long commentId, String commentContent,
+                                    boolean isRead, LocalDateTime createdAt) {
+        Notification notification = new Notification(
+                null, // ID 자동 생성
+                user.getId(),
+                type,
+                boardId,
+                commentId,
+                commentContent,
+                isRead,
+                createdAt
+        );
+
+        notificationRepository.save(notification);
+    }
 }
