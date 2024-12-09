@@ -2,7 +2,7 @@ spring:
   jpa:
     hibernate:
       ddl-auto: create  # 운영 환경에서는 "update" 또는 "validate" 권장
-    show-sql: true      # SQL 쿼리 출력 활성화
+    show-sql: false      # SQL 쿼리 출력 활성화
     properties:
       hibernate:
         use_reflection_optimizer: false
@@ -48,13 +48,6 @@ spring:
 
 file:
   upload-dir: C:/Users/user/.gradle/cookingrecipe/uploaded-images/ # 파일 업로드 경로
-
-logging:
-  level:
-    root: WARN
-    org:
-      springframework:
-        security: DEBUG  # Spring Security 디버그 모드
 
 redis:
   host: 127.0.0.1               # Redis 서버 호스트
