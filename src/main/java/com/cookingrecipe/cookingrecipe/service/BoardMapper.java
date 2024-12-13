@@ -3,12 +3,14 @@ package com.cookingrecipe.cookingrecipe.service;
 import com.cookingrecipe.cookingrecipe.domain.Board;
 import com.cookingrecipe.cookingrecipe.dto.BoardWithImageDto;
 import com.cookingrecipe.cookingrecipe.repository.RecipeStepRepository;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Getter
 @Component
 @RequiredArgsConstructor
 public class BoardMapper {

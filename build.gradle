@@ -76,6 +76,9 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 	implementation 'org.apache.commons:commons-pool2' // 커넥션 풀 사용을 위해 추가
 
+	// Mock
+	testImplementation 'org.mockito:mockito-core:5.4.0'
+	testImplementation 'org.mockito:mockito-junit-jupiter:5.4.0' // JUnit 5와 함께 사용
 }
 
 tasks.named('test') {

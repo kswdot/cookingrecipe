@@ -65,8 +65,6 @@ public class BoardServiceImpl implements BoardService {
         boardRepository.save(board);
         // 로그 추가: 전달된 레시피 단계 확인
 
-        log.warn("Recipe steps before processing: {}", recipeStepDto);
-
 
         // RecipeStep 저장
         if (recipeStepDto != null && !recipeStepDto.isEmpty()) {
@@ -96,6 +94,7 @@ public class BoardServiceImpl implements BoardService {
 
             String fileName = saveFile(stepDto.getImage(), uploadDir);
 
+
             // RecipeStep 생성 및 저장
             RecipeStep recipeStep = RecipeStep.builder()
                     .stepOrder(stepOrder++) // 단계 번호 자동 증가
@@ -103,6 +102,7 @@ public class BoardServiceImpl implements BoardService {
                     .imagePath(fileName)
                     .board(board)
                     .build();
+
             recipeStepRepository.save(recipeStep);
         }
     }
@@ -400,6 +400,8 @@ public class BoardServiceImpl implements BoardService {
     @Transactional
     public void deleteById(Long boardId) {
         boardRepository.deleteById(boardId);
+
+        log.warn("Deleting Board ID: {}", boardId);
     }
 
 

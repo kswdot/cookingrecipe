@@ -71,7 +71,7 @@ public class Board extends BaseTimeEntity {
     @JsonManagedReference
     private List<Comment> comments = new ArrayList<>();
 
-    @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, fetch = LAZY)
+    @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true, fetch = LAZY)
     @Builder.Default
     @JsonManagedReference
     private List<RecipeStep> recipeSteps = new ArrayList<>();
@@ -91,6 +91,20 @@ public class Board extends BaseTimeEntity {
         this.likeCount = 0;
     }
 
+    // 테스트용 생성자 추가
+    public Board(Long id, String title, Category category, Method method, String ingredient, String content, User user, String nickname) {
+        this.id = id; // 테스트에서만 ID 설정
+        this.title = title;
+        this.category = category;
+        this.method = method;
+        this.ingredient = ingredient;
+        this.content = content;
+        this.user = user;
+        this.nickname = nickname;
+        this.view = 0L;
+        this.bookmarkCount = 0;
+        this.likeCount = 0;
+    }
 
     public void update(String title, Category category, Method method, String ingredient, String content) {
         this.title = title;
