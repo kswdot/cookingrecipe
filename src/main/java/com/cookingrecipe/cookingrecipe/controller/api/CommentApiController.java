@@ -1,8 +1,8 @@
 package com.cookingrecipe.cookingrecipe.controller.api;
 
-import com.cookingrecipe.cookingrecipe.domain.CustomUserDetails;
-import com.cookingrecipe.cookingrecipe.dto.CommentRequestDto;
-import com.cookingrecipe.cookingrecipe.dto.CommentResponseDto;
+import com.cookingrecipe.cookingrecipe.domain.User.CustomUserDetails;
+import com.cookingrecipe.cookingrecipe.dto.Comment.CommentRequestDto;
+import com.cookingrecipe.cookingrecipe.dto.Comment.CommentResponseDto;
 import com.cookingrecipe.cookingrecipe.service.Comment.CommentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

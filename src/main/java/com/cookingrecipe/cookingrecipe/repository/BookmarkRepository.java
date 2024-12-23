@@ -1,8 +1,6 @@
 package com.cookingrecipe.cookingrecipe.repository;
 
-import com.cookingrecipe.cookingrecipe.domain.Board;
-import com.cookingrecipe.cookingrecipe.domain.Bookmark;
-import com.cookingrecipe.cookingrecipe.domain.User;
+import com.cookingrecipe.cookingrecipe.domain.Board.Bookmark;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

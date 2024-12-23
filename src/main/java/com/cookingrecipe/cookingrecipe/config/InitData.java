@@ -1,9 +1,12 @@
 package com.cookingrecipe.cookingrecipe.config;
 
 import com.cookingrecipe.cookingrecipe.domain.*;
+import com.cookingrecipe.cookingrecipe.domain.Board.Category;
+import com.cookingrecipe.cookingrecipe.domain.Board.Method;
+import com.cookingrecipe.cookingrecipe.domain.User.User;
 import com.cookingrecipe.cookingrecipe.dto.InitBoardSaveDto;
 import com.cookingrecipe.cookingrecipe.dto.RecipeStepDto;
-import com.cookingrecipe.cookingrecipe.dto.UserSignupDto;
+import com.cookingrecipe.cookingrecipe.dto.User.UserSignupDto;
 import com.cookingrecipe.cookingrecipe.exception.UserNotFoundException;
 import com.cookingrecipe.cookingrecipe.repository.NotificationRepository;
 import com.cookingrecipe.cookingrecipe.service.Board.BoardService;

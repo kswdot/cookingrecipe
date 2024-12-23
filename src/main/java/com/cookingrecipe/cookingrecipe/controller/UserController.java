@@ -1,8 +1,9 @@
 package com.cookingrecipe.cookingrecipe.controller;
 
-import com.cookingrecipe.cookingrecipe.domain.CustomUserDetails;
-import com.cookingrecipe.cookingrecipe.domain.User;
-import com.cookingrecipe.cookingrecipe.dto.*;
+import com.cookingrecipe.cookingrecipe.domain.User.CustomUserDetails;
+import com.cookingrecipe.cookingrecipe.domain.User.User;
+import com.cookingrecipe.cookingrecipe.dto.Board.BoardWithImageDto;
+import com.cookingrecipe.cookingrecipe.dto.User.*;
 import com.cookingrecipe.cookingrecipe.exception.BadRequestException;
 import com.cookingrecipe.cookingrecipe.exception.UserNotFoundException;
 import com.cookingrecipe.cookingrecipe.repository.UserRepository;

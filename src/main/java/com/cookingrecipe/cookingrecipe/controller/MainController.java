@@ -1,6 +1,6 @@
 package com.cookingrecipe.cookingrecipe.controller;
 
-import com.cookingrecipe.cookingrecipe.dto.BoardWithImageDto;
+import com.cookingrecipe.cookingrecipe.dto.Board.BoardWithImageDto;
 import com.cookingrecipe.cookingrecipe.service.Board.BoardService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

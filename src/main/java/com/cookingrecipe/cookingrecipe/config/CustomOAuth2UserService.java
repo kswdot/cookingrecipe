@@ -1,7 +1,7 @@
 package com.cookingrecipe.cookingrecipe.config;
 
-import com.cookingrecipe.cookingrecipe.domain.Role;
-import com.cookingrecipe.cookingrecipe.domain.User;
+import Role;
+import com.cookingrecipe.cookingrecipe.domain.User.User;
 import com.cookingrecipe.cookingrecipe.repository.UserRepository;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +13,6 @@ import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserServ
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
-import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 

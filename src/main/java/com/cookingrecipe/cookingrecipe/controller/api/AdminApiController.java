@@ -1,9 +1,9 @@
 package com.cookingrecipe.cookingrecipe.controller.api;
 
-import com.cookingrecipe.cookingrecipe.domain.User;
-import com.cookingrecipe.cookingrecipe.dto.BoardWithImageDto;
-import com.cookingrecipe.cookingrecipe.dto.api.BoardResponseDto;
-import com.cookingrecipe.cookingrecipe.dto.api.UserResponseDto;
+import com.cookingrecipe.cookingrecipe.domain.User.User;
+import com.cookingrecipe.cookingrecipe.dto.Board.BoardWithImageDto;
+import com.cookingrecipe.cookingrecipe.dto.Board.BoardResponseDto;
+import com.cookingrecipe.cookingrecipe.dto.User.UserResponseDto;
 import com.cookingrecipe.cookingrecipe.service.Board.BoardService;
 import com.cookingrecipe.cookingrecipe.service.User.UserService;
 import lombok.RequiredArgsConstructor;

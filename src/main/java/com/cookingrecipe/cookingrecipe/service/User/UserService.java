@@ -1,10 +1,10 @@
 package com.cookingrecipe.cookingrecipe.service.User;
 
-import com.cookingrecipe.cookingrecipe.domain.User;
-import com.cookingrecipe.cookingrecipe.dto.BoardWithImageDto;
-import com.cookingrecipe.cookingrecipe.dto.SocialSignupDto;
-import com.cookingrecipe.cookingrecipe.dto.UserSignupDto;
-import com.cookingrecipe.cookingrecipe.dto.UserUpdateDto;
+import com.cookingrecipe.cookingrecipe.domain.User.User;
+import com.cookingrecipe.cookingrecipe.dto.Board.BoardWithImageDto;
+import com.cookingrecipe.cookingrecipe.dto.User.SocialSignupDto;
+import com.cookingrecipe.cookingrecipe.dto.User.UserSignupDto;
+import com.cookingrecipe.cookingrecipe.dto.User.UserUpdateDto;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

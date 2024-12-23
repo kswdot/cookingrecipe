@@ -1,7 +1,7 @@
 package com.cookingrecipe.cookingrecipe.dto;
 
-import com.cookingrecipe.cookingrecipe.domain.Category;
-import com.cookingrecipe.cookingrecipe.domain.Method;
+import com.cookingrecipe.cookingrecipe.domain.Board.Category;
+import com.cookingrecipe.cookingrecipe.domain.Board.Method;
 import lombok.Builder;
 import lombok.Data;
 

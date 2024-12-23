@@ -1,7 +1,7 @@
 package com.cookingrecipe.cookingrecipe.service.Comment;
 
-import com.cookingrecipe.cookingrecipe.dto.CommentRequestDto;
-import com.cookingrecipe.cookingrecipe.dto.CommentResponseDto;
+import com.cookingrecipe.cookingrecipe.dto.Comment.CommentRequestDto;
+import com.cookingrecipe.cookingrecipe.dto.Comment.CommentResponseDto;
 
 import java.util.List;
 

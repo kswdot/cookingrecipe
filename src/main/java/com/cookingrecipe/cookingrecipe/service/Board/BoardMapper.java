@@ -1,8 +1,8 @@
 package com.cookingrecipe.cookingrecipe.service.Board;
 
-import com.cookingrecipe.cookingrecipe.domain.Board;
-import com.cookingrecipe.cookingrecipe.dto.BoardWithImageDto;
-import com.cookingrecipe.cookingrecipe.repository.RecipeStepRepository;
+import com.cookingrecipe.cookingrecipe.domain.Board.Board;
+import com.cookingrecipe.cookingrecipe.dto.Board.BoardWithImageDto;
+import com.cookingrecipe.cookingrecipe.repository.RecipeStep.RecipeStepRepository;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

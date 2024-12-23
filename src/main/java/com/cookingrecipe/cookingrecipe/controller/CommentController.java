@@ -1,7 +1,7 @@
 package com.cookingrecipe.cookingrecipe.controller;
 
-import com.cookingrecipe.cookingrecipe.domain.CustomUserDetails;
-import com.cookingrecipe.cookingrecipe.dto.CommentRequestDto;
+import com.cookingrecipe.cookingrecipe.domain.User.CustomUserDetails;
+import com.cookingrecipe.cookingrecipe.dto.Comment.CommentRequestDto;
 import com.cookingrecipe.cookingrecipe.service.Comment.CommentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;

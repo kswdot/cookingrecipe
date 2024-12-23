@@ -1,6 +1,6 @@
 package com.cookingrecipe.cookingrecipe.repository;
 
-import com.cookingrecipe.cookingrecipe.domain.Comment;
+import com.cookingrecipe.cookingrecipe.domain.Board.Comment;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

@@ -1,7 +1,7 @@
 package com.cookingrecipe.cookingrecipe.service.RecipeStep;
 
-import com.cookingrecipe.cookingrecipe.domain.Board;
-import com.cookingrecipe.cookingrecipe.domain.RecipeStep;
+import com.cookingrecipe.cookingrecipe.domain.Board.Board;
+import com.cookingrecipe.cookingrecipe.domain.Board.RecipeStep;
 import com.cookingrecipe.cookingrecipe.dto.RecipeStepDto;
 
 import java.io.IOException;

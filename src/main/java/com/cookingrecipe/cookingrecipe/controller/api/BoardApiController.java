@@ -1,11 +1,14 @@
 package com.cookingrecipe.cookingrecipe.controller.api;
 
-import com.cookingrecipe.cookingrecipe.domain.Board;
-import com.cookingrecipe.cookingrecipe.domain.Category;
-import com.cookingrecipe.cookingrecipe.domain.CustomUserDetails;
-import com.cookingrecipe.cookingrecipe.domain.Method;
-import com.cookingrecipe.cookingrecipe.dto.*;
-import com.cookingrecipe.cookingrecipe.dto.api.BoardResponseDto;
+import com.cookingrecipe.cookingrecipe.domain.Board.Board;
+import com.cookingrecipe.cookingrecipe.domain.Board.Category;
+import com.cookingrecipe.cookingrecipe.domain.User.CustomUserDetails;
+import com.cookingrecipe.cookingrecipe.domain.Board.Method;
+import com.cookingrecipe.cookingrecipe.dto.Board.BoardResponseDto;
+import com.cookingrecipe.cookingrecipe.dto.Board.BoardSaveDto;
+import com.cookingrecipe.cookingrecipe.dto.Board.BoardUpdateDto;
+import com.cookingrecipe.cookingrecipe.dto.Board.BoardWithImageDto;
+import com.cookingrecipe.cookingrecipe.dto.Comment.CommentResponseDto;
 import com.cookingrecipe.cookingrecipe.exception.BadRequestException;
 import com.cookingrecipe.cookingrecipe.service.Board.BoardService;
 import com.cookingrecipe.cookingrecipe.service.Comment.CommentService;

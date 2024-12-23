@@ -1,7 +1,6 @@
 package com.cookingrecipe.cookingrecipe.repository;
 
-import com.cookingrecipe.cookingrecipe.domain.Like;
-import com.cookingrecipe.cookingrecipe.domain.User;
+import com.cookingrecipe.cookingrecipe.domain.Board.Like;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

@@ -1,6 +1,6 @@
 package com.cookingrecipe.cookingrecipe.controller.api;
 
-import com.cookingrecipe.cookingrecipe.dto.LoginRequestDto;
+import com.cookingrecipe.cookingrecipe.dto.User.LoginRequestDto;
 import com.cookingrecipe.cookingrecipe.util.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

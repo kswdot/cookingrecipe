@@ -1,13 +1,13 @@
 package com.cookingrecipe.cookingrecipe.service.Comment;
 
-import com.cookingrecipe.cookingrecipe.domain.Board;
-import com.cookingrecipe.cookingrecipe.domain.Comment;
-import com.cookingrecipe.cookingrecipe.domain.User;
-import com.cookingrecipe.cookingrecipe.dto.CommentRequestDto;
-import com.cookingrecipe.cookingrecipe.dto.CommentResponseDto;
+import com.cookingrecipe.cookingrecipe.domain.Board.Board;
+import com.cookingrecipe.cookingrecipe.domain.Board.Comment;
+import com.cookingrecipe.cookingrecipe.domain.User.User;
+import com.cookingrecipe.cookingrecipe.dto.Comment.CommentRequestDto;
+import com.cookingrecipe.cookingrecipe.dto.Comment.CommentResponseDto;
 import com.cookingrecipe.cookingrecipe.exception.BadRequestException;
 import com.cookingrecipe.cookingrecipe.exception.UserNotFoundException;
-import com.cookingrecipe.cookingrecipe.repository.BoardRepository;
+import com.cookingrecipe.cookingrecipe.repository.Board.BoardRepository;
 import com.cookingrecipe.cookingrecipe.repository.CommentRepository;
 import com.cookingrecipe.cookingrecipe.repository.UserRepository;
 import lombok.RequiredArgsConstructor;

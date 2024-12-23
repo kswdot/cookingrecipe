@@ -1,11 +1,18 @@
 package com.cookingrecipe.cookingrecipe.service.Board;
 
 import com.cookingrecipe.cookingrecipe.config.FileConfig;
-import com.cookingrecipe.cookingrecipe.domain.*;
+import com.cookingrecipe.cookingrecipe.domain.Board.*;
+import com.cookingrecipe.cookingrecipe.domain.User.CustomUserDetails;
+import com.cookingrecipe.cookingrecipe.domain.User.User;
 import com.cookingrecipe.cookingrecipe.dto.*;
+import com.cookingrecipe.cookingrecipe.dto.Board.BoardSaveDto;
+import com.cookingrecipe.cookingrecipe.dto.Board.BoardUpdateDto;
+import com.cookingrecipe.cookingrecipe.dto.Board.BoardWithImageDto;
 import com.cookingrecipe.cookingrecipe.exception.BadRequestException;
 import com.cookingrecipe.cookingrecipe.exception.UserNotFoundException;
 import com.cookingrecipe.cookingrecipe.repository.*;
+import com.cookingrecipe.cookingrecipe.repository.Board.BoardRepository;
+import com.cookingrecipe.cookingrecipe.repository.Board.BoardRepositoryCustom;
 import com.cookingrecipe.cookingrecipe.service.RecipeStep.RecipeStepService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

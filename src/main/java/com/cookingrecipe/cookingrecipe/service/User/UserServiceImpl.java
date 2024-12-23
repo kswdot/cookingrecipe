@@ -1,15 +1,15 @@
 package com.cookingrecipe.cookingrecipe.service.User;
 
-import com.cookingrecipe.cookingrecipe.domain.Board;
-import com.cookingrecipe.cookingrecipe.domain.Role;
-import com.cookingrecipe.cookingrecipe.domain.User;
-import com.cookingrecipe.cookingrecipe.dto.BoardWithImageDto;
-import com.cookingrecipe.cookingrecipe.dto.SocialSignupDto;
-import com.cookingrecipe.cookingrecipe.dto.UserSignupDto;
-import com.cookingrecipe.cookingrecipe.dto.UserUpdateDto;
+import com.cookingrecipe.cookingrecipe.domain.Board.Board;
+import Role;
+import com.cookingrecipe.cookingrecipe.domain.User.User;
+import com.cookingrecipe.cookingrecipe.dto.Board.BoardWithImageDto;
+import com.cookingrecipe.cookingrecipe.dto.User.SocialSignupDto;
+import com.cookingrecipe.cookingrecipe.dto.User.UserSignupDto;
+import com.cookingrecipe.cookingrecipe.dto.User.UserUpdateDto;
 import com.cookingrecipe.cookingrecipe.exception.BadRequestException;
 import com.cookingrecipe.cookingrecipe.exception.UserNotFoundException;
-import com.cookingrecipe.cookingrecipe.repository.BoardRepositoryCustom;
+import com.cookingrecipe.cookingrecipe.repository.Board.BoardRepositoryCustom;
 import com.cookingrecipe.cookingrecipe.repository.UserRepository;
 import com.cookingrecipe.cookingrecipe.service.Board.BoardMapper;
 import jakarta.servlet.http.HttpServletRequest;

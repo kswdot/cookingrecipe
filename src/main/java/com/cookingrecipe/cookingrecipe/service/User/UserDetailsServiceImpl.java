@@ -1,7 +1,7 @@
 package com.cookingrecipe.cookingrecipe.service.User;
 
-import com.cookingrecipe.cookingrecipe.domain.CustomUserDetails;
-import com.cookingrecipe.cookingrecipe.domain.User;
+import com.cookingrecipe.cookingrecipe.domain.User.CustomUserDetails;
+import com.cookingrecipe.cookingrecipe.domain.User.User;
 import com.cookingrecipe.cookingrecipe.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
