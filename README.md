@@ -15,8 +15,8 @@
 4.  [실행 화면](#4-실행-화면)
 5.  [개발 내용](#5-개발-내용) 
 6.  [구조 및 설계](#6-구조-및-설계)
-    - [DB 설계](#DB-설계)
-    - [API 설계](#API-설계)
+    - [DB 설계](#db-설계)
+    - [API 설계](#api-설계)
 7.  [마무리](#7-마무리)
     - [보완](#보완)
     - [후기](#후기)
@@ -280,7 +280,7 @@
   <summary>DB 설계</summary>
 <br>
   
-**DB 설계**  
+### DB 설계
   
 ![DB 설계](https://private-user-images.githubusercontent.com/102601303/395781321-20ab7ba4-dca1-4856-b5d3-642cf48767ca.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MzQ5ODI2NTAsIm5iZiI6MTczNDk4MjM1MCwicGF0aCI6Ii8xMDI2MDEzMDMvMzk1NzgxMzIxLTIwYWI3YmE0LWRjYTEtNDg1Ni1iNWQzLTY0MmNmNDg3NjdjYS5wbmc_WC1BbXotQWxnb3JpdGhtPUFXUzQtSE1BQy1TSEEyNTYmWC1BbXotQ3JlZGVudGlhbD1BS0lBVkNPRFlMU0E1M1BRSzRaQSUyRjIwMjQxMjIzJTJGdXMtZWFzdC0xJTJGczMlMkZhd3M0X3JlcXVlc3QmWC1BbXotRGF0ZT0yMDI0MTIyM1QxOTMyMzBaJlgtQW16LUV4cGlyZXM9MzAwJlgtQW16LVNpZ25hdHVyZT0yNzkxN2Y4NGJjYTE1YjcxMTQ2YWQwNzYxNmU5YzEzNGVhNzA4MDY0NjkyMTJmOGQxN2ZkYzJkYTFlOWZiMjA3JlgtQW16LVNpZ25lZEhlYWRlcnM9aG9zdCJ9.OpVEZ85Vg659JrU5DRBwaUREs7J4AoU6pCTNf0_Hk1Q)
 &nbsp;
@@ -299,6 +299,8 @@
   <summary>API 설계</summary>
   &nbsp;
 
+  ### API 설계
+
 ![Board API](https://private-user-images.githubusercontent.com/102601303/395813686-a8b2dfb6-1618-4de5-9321-cda9ca27b3fb.jpg?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MzQ5ODI2NTAsIm5iZiI6MTczNDk4MjM1MCwicGF0aCI6Ii8xMDI2MDEzMDMvMzk1ODEzNjg2LWE4YjJkZmI2LTE2MTgtNGRlNS05MzIxLWNkYTljYTI3YjNmYi5qcGc_WC1BbXotQWxnb3JpdGhtPUFXUzQtSE1BQy1TSEEyNTYmWC1BbXotQ3JlZGVudGlhbD1BS0lBVkNPRFlMU0E1M1BRSzRaQSUyRjIwMjQxMjIzJTJGdXMtZWFzdC0xJTJGczMlMkZhd3M0X3JlcXVlc3QmWC1BbXotRGF0ZT0yMDI0MTIyM1QxOTMyMzBaJlgtQW16LUV4cGlyZXM9MzAwJlgtQW16LVNpZ25hdHVyZT04NTlkYzFkNTU5ZDliNjI1YmRhMzI3Nzg3MzA4N2E0OGJkYTNjOTcwZTY0MDY1NTNmNDZkMjUyYTRhZTkxZDI2JlgtQW16LVNpZ25lZEhlYWRlcnM9aG9zdCJ9.T_B3fTLzXvoY4ukOHO46wFAluDsM10GNhKYcO1fpjj4)  
 ![User API](https://private-user-images.githubusercontent.com/102601303/395814300-2c558c00-203a-45a9-9c96-8cbbaf5fcf69.jpg?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MzQ5ODI2NTAsIm5iZiI6MTczNDk4MjM1MCwicGF0aCI6Ii8xMDI2MDEzMDMvMzk1ODE0MzAwLTJjNTU4YzAwLTIwM2EtNDVhOS05Yzk2LThjYmJhZjVmY2Y2OS5qcGc_WC1BbXotQWxnb3JpdGhtPUFXUzQtSE1BQy1TSEEyNTYmWC1BbXotQ3JlZGVudGlhbD1BS0lBVkNPRFlMU0E1M1BRSzRaQSUyRjIwMjQxMjIzJTJGdXMtZWFzdC0xJTJGczMlMkZhd3M0X3JlcXVlc3QmWC1BbXotRGF0ZT0yMDI0MTIyM1QxOTMyMzBaJlgtQW16LUV4cGlyZXM9MzAwJlgtQW16LVNpZ25hdHVyZT03NzBiY2UyZDI4NzEyYTcwYjE4YTlhNmIzZDgwYzhlM2RmN2ZmMjhiOTYyOTRhMGIwMjgwMzc5NmFkMzEzZTEyJlgtQW16LVNpZ25lZEhlYWRlcnM9aG9zdCJ9.kfCqe9FkC7hJpWnbCzna7KBMTvIfYxgIZFVI07APWI4)  
 ![Comment API](https://private-user-images.githubusercontent.com/102601303/395814572-f138a193-030f-4c5a-b34b-437b79574470.jpg?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MzQ5ODI2NTAsIm5iZiI6MTczNDk4MjM1MCwicGF0aCI6Ii8xMDI2MDEzMDMvMzk1ODE0NTcyLWYxMzhhMTkzLTAzMGYtNGM1YS1iMzRiLTQzN2I3OTU3NDQ3MC5qcGc_WC1BbXotQWxnb3JpdGhtPUFXUzQtSE1BQy1TSEEyNTYmWC1BbXotQ3JlZGVudGlhbD1BS0lBVkNPRFlMU0E1M1BRSzRaQSUyRjIwMjQxMjIzJTJGdXMtZWFzdC0xJTJGczMlMkZhd3M0X3JlcXVlc3QmWC1BbXotRGF0ZT0yMDI0MTIyM1QxOTMyMzBaJlgtQW16LUV4cGlyZXM9MzAwJlgtQW16LVNpZ25hdHVyZT1kM2I5YjJjMjIwZjZlNDk4NjhjOWQyNzkyN2Y3NDNlM2U0MWZmNDIxYjRlZjhjMGJkZjI5MTQ5OThhOTY5NTk4JlgtQW16LVNpZ25lZEhlYWRlcnM9aG9zdCJ9.oEGg2UmyLYf_CKxD1KOMtMYGYA64KBtVZw2g_c2oBeM)  
@@ -312,12 +314,12 @@
 &nbsp;
 
 ## 7. 마무리
-- **보완**  
+### - 보완  
   1) 실시간 알림 기능 구현 - 현재 실시간 알림이 아닌 비실시간 알림만 구현되어있으므로 추후 구현 예정
   2) 채팅 기능 구현 - 사용자간 간단한 채팅이나 쪽지를 주고 받을 수 있는 기능
   3) 통계 기능 - 조회수, 좋아요 수를 바탕으로 관리자가 게시글의 통계를 낼 수 있는 기능
  
-- **후기**  
+ ### - 후기  
   학교 재학 중에는 코드를 고치면 실시간으로 내가 변경한 코드가 반영된 것이 쉽게 보여지는 프론트엔드를 선호했고  
   졸업 프로젝트도 높은 수준은 아니었지만 프론트엔드를 담당해서 진행했습니다. 하지만 졸업 후 토이 프로젝트에서    
   간단한 백엔드를 처음 접하게 되었고 사용자 인터페이스에 직접적으로는 보이지는 않지만 제가 설계한 방향으로 시스템이  
