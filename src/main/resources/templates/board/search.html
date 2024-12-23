@@ -96,10 +96,10 @@
 
             <div class="row">
                 <!-- 검색 결과 목록 -->
-                <div th:each="boardWithImage : ${boards}" class="col-md-4 mb-3">
+                <div th:each="boardWithImage : ${boards.content}" class="col-md-4 mb-3">
                     <div class="card">
                         <!-- 이미지 처리 -->
-                        <img th:src="${boardWithImage.lastImagePath}" alt="대표 이미지" class="card-img-top">
+                        <img th:src="@{'/uploads/' + ${boardWithImage.lastImagePath}}" alt="대표 이미지" class="card-img-top">
 
                         <!-- 카드 내용 -->
                         <div class="card-body">
@@ -114,6 +114,35 @@
                     </div>
                 </div>
             </div>
+
+            <!-- 페이지네이션 -->
+            <nav aria-label="Page navigation" class="mt-4" th:if="${showPagination}">
+                <ul class="pagination justify-content-center">
+                    <!-- 이전 페이지 -->
+                    <li class="page-item" th:if="${boards.hasPrevious()}">
+                        <a class="page-link"
+                           th:href="@{'/boards/search'(searchCriteria=${searchCriteria}, keyword=${keyword}, sort=${sort}, page=${boards.number - 1})}">
+                            이전
+                        </a>
+                    </li>
+
+                    <!-- 페이지 번호 -->
+                    <li th:each="i : ${#numbers.sequence(0, boards.totalPages - 1)}"
+                        class="page-item" th:classappend="${boards.number == i} ? 'active' : ''">
+                        <a class="page-link"
+                           th:href="@{'/boards/search'(searchCriteria=${searchCriteria}, keyword=${keyword}, sort=${sort}, page=${i})}"
+                           th:text="${i + 1}">1</a>
+                    </li>
+
+                    <!-- 다음 페이지 -->
+                    <li class="page-item" th:if="${boards.hasNext()}">
+                        <a class="page-link"
+                           th:href="@{'/boards/search'(searchCriteria=${searchCriteria}, keyword=${keyword}, sort=${sort}, page=${boards.number + 1})}">
+                            다음
+                        </a>
+                    </li>
+                </ul>
+            </nav>
         </div>
     </div>
 </div>

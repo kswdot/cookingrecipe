@@ -48,6 +48,9 @@
             float: right;
         }
 
+        .pagination {
+            justify-content: center;
+        }
 
     </style>
 </head>
@@ -87,6 +90,22 @@
                     </div>
                 </div>
             </div>
+
+            <!-- 페이징 네비게이션 -->
+            <nav>
+                <ul class="pagination">
+                    <li class="page-item" th:classappend="${page.hasPrevious()} ? '' : 'disabled'">
+                        <a class="page-link" th:href="@{/boards(page=${page.number - 1})}" aria-label="Previous">이전</a>
+                    </li>
+                    <li class="page-item" th:each="pageNum : ${#numbers.sequence(0, page.totalPages - 1)}"
+                        th:classappend="${pageNum == page.number} ? 'active' : ''">
+                        <a class="page-link" th:href="@{/boards(page=${pageNum})}" th:text="${pageNum + 1}"></a>
+                    </li>
+                    <li class="page-item" th:classappend="${page.hasNext()} ? '' : 'disabled'">
+                        <a class="page-link" th:href="@{/boards(page=${page.number + 1})}" aria-label="Next">다음</a>
+                    </li>
+                </ul>
+            </nav>
         </div>
     </div>
 </div>

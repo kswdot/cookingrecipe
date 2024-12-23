@@ -11,7 +11,7 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/uploads/**")
-                .addResourceLocations("file:C:/Users/user/.gradle/cookingrecipe/uploaded-images/");
+                .addResourceLocations("file:/C:/Users/user/.gradle/cookingrecipe/uploaded-images/");
                 // 실제 파일 경로
                 // 해당 경로로 업로드한 파일이 저장됨
     }

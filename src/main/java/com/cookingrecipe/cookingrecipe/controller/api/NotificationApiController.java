@@ -1,7 +1,7 @@
 package com.cookingrecipe.cookingrecipe.controller.api;
 
 import com.cookingrecipe.cookingrecipe.domain.Notification;
-import com.cookingrecipe.cookingrecipe.service.NotificationService;
+import com.cookingrecipe.cookingrecipe.service.Notification.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -32,14 +32,14 @@ public class NotificationApiController {
     }
 
     // 모든 알림 읽음 처리
-    @PatchMapping("/read")
+    @PatchMapping("")
     public ResponseEntity<Void> markAllAsRead(@RequestParam Long userId) {
         notificationService.markAllAsRead(userId);
         return ResponseEntity.noContent().build();
     }
 
     // 특정 알림 읽음 처리
-    @PatchMapping("/{notificationId}/read")
+    @PatchMapping("/{notificationId}")
     public ResponseEntity<Void> markAllAsUnread(@RequestParam Long userId, @PathVariable Long notificationId) {
         notificationService.markAsRead(userId, notificationId);
         return ResponseEntity.noContent().build();

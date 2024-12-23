@@ -7,7 +7,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 @Slf4j
-public class FileService {
+public class FileConfig {
 
     private static final String UPLOAD_DIR = "C:/Users/user/.gradle/cookingrecipe/uploaded-images"; // 절대 경로
 

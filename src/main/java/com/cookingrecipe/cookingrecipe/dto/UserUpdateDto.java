@@ -20,8 +20,7 @@ public class UserUpdateDto {
             message = "이메일 형식이 올바르지 않습니다")
     private String email;
 
-    @Pattern(regexp = "^010-\\d{4}-\\d{4}$",
-            message = "올바른 전화번호를 입력하세요")
+    @Pattern(regexp = "^(010-\\d{4}-\\d{4}|010\\d{8})$", message = "올바른 전화번호를 입력하세요")
     private String number;
 
     private LocalDate birth;

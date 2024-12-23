@@ -1,4 +1,4 @@
-package com.cookingrecipe.cookingrecipe.service;
+package com.cookingrecipe.cookingrecipe.service.Comment;
 
 import com.cookingrecipe.cookingrecipe.domain.Board;
 import com.cookingrecipe.cookingrecipe.domain.Comment;

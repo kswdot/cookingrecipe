@@ -5,6 +5,9 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -12,11 +15,13 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
 @Slf4j
 public class BoardRepositoryCustomImpl implements BoardRepositoryCustom {
+
 
     private final JPAQueryFactory queryFactory;
     private final StringRedisTemplate redisTemplate;
@@ -24,14 +29,13 @@ public class BoardRepositoryCustomImpl implements BoardRepositoryCustom {
 
 
 
-
     // 모든 게시글 검색 - 최신순
     @Override
-    public List<Board> findAllByDateDesc() {
+    public Page<Board> findAllByDateDesc(Pageable pageable) {
         QBoard board = QBoard.board;
         QRecipeStep recipeStep = QRecipeStep.recipeStep;
 
-        return queryFactory
+        List<Board> boards = queryFactory
                 .selectFrom(board)
                 .leftJoin(board.recipeSteps, recipeStep).fetchJoin()
                 .where(recipeStep.stepOrder.eq(
@@ -40,63 +44,98 @@ public class BoardRepositoryCustomImpl implements BoardRepositoryCustom {
                                 .where(recipeStep.board.eq(board))
                 ))
                 .orderBy(board.createdDate.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
                 .fetch();
+
+        // 전체 게시글 개수 가져오기
+        Long totalCount = Optional.ofNullable(queryFactory
+                        .select(board.count())
+                        .from(board)
+                        .fetchOne())
+                .orElse(0L);
+
+        return new PageImpl<>(boards, pageable, totalCount);
     }
 
 
     // 검색 조건에 따른 게시글 조회 - 최신순
     @Override
-    public List<Board> searchBoards(String searchCriteria, String keyword) {
+    public Page<Board> searchBoards(String searchCriteria, String keyword, Pageable pageable) {
         QBoard board = QBoard.board;
+        QRecipeStep recipeStep = QRecipeStep.recipeStep;
 
         BooleanExpression condition = createCondition(searchCriteria, keyword);
 
-        // 검색 조건이 없을 때 전체 게시글 반환
-        if (condition == null) {
-            return queryFactory
-                    .selectFrom(board)
-                    .orderBy(board.createdDate.desc())
-                    .fetch();
-        }
-
-        // 검색 조건이 있을 때만 검색 실행
-        return queryFactory
+        // 게시글 리스트 조회 (페이징 적용)
+        List<Board> boards = queryFactory
                 .selectFrom(board)
-                .where(condition)
+                .leftJoin(board.recipeSteps, recipeStep).fetchJoin()
+                .where(condition != null ? condition.and(recipeStep.stepOrder.eq(
+                        queryFactory.select(recipeStep.stepOrder.max())
+                                .from(recipeStep)
+                                .where(recipeStep.board.eq(board))
+                )) : recipeStep.stepOrder.eq(
+                        queryFactory.select(recipeStep.stepOrder.max())
+                                .from(recipeStep)
+                                .where(recipeStep.board.eq(board))
+                ))
                 .orderBy(board.createdDate.desc())
+                .offset(pageable.getOffset())  // 시작 위치
+                .limit(pageable.getPageSize()) // 페이지 크기
                 .fetch();
+
+        // 전체 게시글 개수 조회 (검색 조건 적용)
+        Long totalCount = queryFactory
+                .select(board.count())
+                .from(board)
+                .where(condition) // 검색 조건 적용
+                .fetchOne();
+
+        return new PageImpl<>(boards, pageable, totalCount != null ? totalCount : 0);
     }
 
 
     // 검색 조건에 따른 게시글 조회 - 좋아요 순
     @Override
-    public List<Board> searchBoardsOrderByLikes(String searchCriteria, String keyword) {
+    public Page<Board> searchBoardsOrderByLikes(String searchCriteria, String keyword, Pageable pageable) {
         QBoard board = QBoard.board;
+        QRecipeStep recipeStep = QRecipeStep.recipeStep;
 
         BooleanExpression condition = createCondition(searchCriteria, keyword);
 
-        // 검색 조건이 없을 때 전체 게시글 반환
-        if (condition == null) {
-            return queryFactory
-                    .selectFrom(board)
-                    .orderBy(board.createdDate.desc())
-                    .fetch();
-        }
-
-        // 검색 조건이 있을 때만 검색 실행
-        return queryFactory
+        // 게시글 리스트 조회
+        List<Board> boards = queryFactory
                 .selectFrom(board)
-                .where(condition)
-                .orderBy(board.likeCount.desc())
+                .leftJoin(board.recipeSteps, recipeStep).fetchJoin()
+                .where(condition != null ? condition.and(recipeStep.stepOrder.eq(
+                        queryFactory.select(recipeStep.stepOrder.max())
+                                .from(recipeStep)
+                                .where(recipeStep.board.eq(board))
+                )) : recipeStep.stepOrder.eq(
+                        queryFactory.select(recipeStep.stepOrder.max())
+                                .from(recipeStep)
+                                .where(recipeStep.board.eq(board))
+                ))
+                .orderBy(board.createdDate.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
                 .fetch();
+
+        // 전체 게시글 개수 조회
+        Long totalCount = queryFactory
+                .select(board.count())
+                .from(board)
+                .where(condition)
+                .fetchOne();
+
+        return new PageImpl<>(boards, pageable, totalCount != null ? totalCount : 0);
     }
 
 
     // 검색 조건 생성 메서드
     private BooleanExpression createCondition(String searchCriteria, String keyword) {
         QBoard board = QBoard.board;
-
-        log.info("createCondition 호출: searchCriteria={}, keyword={}", searchCriteria, keyword);
 
         if (searchCriteria == null || keyword == null || keyword.isBlank()) {
             return null; // 검색 조건 없음
@@ -119,10 +158,18 @@ public class BoardRepositoryCustomImpl implements BoardRepositoryCustom {
     @Override
     public List<Board> findByCategory(Category category) {
         QBoard board = QBoard.board;
+        QRecipeStep recipeStep = QRecipeStep.recipeStep;
 
         return queryFactory
                 .selectFrom(board)
-                .where(board.category.eq(category))
+                .leftJoin(board.recipeSteps, recipeStep).fetchJoin()
+                .where(board.category.eq(category)
+                        .and(recipeStep.stepOrder.eq(
+                                queryFactory.select(recipeStep.stepOrder.max())
+                                        .from(recipeStep)
+                                        .where(recipeStep.board.eq(board))
+                        ))
+                )
                 .orderBy(board.createdDate.desc())
                 .fetch();
     }
@@ -132,10 +179,18 @@ public class BoardRepositoryCustomImpl implements BoardRepositoryCustom {
     @Override
     public List<Board> findByCategoryOrderByLikes(Category category) {
         QBoard board = QBoard.board;
+        QRecipeStep recipeStep = QRecipeStep.recipeStep;
 
         return queryFactory
                 .selectFrom(board)
-                .where(board.category.eq(category))
+                .leftJoin(board.recipeSteps, recipeStep).fetchJoin()
+                .where(board.category.eq(category)
+                        .and(recipeStep.stepOrder.eq(
+                                queryFactory.select(recipeStep.stepOrder.max())
+                                        .from(recipeStep)
+                                        .where(recipeStep.board.eq(board))
+                                ))
+                )
                 .orderBy(board.likeCount.desc())
                 .fetch();
     }
@@ -145,13 +200,20 @@ public class BoardRepositoryCustomImpl implements BoardRepositoryCustom {
     @Override
     public List<Board> findByMethod(Method method) {
         QBoard board = QBoard.board;
+        QRecipeStep recipeStep = QRecipeStep.recipeStep;
 
         return queryFactory
                 .selectFrom(board)
-                .where(board.method.eq(method))
+                .leftJoin(board.recipeSteps, recipeStep).fetchJoin()
+                .where(board.method.eq(method)
+                        .and(recipeStep.stepOrder.eq(
+                                queryFactory.select(recipeStep.stepOrder.max())
+                                        .from(recipeStep)
+                                        .where(recipeStep.board.eq(board))
+                        ))
+                )
                 .orderBy(board.createdDate.desc())
                 .fetch();
-
     }
 
 
@@ -159,10 +221,18 @@ public class BoardRepositoryCustomImpl implements BoardRepositoryCustom {
     @Override
     public List<Board> findByMethodOrderByLikes(Method method) {
         QBoard board = QBoard.board;
+        QRecipeStep recipeStep = QRecipeStep.recipeStep;
 
         return queryFactory
                 .selectFrom(board)
-                .where(board.method.eq(method))
+                .leftJoin(board.recipeSteps, recipeStep).fetchJoin()
+                .where(board.method.eq(method)
+                        .and(recipeStep.stepOrder.eq(
+                                queryFactory.select(recipeStep.stepOrder.max())
+                                        .from(recipeStep)
+                                        .where(recipeStep.board.eq(board))
+                        ))
+                )
                 .orderBy(board.likeCount.desc())
                 .fetch();
     }
@@ -173,12 +243,19 @@ public class BoardRepositoryCustomImpl implements BoardRepositoryCustom {
     public List<Board> findBookmarkedRecipeByUser(Long userId) {
         QBoard board = QBoard.board;
         QBookmark bookmark = QBookmark.bookmark;
+        QRecipeStep recipeStep = QRecipeStep.recipeStep;
 
         return queryFactory
-                .select(board)
-                .from(bookmark)
-                .join(bookmark.board, board)
-                .where(bookmark.user.id.eq(userId))
+                .selectFrom(board)
+                .join(bookmark).on(bookmark.board.eq(board))
+                .leftJoin(board.recipeSteps, recipeStep).fetchJoin()
+                .where(bookmark.user.id.eq(userId)
+                        .and(recipeStep.stepOrder.eq(
+                                queryFactory.select(recipeStep.stepOrder.max())
+                                        .from(recipeStep)
+                                        .where(recipeStep.board.eq(board))
+                        ))
+                )
                 .orderBy(bookmark.createdDate.desc())
                 .fetch();
     }
@@ -189,23 +266,39 @@ public class BoardRepositoryCustomImpl implements BoardRepositoryCustom {
     public List<Board> findByUserId(Long userId) {
         QBoard board = QBoard.board;
         QUser user = QUser.user;
+        QRecipeStep recipeStep = QRecipeStep.recipeStep;
 
         return queryFactory
                 .selectFrom(board)
+                .leftJoin(board.recipeSteps, recipeStep).fetchJoin()
                 .join(board.user, user)
-                .where(user.id.eq(userId))
+                .where(user.id.eq(userId)
+                        .and(recipeStep.stepOrder.eq(
+                                queryFactory.select(recipeStep.stepOrder.max())
+                                        .from(recipeStep)
+                                        .where(recipeStep.board.eq(board))
+                        ))
+                )
                 .orderBy(board.createdDate.desc())
                 .fetch();
     }
+
 
 
     // 인기 레시피 TOP 10 조회 (좋아요 순 기준)
     @Override
     public List<Board> findTopRecipesByLikes(int limit) {
         QBoard board = QBoard.board;
+        QRecipeStep recipeStep = QRecipeStep.recipeStep;
 
         return queryFactory
                 .selectFrom(board)
+                .leftJoin(board.recipeSteps, recipeStep).fetchJoin()
+                .where(recipeStep.stepOrder.eq(
+                        queryFactory.select(recipeStep.stepOrder.max())
+                                .from(recipeStep)
+                                .where(recipeStep.board.eq(board))
+                ))
                 .orderBy(board.likeCount.desc())
                 .limit(limit)
                 .fetch();
@@ -216,6 +309,7 @@ public class BoardRepositoryCustomImpl implements BoardRepositoryCustom {
     @Override
     public List<Board> findMonthlyRecipesByLikes(int limit) {
         QBoard board = QBoard.board;
+        QRecipeStep recipeStep = QRecipeStep.recipeStep;
 
         // 현재 월의 첫째 날과 마지막 날 계산
         YearMonth currentMonth = YearMonth.now();
@@ -224,12 +318,19 @@ public class BoardRepositoryCustomImpl implements BoardRepositoryCustom {
 
         return queryFactory
                 .selectFrom(board)
-                .where(board.createdDate.between(
-                        startOfMonth.atStartOfDay(),
-                        endOfMonth.atTime(23, 59, 59))
+                .leftJoin(board.recipeSteps, recipeStep).fetchJoin()
+                .where(
+                        board.createdDate.between(
+                                startOfMonth.atStartOfDay(),
+                                endOfMonth.atTime(23, 59, 59)
+                        ).and(recipeStep.stepOrder.eq(
+                                queryFactory.select(recipeStep.stepOrder.max())
+                                        .from(recipeStep)
+                                        .where(recipeStep.board.eq(board))
+                        ))
                 )
-                .limit(limit)
                 .orderBy(board.likeCount.desc())
+                .limit(limit)
                 .fetch();
     }
 

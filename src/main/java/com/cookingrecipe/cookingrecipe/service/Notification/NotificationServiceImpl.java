@@ -1,4 +1,4 @@
-package com.cookingrecipe.cookingrecipe.service;
+package com.cookingrecipe.cookingrecipe.service.Notification;
 
 import com.cookingrecipe.cookingrecipe.domain.Notification;
 import com.cookingrecipe.cookingrecipe.repository.NotificationRepository;

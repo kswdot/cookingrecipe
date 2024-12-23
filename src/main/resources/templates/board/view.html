@@ -150,8 +150,11 @@
                 <div>
                     <!-- 작성자가 본인인 경우 -->
                     <div th:if="${currentUserId != null and currentUserId == authorId}">
-                        <a th:href="@{/boards/update/{id}(id=${board.id})}" class="btn btn-primary">수정</a>
-                        <button type="button" class="btn btn-danger" th:attr="onclick=|confirmDeletion(${board.id})|">삭제</button>
+                        <a th:href="@{/boards/update/{id}(id=${board.id})}" class="btn btn-primary d-inline">수정</a>
+                        <form th:action="@{/boards/delete/{id}(id=${board.id})}" method="post" class="d-inline" onsubmit="return confirm('게시글을 삭제하시겠습니까?')">
+                            <input type="hidden" name="_method" value="DELETE">
+                            <button type="submit" class="btn btn-danger">삭제</button>
+                        </form>
                     </div>
 
                     <div th:if="${currentUserId == null or currentUserId != authorId}">
@@ -204,7 +207,6 @@
                                             th:onclick="'submitEdit(' + ${comment.id} + ');'">완료</button>
                                     <button class="btn btn-secondary btn-sm"
                                             th:onclick="'cancelEdit(' + ${comment.id} + ');'">취소</button>
-
                                 </div>
                             </div>
 
@@ -223,50 +225,6 @@
                     </li>
                 </ul>
             </div>
-
-            <script>
-                function enableEdit(commentId) {
-                    // 기존 댓글 숨기기
-                    document.getElementById(`comment-text-${commentId}`).style.display = 'none';
-                    // 수정 입력창 보이기
-                    document.getElementById(`edit-form-${commentId}`).style.display = 'block';
-                }
-
-                function cancelEdit(commentId) {
-                    // 기존 댓글 다시 보이기
-                    document.getElementById(`comment-text-${commentId}`).style.display = 'block';
-                    // 수정 입력창 숨기기
-                    document.getElementById(`edit-form-${commentId}`).style.display = 'none';
-                }
-
-                function submitEdit(commentId) {
-                    // 수정된 내용 가져오기
-                    const updatedContent = document.getElementById(`edit-content-${commentId}`).value;
-
-                    // 서버로 수정 요청 보내기
-                    fetch(`/comments/update/${commentId}`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({ content: updatedContent }),
-                    })
-                        .then((response) => {
-                            if (response.ok) {
-                                // 성공 시 댓글 내용 업데이트
-                                document.getElementById(`comment-text-${commentId}`).textContent = updatedContent;
-                                cancelEdit(commentId); // 수정 창 닫기
-                            } else {
-                                alert('댓글 수정에 실패했습니다.');
-                            }
-                        })
-                        .catch((error) => {
-                            console.error('Error:', error);
-                            alert('댓글 수정 중 오류가 발생했습니다.');
-                        });
-                }
-            </script>
-
         </div>
     </div>
 </div>

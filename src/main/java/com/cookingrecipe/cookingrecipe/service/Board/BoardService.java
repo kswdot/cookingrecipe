@@ -1,7 +1,9 @@
-package com.cookingrecipe.cookingrecipe.service;
+package com.cookingrecipe.cookingrecipe.service.Board;
 
 import com.cookingrecipe.cookingrecipe.domain.*;
 import com.cookingrecipe.cookingrecipe.dto.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,8 +16,6 @@ import java.util.Optional;
 @Transactional
 public interface BoardService {
 
-    public Board joinEntity(Board board);
-
     // 게시글 작성
     Long save(BoardSaveDto boardSaveDto, List<RecipeStepDto> recipeStepDto, CustomUserDetails userDetails) throws IOException;
 
@@ -26,7 +26,7 @@ public interface BoardService {
     List<BoardWithImageDto> findAll();
 
     // 모든 게시글 검색 - 최신순
-    List<BoardWithImageDto> findAllByDateDesc();
+    Page<BoardWithImageDto> findAllByDateDesc(Pageable pageable);
 
     // 게시글 검색 - 유저
     Optional<Board> findByIdWithUser(Long userId);
@@ -38,10 +38,10 @@ public interface BoardService {
     Board findBoardWithRecipeSteps(Long boardId);
 
     // 게시글 검색 - 검색 조건 - 최신순
-    List<BoardWithImageDto> searchBoards(String searchCriteria, String keyword);
+    Page<BoardWithImageDto> searchBoards(String searchCriteria, String keyword, Pageable pageable);
 
     // 게시글 검색 -검색 조건 - 좋아요 순
-    List<BoardWithImageDto> searchBoardsOrderByLikes(String searchCriteria, String keyword);
+    Page<BoardWithImageDto> searchBoardsOrderByLikes(String searchCriteria, String keyword, Pageable pageable);
 
     // 게시글 검색 - 카테고리 - 최신순
     List<BoardWithImageDto> findByCategory(Category category);

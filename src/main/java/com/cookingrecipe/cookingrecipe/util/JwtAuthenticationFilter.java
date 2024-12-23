@@ -1,6 +1,6 @@
 package com.cookingrecipe.cookingrecipe.util;
 
-import com.cookingrecipe.cookingrecipe.service.UserDetailsServiceImpl;
+import com.cookingrecipe.cookingrecipe.service.User.UserDetailsServiceImpl;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

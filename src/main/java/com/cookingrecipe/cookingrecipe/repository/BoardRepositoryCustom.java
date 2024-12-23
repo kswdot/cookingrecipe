@@ -3,6 +3,8 @@ package com.cookingrecipe.cookingrecipe.repository;
 import com.cookingrecipe.cookingrecipe.domain.Board;
 import com.cookingrecipe.cookingrecipe.domain.Category;
 import com.cookingrecipe.cookingrecipe.domain.Method;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -11,13 +13,13 @@ import java.util.List;
 public interface BoardRepositoryCustom {
 
     // 모든 게시글 검색 - 최신순
-    List<Board> findAllByDateDesc();
+    Page<Board> findAllByDateDesc(Pageable pageable);
 
     // 게시글 조회 - 검색조건 - 최신순
-    List<Board> searchBoards(String searchCriteria, String keyword);
+    Page<Board> searchBoards(String searchCriteria, String keyword, Pageable pageable);
 
     // 게시글 조회 - 검색조건 - 좋아요 순
-    List<Board> searchBoardsOrderByLikes(String searchCriteria, String keyword);
+    Page<Board> searchBoardsOrderByLikes(String searchCriteria, String keyword, Pageable pageable);
 
     // 게시글 조회 - 카테고리 - 최신순
     List<Board> findByCategory(Category category);

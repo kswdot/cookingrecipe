@@ -72,8 +72,9 @@
             <!-- 게시글 목록 -->
             <div class="row">
                 <div th:each="boardWithImage : ${boards}" class="col-md-4 mb-3">
+
                     <div class="card">
-                        <img th:src="${boardWithImage.lastImagePath}" alt="대표 이미지" class="card-img-top">
+                        <img th:src="@{'/uploads/' + ${boardWithImage.lastImagePath}}" alt="대표 이미지" class="card-img-top">
                         <div class="card-body">
                             <h5 class="card-title" th:text="${boardWithImage.board.title}"></h5>
                             <p class="author">작성자: <span th:text="${boardWithImage.board.user.nickname}"></span></p>

@@ -6,13 +6,15 @@ import com.cookingrecipe.cookingrecipe.domain.CustomUserDetails;
 import com.cookingrecipe.cookingrecipe.domain.Method;
 import com.cookingrecipe.cookingrecipe.dto.*;
 import com.cookingrecipe.cookingrecipe.exception.BadRequestException;
-import com.cookingrecipe.cookingrecipe.exception.UserNotFoundException;
-import com.cookingrecipe.cookingrecipe.repository.LikeRepository;
-import com.cookingrecipe.cookingrecipe.service.BoardService;
-import com.cookingrecipe.cookingrecipe.service.CommentService;
+import com.cookingrecipe.cookingrecipe.service.Board.BoardService;
+import com.cookingrecipe.cookingrecipe.service.Comment.CommentService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -261,24 +263,40 @@ public class BoardController {
     public String search(@RequestParam(required = false) String searchCriteria,
                          @RequestParam(required = false) String keyword,
                          @RequestParam(defaultValue = "date") String sort,
+                         @PageableDefault(size = 9) Pageable pageable,
                          Model model) {
+
+        log.info("Search Criteria: {}", searchCriteria);
+        log.info("Keyword: {}", keyword);
+        log.info("Sort: {}", sort);
+
 
         if (keyword == null || keyword.trim().isEmpty()) {
             model.addAttribute("errorMessage", "검색어를 입력하세요");
             return "board/search";
         }
 
-        List<BoardWithImageDto> boards;
+        Page<BoardWithImageDto> boards;
         if ("likes".equals(sort)) {
-            boards = boardService.searchBoardsOrderByLikes(searchCriteria, keyword);
+            boards = boardService.searchBoardsOrderByLikes(searchCriteria, keyword, pageable);
         } else {
-            boards = boardService.searchBoards(searchCriteria, keyword);
+            boards = boardService.searchBoards(searchCriteria, keyword, pageable);
         }
+
+        // 검색 결과가 페이지 크기(9) 이하일 경우 페이지네이션 숨김 여부 설정
+        boolean showPagination = boards.getTotalElements() > pageable.getPageSize();
 
         model.addAttribute("boards", boards);
         model.addAttribute("searchCriteria", searchCriteria);
         model.addAttribute("keyword", keyword);
         model.addAttribute("sort", sort);
+        model.addAttribute("showPagination", showPagination); // 페이지네이션 표시 여부 전달
+        model.addAttribute("currentPage", boards.getNumber());
+        model.addAttribute("totalPages", boards.getTotalPages());
+
+        log.info("Total Elements: {}", boards.getTotalElements());
+        log.info("Page Size: {}", pageable.getPageSize());
+        log.info("Show Pagination: {}", showPagination);
 
         return "board/search";
     }
@@ -286,11 +304,12 @@ public class BoardController {
 
     // 전체 레시피 조회
     @GetMapping("/boards")
-    public String all(Model model) {
+    public String all(@PageableDefault(size = 9, sort = "createdDate", direction = Sort.Direction.DESC) Pageable pageable,
+                      Model model) {
+        Page<BoardWithImageDto> boardPage = boardService.findAllByDateDesc(pageable);
 
-        List<BoardWithImageDto> boards = boardService.findAllByDateDesc();
-
-        model.addAttribute("boards", boards);
+        model.addAttribute("boards", boardPage.getContent()); // 게시글 데이터
+        model.addAttribute("page", boardPage); // 페이징 정보
         return "board/all";
     }
 
@@ -298,8 +317,8 @@ public class BoardController {
     // 전체 레시피 TOP 10
     @GetMapping("/boards/top")
     public String top(Model model) {
-
         List<BoardWithImageDto> boards = boardService.findTopRecipesByLikes(10);
+
 
         model.addAttribute("boards", boards);
         return "board/top";

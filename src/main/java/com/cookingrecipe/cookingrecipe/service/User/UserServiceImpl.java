@@ -1,4 +1,4 @@
-package com.cookingrecipe.cookingrecipe.service;
+package com.cookingrecipe.cookingrecipe.service.User;
 
 import com.cookingrecipe.cookingrecipe.domain.Board;
 import com.cookingrecipe.cookingrecipe.domain.Role;
@@ -11,6 +11,7 @@ import com.cookingrecipe.cookingrecipe.exception.BadRequestException;
 import com.cookingrecipe.cookingrecipe.exception.UserNotFoundException;
 import com.cookingrecipe.cookingrecipe.repository.BoardRepositoryCustom;
 import com.cookingrecipe.cookingrecipe.repository.UserRepository;
+import com.cookingrecipe.cookingrecipe.service.Board.BoardMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -50,46 +51,31 @@ public class UserServiceImpl implements UserService {
         this.authenticationManager = authenticationManager;
     }
 
-
-    // 일반 회원 가입 - UserSignupDto 사용
-    @Override
-    public User join(UserSignupDto userSignupDto) {
-
-        // 비밀번호 암호화
+    private User createUser(UserSignupDto userSignupDto, Role role) {
         String encodedPassword = passwordEncoder.encode(userSignupDto.getPassword());
 
-        User user = User.builder()
+        return User.builder()
                 .loginId(userSignupDto.getLoginId())
                 .nickname(userSignupDto.getNickname())
                 .password(encodedPassword)
                 .email(userSignupDto.getEmail())
                 .number(userSignupDto.getNumber())
                 .birth(userSignupDto.getBirth())
-                .role(Role.ROLE_USER)
+                .role(role)
                 .build();
+    }
 
-        return userRepository.save(user);
+    // 일반 회원 가입 - UserSignupDto 사용
+    @Override
+    public User join(UserSignupDto userSignupDto) {
+        return userRepository.save(createUser(userSignupDto, Role.ROLE_USER));
     }
 
 
     // 관리자 회원 가입
     @Override
     public User joinAdmin(UserSignupDto userSignupDto) {
-
-        // 비밀번호 암호화
-        String encodedPassword = passwordEncoder.encode(userSignupDto.getPassword());
-
-        User user = User.builder()
-                .loginId(userSignupDto.getLoginId())
-                .nickname(userSignupDto.getNickname())
-                .password(encodedPassword)
-                .email(userSignupDto.getEmail())
-                .number(userSignupDto.getNumber())
-                .birth(userSignupDto.getBirth())
-                .role(Role.ROLE_ADMIN)
-                .build();
-
-        return userRepository.save(user);
+        return userRepository.save(createUser(userSignupDto, Role.ROLE_ADMIN));
     }
 
 
@@ -201,7 +187,7 @@ public class UserServiceImpl implements UserService {
     public List<BoardWithImageDto> findByUserId(Long userId) {
         List<Board> boards = boardRepositoryCustom.findByUserId(userId);
 
-        return boardMapper.findBoardsWithMainImages(boards);
+        return boardMapper.mapToBoardWithImageDto(boards);
     }
 
 
@@ -210,7 +196,7 @@ public class UserServiceImpl implements UserService {
     public List<BoardWithImageDto> findBookmarkedRecipeByUser(Long userId) {
         List<Board> boards = boardRepositoryCustom.findBookmarkedRecipeByUser(userId);
 
-        return boardMapper.findBoardsWithMainImages(boards);
+        return boardMapper.mapToBoardWithImageDto(boards);
     }
 
 

@@ -1,15 +1,18 @@
 package com.cookingrecipe.cookingrecipe.controller;
 
-import com.cookingrecipe.cookingrecipe.domain.Board;
 import com.cookingrecipe.cookingrecipe.dto.BoardWithImageDto;
-import com.cookingrecipe.cookingrecipe.service.BoardService;
+import com.cookingrecipe.cookingrecipe.service.Board.BoardService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
-import java.util.List;
-
+@Slf4j
 @Controller
 @RequiredArgsConstructor
 public class MainController {
@@ -17,10 +20,12 @@ public class MainController {
     private final BoardService boardService;
 
     @GetMapping
-    public String index(Model model) {
-        List<BoardWithImageDto> boards = boardService.findAllByDateDesc();
+    public String index(@PageableDefault(size = 9, sort = "createdDate", direction = Sort.Direction.DESC) Pageable pageable,
+                        Model model) {
+        Page<BoardWithImageDto> boardPage = boardService.findAllByDateDesc(pageable);
 
-        model.addAttribute("boards", boards);
+        model.addAttribute("boards", boardPage.getContent());
+        model.addAttribute("page", boardPage);
         return "index";
     }
 

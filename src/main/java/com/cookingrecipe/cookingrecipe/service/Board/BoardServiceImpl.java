@@ -1,25 +1,24 @@
-package com.cookingrecipe.cookingrecipe.service;
+package com.cookingrecipe.cookingrecipe.service.Board;
 
-import com.cookingrecipe.cookingrecipe.config.FileService;
+import com.cookingrecipe.cookingrecipe.config.FileConfig;
 import com.cookingrecipe.cookingrecipe.domain.*;
 import com.cookingrecipe.cookingrecipe.dto.*;
 import com.cookingrecipe.cookingrecipe.exception.BadRequestException;
 import com.cookingrecipe.cookingrecipe.exception.UserNotFoundException;
 import com.cookingrecipe.cookingrecipe.repository.*;
+import com.cookingrecipe.cookingrecipe.service.RecipeStep.RecipeStepService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -32,15 +31,8 @@ public class BoardServiceImpl implements BoardService {
     private final UserRepository userRepository;
     private final BookmarkRepository bookmarkRepository;
     private final LikeRepository likeRepository;
-    private final RecipeStepRepository recipeStepRepository;
     private final BoardMapper boardMapper;
-
-
-    // Board Entity 생성
-    @Override
-    public Board joinEntity(Board board) {
-        return boardRepository.save(board);
-    }
+    private final RecipeStepService recipeStepService;
 
 
     // 게시글 저장
@@ -68,72 +60,17 @@ public class BoardServiceImpl implements BoardService {
 
         // RecipeStep 저장
         if (recipeStepDto != null && !recipeStepDto.isEmpty()) {
-            saveRecipeSteps(board, recipeStepDto);
+            recipeStepService.saveRecipeSteps(board, recipeStepDto);
         }
 
         return board.getId();
     }
 
-
-    // 게시글 저장 - 레시피 생성 및 저장
-    private void saveRecipeSteps(Board board, List<RecipeStepDto> recipeStepDto) throws IOException {
-        String uploadDir = FileService.createUploadDir(); // 통일된 경로 사용
-
-        int stepOrder = 1;
-
-        for (RecipeStepDto stepDto : recipeStepDto) {
-            if (stepDto.getDescription() == null || stepDto.getDescription().isBlank()) {
-                continue;
-            }
-
-            if (stepDto.getImage() == null || stepDto.getImage().isEmpty()) {
-                String errorMessage = "레시피 단계 " + stepOrder + "에 이미지가 필요합니다";
-                log.error("Validation error: {}", errorMessage);
-                throw new IllegalArgumentException(errorMessage);
-            }
-
-            String fileName = saveFile(stepDto.getImage(), uploadDir);
-
-
-            // RecipeStep 생성 및 저장
-            RecipeStep recipeStep = RecipeStep.builder()
-                    .stepOrder(stepOrder++) // 단계 번호 자동 증가
-                    .description(stepDto.getDescription())
-                    .imagePath(fileName)
-                    .board(board)
-                    .build();
-
-            recipeStepRepository.save(recipeStep);
-        }
-    }
-
-
-
-
-    private String saveFile(MultipartFile file, String uploadDir) throws IOException {
-        if (file == null || file.isEmpty()) {
-            return null;
-        }
-
-        String originalFileName = file.getOriginalFilename();
-        String fileExtension = originalFileName.substring(originalFileName.lastIndexOf("."));
-        String fileName = UUID.randomUUID() + fileExtension;
-
-        Path filePath = Paths.get(uploadDir, fileName);
-        Files.createDirectories(filePath.getParent());
-        Files.copy(file.getInputStream(), filePath);
-
-        log.warn("File saved successfully at path: {}", filePath.toAbsolutePath());
-
-        return fileName;
-    }
-
-
     @Override
     @Transactional
     public Long update(Long boardId, BoardUpdateDto boardUpdateDto, List<RecipeStepDto> steps) throws IOException {
         // 1. 업로드 경로 생성 및 반환
-        String uploadDir = FileService.createUploadDir();
+        String uploadDir = FileConfig.createUploadDir();
 
         // 2. 게시글 가져오기
         Board board = boardRepository.findById(boardId)
@@ -145,123 +82,12 @@ public class BoardServiceImpl implements BoardService {
                 boardUpdateDto.getContent());
 
         // 4. 기존 레시피 호출
-        List<RecipeStep> existingSteps = recipeStepRepository.findByBoardId(boardId);
+        List<RecipeStep> existingSteps = recipeStepService.findByBoardId(boardId);
 
         // 5. 요청 데이터와 기존 데이터를 비교하여 업데이트
-        updateRecipeSteps(board, existingSteps, steps, uploadDir);
+        recipeStepService.updateRecipeSteps(board, existingSteps, steps, uploadDir);
 
         return board.getId();
-    }
-
-
-
-    private String updateFile(MultipartFile file, String uploadDir, String existingFilePath) throws IOException {
-        log.warn("Entering updateFile method");
-        log.warn("Upload Directory: {}", uploadDir);
-        log.warn("Existing File Path: {}", existingFilePath);
-
-        if (file == null || file.isEmpty()) {
-            log.warn("No new file uploaded. Keeping existing file: {}", existingFilePath);
-            return existingFilePath;
-        }
-
-        // 기존 파일 삭제
-        if (existingFilePath != null) {
-            Path existingPath = Paths.get(uploadDir, existingFilePath);
-            Files.deleteIfExists(existingPath);
-            log.warn("Deleted existing file: {}", existingPath);
-        }
-
-        // 새 파일 저장
-        String originalFileName = file.getOriginalFilename();
-        String fileExtension = originalFileName.substring(originalFileName.lastIndexOf("."));
-        String fileName = UUID.randomUUID() + fileExtension;
-
-        Path filePath = Paths.get(uploadDir, fileName);
-        Files.createDirectories(filePath.getParent());
-        Files.copy(file.getInputStream(), filePath);
-        log.warn("File copied to: {}", filePath.toAbsolutePath());
-        log.warn("Saved new file: {}", filePath);
-
-        return fileName;
-    }
-
-
-
-
-
-    private void updateRecipeSteps(Board board, List<RecipeStep> existingSteps,
-                                   List<RecipeStepDto> stepDtos, String uploadDir) throws IOException {
-        uploadDir = FileService.createUploadDir(); // 경로 통일
-
-        Map<Integer, RecipeStep> existingStepMap = existingSteps.stream()
-                .collect(Collectors.toMap(RecipeStep::getStepOrder, step -> step));
-
-        for (RecipeStepDto stepDto : stepDtos) {
-            RecipeStep step = existingStepMap.get(stepDto.getStepOrder());
-
-            if (step != null) {
-                // 기존 단계 업데이트
-                updateExistingStep(step, stepDto, uploadDir);
-            } else {
-                // 새로운 단계 추가
-                saveNewStep(board, stepDto, uploadDir);
-            }
-
-            // 업데이트된 단계는 맵에서 제거
-            existingStepMap.remove(stepDto.getStepOrder());
-        }
-
-        // 제거된 단계 처리
-        for (RecipeStep removedStep : existingStepMap.values()) {
-            deleteExistingStep(removedStep, uploadDir);
-        }
-    }
-
-
-
-
-    private void updateExistingStep(RecipeStep existingStep, RecipeStepDto stepDto, String uploadDir) throws IOException {
-        String newImagePath;
-
-        if (stepDto.getImage() != null && !stepDto.getImage().isEmpty()) {
-            // 새 이미지를 저장하고 기존 파일 삭제
-            newImagePath = updateFile(stepDto.getImage(), uploadDir, existingStep.getImagePath());
-        } else {
-            // 새 이미지가 없으면 기존 경로 유지
-            newImagePath = existingStep.getImagePath();
-        }
-
-        existingStep.update(stepDto.getDescription(), newImagePath);
-        log.warn("Updated step: {}, ImagePath: {}", existingStep.getStepOrder(), newImagePath);
-    }
-
-
-
-
-    private void saveNewStep(Board board, RecipeStepDto stepDto, String uploadDir) throws IOException {
-        String fileName = stepDto.getImage() != null && !stepDto.getImage().isEmpty()
-                ? saveFile(stepDto.getImage(), uploadDir)
-                : null; // 이미지가 없으면 null 처리
-
-        RecipeStep recipeStep = RecipeStep.builder()
-                .stepOrder(stepDto.getStepOrder())
-                .description(stepDto.getDescription())
-                .imagePath(fileName)
-                .board(board)
-                .build();
-
-        recipeStepRepository.save(recipeStep);
-    }
-
-
-    private void deleteExistingStep(RecipeStep step, String uploadDir) throws IOException {
-        if (step.getImagePath() != null) {
-            Path filePath = Paths.get(uploadDir, step.getImagePath());
-            Files.deleteIfExists(filePath);
-            log.warn("Deleted image file for removed step: {}", filePath.toAbsolutePath());
-        }
-        recipeStepRepository.delete(step);
     }
 
 
@@ -285,19 +111,27 @@ public class BoardServiceImpl implements BoardService {
 
     // 게시글 검색 - 검색 조건 : 최신순
     @Override
-    public List<BoardWithImageDto> searchBoards(String searchCriteria, String keyword) {
-        List<Board> boards = boardRepositoryCustom.searchBoards(searchCriteria, keyword);
+    public Page<BoardWithImageDto> searchBoards(String searchCriteria, String keyword, Pageable pageable) {
 
-        return boardMapper.findBoardsWithMainImages(boards);
+        log.info("Search Criteria: {}", searchCriteria);
+        log.info("Keyword: {}", keyword);
+
+        Page<Board> boards = boardRepositoryCustom.searchBoards(searchCriteria, keyword, pageable);
+
+        List<BoardWithImageDto> dtoList = boardMapper.mapToBoardWithImageDto(boards.getContent());
+
+        return new PageImpl<>(dtoList, pageable, boards.getTotalElements());
     }
 
 
     // 게시글 검색 - 검색 조건 : 좋아요 순
     @Override
-    public List<BoardWithImageDto> searchBoardsOrderByLikes(String searchCriteria, String keyword) {
-        List<Board> boards = boardRepositoryCustom.searchBoardsOrderByLikes(searchCriteria, keyword);
+    public Page<BoardWithImageDto> searchBoardsOrderByLikes(String searchCriteria, String keyword, Pageable pageable) {
+        Page<Board> boards = boardRepositoryCustom.searchBoardsOrderByLikes(searchCriteria, keyword, pageable);
 
-        return boardMapper.findBoardsWithMainImages(boards);
+        List<BoardWithImageDto> dtoList = boardMapper.mapToBoardWithImageDto(boards.getContent());
+
+        return new PageImpl<>(dtoList, pageable, boards.getTotalElements());
     }
 
 
@@ -306,7 +140,7 @@ public class BoardServiceImpl implements BoardService {
     public List<BoardWithImageDto> findByCategory(Category category) {
         List<Board> boards = boardRepositoryCustom.findByCategory(category);
 
-        return boardMapper.findBoardsWithMainImages(boards);
+        return boardMapper.mapToBoardWithImageDto(boards);
     }
 
 
@@ -315,7 +149,7 @@ public class BoardServiceImpl implements BoardService {
     public List<BoardWithImageDto> findByCategoryOrderByLikes(Category category) {
         List<Board> boards = boardRepositoryCustom.findByCategoryOrderByLikes(category);
 
-        return boardMapper.findBoardsWithMainImages(boards);
+        return boardMapper.mapToBoardWithImageDto(boards);
     }
 
 
@@ -324,7 +158,7 @@ public class BoardServiceImpl implements BoardService {
     public List<BoardWithImageDto> findByMethod(Method method) {
         List<Board> boards = boardRepositoryCustom.findByMethod(method);
 
-        return boardMapper.findBoardsWithMainImages(boards);
+        return boardMapper.mapToBoardWithImageDto(boards);
     }
 
 
@@ -333,7 +167,7 @@ public class BoardServiceImpl implements BoardService {
     public List<BoardWithImageDto> findByMethodOrderByLikes(Method method) {
         List<Board> boards = boardRepositoryCustom.findByMethodOrderByLikes(method);
 
-        return boardMapper.findBoardsWithMainImages(boards);
+        return boardMapper.mapToBoardWithImageDto(boards);
     }
 
 
@@ -342,7 +176,7 @@ public class BoardServiceImpl implements BoardService {
     public List<BoardWithImageDto> findTopRecipesByLikes(int limit) {
         List<Board> boards = boardRepositoryCustom.findTopRecipesByLikes(limit);
 
-        return boardMapper.findBoardsWithMainImages(boards);
+        return boardMapper.mapToBoardWithImageDto(boards);
     }
 
 
@@ -351,7 +185,7 @@ public class BoardServiceImpl implements BoardService {
     public List<BoardWithImageDto> findMonthlyRecipesByLikes(int limit) {
         List<Board> boards = boardRepositoryCustom.findMonthlyRecipesByLikes(limit);
 
-        return boardMapper.findBoardsWithMainImages(boards);
+        return boardMapper.mapToBoardWithImageDto(boards);
     }
 
 
@@ -360,16 +194,19 @@ public class BoardServiceImpl implements BoardService {
     public List<BoardWithImageDto> findAll() {
         List<Board> boards = boardRepository.findAll();
 
-        return boardMapper.findBoardsWithMainImages(boards);
+        return boardMapper.mapToBoardWithImageDto(boards);
     }
 
 
     // 모든 게시글 검색 - 최신순
     @Override
-    public List<BoardWithImageDto> findAllByDateDesc() {
-        List<Board> boards = boardRepositoryCustom.findAllByDateDesc();
+    public Page<BoardWithImageDto> findAllByDateDesc(Pageable pageable) {
+        Page<Board> boardPage = boardRepositoryCustom.findAllByDateDesc(pageable);
 
-        return boardMapper.findBoardsWithMainImages(boards);
+        List<BoardWithImageDto> boardDtos = boardMapper.mapToBoardWithImageDto(boardPage.getContent());
+
+        // Page 객체로 변환하여 반환
+        return new PageImpl<>(boardDtos, pageable, boardPage.getTotalElements());
     }
 
 
@@ -485,7 +322,7 @@ public class BoardServiceImpl implements BoardService {
     @Transactional
     // InitData 삽입 위한 메서드 생성
     public void saveForInitData(InitBoardSaveDto initBoardSaveDto, List<RecipeStepDto> recipeStepDto, User user, LocalDateTime createdDate) {
-        FileService.createUploadDir();
+        FileConfig.createUploadDir();
 
         // Board 생성 및 저장
         Board board = Board.builder()
@@ -505,7 +342,7 @@ public class BoardServiceImpl implements BoardService {
         boardRepository.save(board);
 
         try {
-            saveRecipeSteps(board, recipeStepDto);
+            recipeStepService.saveRecipeSteps(board, recipeStepDto);
         } catch (IOException e) {
             throw new IllegalStateException("레시피 단계 저장 중 문제가 발생했습니다.", e);
         }

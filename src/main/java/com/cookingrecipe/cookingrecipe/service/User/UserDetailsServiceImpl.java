@@ -1,4 +1,4 @@
-package com.cookingrecipe.cookingrecipe.service;
+package com.cookingrecipe.cookingrecipe.service.User;
 
 import com.cookingrecipe.cookingrecipe.domain.CustomUserDetails;
 import com.cookingrecipe.cookingrecipe.domain.User;

@@ -6,8 +6,7 @@ import com.cookingrecipe.cookingrecipe.dto.*;
 import com.cookingrecipe.cookingrecipe.exception.BadRequestException;
 import com.cookingrecipe.cookingrecipe.exception.UserNotFoundException;
 import com.cookingrecipe.cookingrecipe.repository.UserRepository;
-import com.cookingrecipe.cookingrecipe.service.BoardService;
-import com.cookingrecipe.cookingrecipe.service.UserService;
+import com.cookingrecipe.cookingrecipe.service.User.UserService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -103,6 +102,11 @@ public class UserController {
         if (user == null) {
             model.addAttribute("errorMessage", "세션이 만료되었습니다. 다시 시도해주세요.");
             return "redirect:/join";
+        }
+
+        // 유효성 검사
+        if (bindingResult.hasErrors()) {
+            return "user/additional-info";
         }
 
         // 저장 버튼 처리

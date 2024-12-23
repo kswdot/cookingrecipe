@@ -1,7 +1,6 @@
 package com.cookingrecipe.cookingrecipe.config;
 
-import com.cookingrecipe.cookingrecipe.repository.UserRepository;
-import com.cookingrecipe.cookingrecipe.service.UserDetailsServiceImpl;
+import com.cookingrecipe.cookingrecipe.service.User.UserDetailsServiceImpl;
 import com.cookingrecipe.cookingrecipe.util.JwtAuthenticationFilter;
 import com.cookingrecipe.cookingrecipe.util.JwtTokenProvider;
 import jakarta.servlet.http.HttpSession;

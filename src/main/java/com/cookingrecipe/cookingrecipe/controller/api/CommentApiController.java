@@ -3,7 +3,7 @@ package com.cookingrecipe.cookingrecipe.controller.api;
 import com.cookingrecipe.cookingrecipe.domain.CustomUserDetails;
 import com.cookingrecipe.cookingrecipe.dto.CommentRequestDto;
 import com.cookingrecipe.cookingrecipe.dto.CommentResponseDto;
-import com.cookingrecipe.cookingrecipe.service.CommentService;
+import com.cookingrecipe.cookingrecipe.service.Comment.CommentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;

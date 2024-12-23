@@ -6,8 +6,8 @@ import com.cookingrecipe.cookingrecipe.dto.*;
 import com.cookingrecipe.cookingrecipe.dto.api.BoardResponseDto;
 import com.cookingrecipe.cookingrecipe.exception.BadRequestException;
 import com.cookingrecipe.cookingrecipe.exception.UserNotFoundException;
-import com.cookingrecipe.cookingrecipe.service.BoardService;
-import com.cookingrecipe.cookingrecipe.service.UserService;
+import com.cookingrecipe.cookingrecipe.service.Board.BoardService;
+import com.cookingrecipe.cookingrecipe.service.User.UserService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -33,7 +33,7 @@ public class UserApiController {
 
 
     // 회원가입
-    @PostMapping("/register")
+    @PostMapping("")
     public ResponseEntity<?> registerUser(@RequestBody @Validated UserSignupDto userSignupDto,
                                           BindingResult bindingResult) {
 

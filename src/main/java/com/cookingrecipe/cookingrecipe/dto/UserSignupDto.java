@@ -35,7 +35,7 @@ public class UserSignupDto {
     private String email;
 
     @NotBlank(message = "전화번호를 입력하세요")
-    @Pattern(regexp = "^010-\\d{4}-\\d{4}$", message = "올바른 전화번호를 입력하세요")
+    @Pattern(regexp = "^(010-\\d{4}-\\d{4}|010\\d{8})$", message = "올바른 전화번호를 입력하세요")
     private String number;
 
     @NotNull(message = "생년월일을 입력하세요") // @NotBlank 대신 @NotNull 사용
