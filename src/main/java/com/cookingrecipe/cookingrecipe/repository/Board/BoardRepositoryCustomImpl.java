@@ -1,9 +1,8 @@
 package com.cookingrecipe.cookingrecipe.repository.Board;
 
 import com.cookingrecipe.cookingrecipe.domain.*;
-import com.cookingrecipe.cookingrecipe.domain.Board.Board;
-import com.cookingrecipe.cookingrecipe.domain.Board.Category;
-import com.cookingrecipe.cookingrecipe.domain.Board.Method;
+import com.cookingrecipe.cookingrecipe.domain.Board.*;
+import com.cookingrecipe.cookingrecipe.domain.User.QUser;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;

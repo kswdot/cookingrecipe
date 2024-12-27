@@ -1,7 +1,7 @@
 package com.cookingrecipe.cookingrecipe.service.User;
 
 import com.cookingrecipe.cookingrecipe.domain.Board.Board;
-import Role;
+import com.cookingrecipe.cookingrecipe.domain.User.Role;
 import com.cookingrecipe.cookingrecipe.domain.User.User;
 import com.cookingrecipe.cookingrecipe.dto.Board.BoardWithImageDto;
 import com.cookingrecipe.cookingrecipe.dto.User.SocialSignupDto;
@@ -250,11 +250,11 @@ public class UserServiceImpl implements UserService {
         return userRepository.findAll();
     }
 
+
     // 관리자 - 회원 삭제
     @Override
     public void deleteById(Long userId) {
         userRepository.deleteById(userId);
     }
-
 
 }

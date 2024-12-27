@@ -1,6 +1,6 @@
 package com.cookingrecipe.cookingrecipe.config;
 
-import Role;
+import com.cookingrecipe.cookingrecipe.domain.User.Role;
 import com.cookingrecipe.cookingrecipe.domain.User.User;
 import com.cookingrecipe.cookingrecipe.repository.UserRepository;
 import jakarta.servlet.http.HttpSession;

@@ -1,6 +1,6 @@
 package com.cookingrecipe.cookingrecipe.repository.RecipeStep;
 
-import com.cookingrecipe.cookingrecipe.domain.QRecipeStep;
+import com.cookingrecipe.cookingrecipe.domain.Board.QRecipeStep;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -79,6 +79,9 @@ dependencies {
 	// Mock
 	testImplementation 'org.mockito:mockito-core:5.4.0'
 	testImplementation 'org.mockito:mockito-junit-jupiter:5.4.0' // JUnit 5와 함께 사용
+
+	// Websocket
+	implementation 'org.springframework.boot:spring-boot-starter-websocket'
 }
 
 tasks.named('test') {
