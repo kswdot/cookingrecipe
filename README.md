@@ -55,6 +55,8 @@
   - Thymleaf, Bootstrap
 - **데이터베이스**
   - MySQL
+- **테스트툴**
+  - Postman
  
 &nbsp;
 &nbsp;
@@ -261,6 +263,34 @@
   
 </details>
 
+<details>
+  <summary>실시간 쪽지(API)</summary>
+    
+&nbsp;
+### 1. 쪽지 전송
+![쪽지1](https://github.com/user-attachments/assets/abc0d517-55a8-44b4-bcfb-96dc3bbfa2fc)
+![쪽지2](https://github.com/user-attachments/assets/5b7d81f3-2e74-4bc1-97b7-f965a99981d6)
+
+### 2. 보낸 쪽지 전체 조회
+![보낸 메세지 조회](https://github.com/user-attachments/assets/0668cf3a-763e-4c0c-b646-b0f5e2cf9b55)
+
+### 3. 안읽은 쪽지 개수 조회
+![안읽은 쪽지 개수](https://github.com/user-attachments/assets/fdbc6f0a-5f6c-4e93-b3da-4c2574eaa058)
+
+### 4. 받은 쪽지 전체 조회
+![받은 쪽지 전체 개수 조회](https://github.com/user-attachments/assets/9e49bf62-fa3e-4b71-b78b-bc8543a71246)
+
+### 5. 쪽지 읽음으로 상태 변경
+![메세지 읽음 변경](https://github.com/user-attachments/assets/20b2c6ab-8f6d-4514-9ec8-e1f53b100e34)
+![메세지 읽음 후 전체 메세지 조회](https://github.com/user-attachments/assets/fe57f32d-5606-4793-b846-2e8c9ed1e14b)  
+**ID:1의 쪽지의 읽음 상태가 true로 변경됨**
+
+### 6. 받은 쪽지 단일 조회
+![단일 메세지 조회](https://github.com/user-attachments/assets/b635c8e3-d417-4e1a-84f7-32864b57d709)
+
+  
+</details>
+
 ## 5. 개발 내용 정리  
 [[Spring Security] 로그인 설정](https://velog.io/@kswdot/Spring-Security-%EB%A1%9C%EA%B7%B8%EC%9D%B8)  
 [[OAuth 2.0] 카카오 로그인](https://velog.io/@kswdot/OAuth-2.0-%EC%B9%B4%EC%B9%B4%EC%98%A4-%EB%A1%9C%EA%B7%B8%EC%9D%B8)  
@@ -277,6 +307,7 @@
 [[Redis] 조회수 중복 방지 방지 구현2](https://velog.io/@kswdot/Redis-%EC%A1%B0%ED%9A%8C%EC%88%98-%EC%A4%91%EB%B3%B5-%EC%A6%9D%EA%B0%80-%EB%B0%A9%EC%A7%80-%EA%B8%B0%EB%8A%A5-%EA%B5%AC%ED%98%84)  
 [[Spring Security] 경로별 접근 제어](https://velog.io/@kswdot/Security-Spring-Security-%EA%B2%BD%EB%A1%9C%EB%B3%84-%EC%A0%91%EA%B7%BC-%EC%A0%9C%EC%96%B4)  
 [[Clean Code] Service 계층 클린 코드](https://velog.io/@kswdot/Clean-Code-Service-%EA%B3%84%EC%B8%B5-%ED%81%B4%EB%A6%B0-%EC%BD%94%EB%93%9C)  
+![WebSocket] 실시간 쪽지 기능 구현](https://velog.io/@kswdot/WebSocket-%EC%8B%A4%EC%8B%9C%EA%B0%84-%EC%AA%BD%EC%A7%80-%EA%B8%B0%EB%8A%A5)  
 
 &nbsp;
 
