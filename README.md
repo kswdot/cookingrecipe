@@ -39,6 +39,8 @@
 * 게시판 - CRUD 기능, 조회수, 북마크, 좋아요, 카테고리 및 좋아요 수 바탕 페이징 및 검색 처리
 * 사용자 - Security 회원가입 및 로그인, OAuth 2.0 카카오 로그인, 마이페이지, 회원정보 수정, 비밀번호 변경 및 재발급, 작성글 및 북마크한 글 조회, 회원가입시 유효성 검사 및 중복 검사
 * 댓글 - CRUD 기능
+* 알림 - 비실시간 알림 기능
+* 쪽지 - 실시간 알림 기능능
 
 &nbsp;
 &nbsp;
@@ -307,7 +309,7 @@
 [[Redis] 조회수 중복 방지 방지 구현2](https://velog.io/@kswdot/Redis-%EC%A1%B0%ED%9A%8C%EC%88%98-%EC%A4%91%EB%B3%B5-%EC%A6%9D%EA%B0%80-%EB%B0%A9%EC%A7%80-%EA%B8%B0%EB%8A%A5-%EA%B5%AC%ED%98%84)  
 [[Spring Security] 경로별 접근 제어](https://velog.io/@kswdot/Security-Spring-Security-%EA%B2%BD%EB%A1%9C%EB%B3%84-%EC%A0%91%EA%B7%BC-%EC%A0%9C%EC%96%B4)  
 [[Clean Code] Service 계층 클린 코드](https://velog.io/@kswdot/Clean-Code-Service-%EA%B3%84%EC%B8%B5-%ED%81%B4%EB%A6%B0-%EC%BD%94%EB%93%9C)  
-![WebSocket] 실시간 쪽지 기능 구현](https://velog.io/@kswdot/WebSocket-%EC%8B%A4%EC%8B%9C%EA%B0%84-%EC%AA%BD%EC%A7%80-%EA%B8%B0%EB%8A%A5)  
+[[WebSocket] 실시간 쪽지 기능 구현](https://velog.io/@kswdot/WebSocket-%EC%8B%A4%EC%8B%9C%EA%B0%84-%EC%AA%BD%EC%A7%80-%EA%B8%B0%EB%8A%A5)  
 
 &nbsp;
 
