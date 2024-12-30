@@ -66,7 +66,7 @@ public class SecurityConfig {
                         .requireExplicitSave(false)
                         .securityContextRepository(new HttpSessionSecurityContextRepository()))
                 .authorizeHttpRequests(auth -> auth // 최신 메서드인 authorizeHttpRequests로 변경
-                        .requestMatchers("/", "/login", "/join", "/boards/{id}", "/boards/top").permitAll() // 모두 접근 가능
+                        .requestMatchers("/", "/login", "/join", "/boards/{id}", "/boards/top", "/swagger-ui/**", "/v3/api-docs/**").permitAll() // 모두 접근 가능
                         .requestMatchers(HttpMethod.GET, "/boards").permitAll()
                         .requestMatchers(HttpMethod.POST, "/boards").hasRole("USER")
                         .requestMatchers("/myPage/**", "/boards/new").hasRole("USER") // "USER" 역할을 가진 사용자만 접근 가능

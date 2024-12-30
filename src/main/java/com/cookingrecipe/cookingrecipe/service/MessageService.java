@@ -19,7 +19,6 @@ public class MessageService {
 
     // 메시지 저장
     public Message saveMessage(Message message) {
-        System.out.println("Message sendTime: " + message.getSendTime()); // sendTime 값 확인
         return messageRepository.save(message);
     }
 

@@ -47,7 +47,7 @@ spring:
             user-name-attribute: id
 
 file:
-  upload-dir: C:/Users/user/.gradle/cookingrecipe/uploaded-images/ # 파일 업로드 경로
+  upload-dir: ${FILE_UPLOAD_DIR}
 
 redis:
   host: 127.0.0.1               # Redis 서버 호스트

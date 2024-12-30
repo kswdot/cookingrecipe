@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:8.0
+    container_name: mysql-container
+    environment:
+      MYSQL_ROOT_PASSWORD: 0309  # MySQL 루트 비밀번호
+      MYSQL_DATABASE: cooking_recipe    # 생성할 데이터베이스 이름
+      MYSQL_USER: root               # 애플리케이션에서 사용할 사용자
+      MYSQL_PASSWORD: 0309       # 애플리케이션 사용자 비밀번호
+    ports:
+      - "3307:3306"
+    volumes:
+      - db-data:/var/lib/mysql          # 데이터베이스 데이터를 유지하기 위한 볼륨
+    networks:
+      - app-network
+
+  app:
+    build:
+      context: .                        # Dockerfile이 있는 위치 (현재 디렉터리)
+    container_name: spring-boot-container
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/cooking_recipe
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: 0309
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      FILE_UPLOAD_DIR: /app/uploaded-images  # 컨테이너 내부 경로
+    depends_on:
+      - db                              # MySQL 컨테이너가 준비된 후 실행
+    volumes:
+      - ./uploaded-images:/app/uploaded-images  # 로컬의 'uploaded-images' 폴더를 컨테이너로 마운트
+    networks:
+      - app-network
+
+volumes:
+  db-data:
+
+networks:
+  app-network:

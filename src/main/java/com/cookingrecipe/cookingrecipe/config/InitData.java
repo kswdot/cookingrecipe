@@ -13,6 +13,7 @@ import com.cookingrecipe.cookingrecipe.service.Board.BoardService;
 import com.cookingrecipe.cookingrecipe.service.User.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,6 +36,9 @@ public class InitData implements CommandLineRunner {
     private final UserService userService;
     private final BoardService boardService;
     private final NotificationRepository notificationRepository;
+
+    @Value("${file.upload-dir}") // application.yml에서 경로를 읽어옴
+    private String uploadDir;
 
 
     @Override
@@ -172,13 +176,14 @@ public class InitData implements CommandLineRunner {
 
         // 2. RecipeStepDto 리스트 생성
         List<RecipeStepDto> steps = new ArrayList<>();
-        String uploadDir = "C:/Users/user/.gradle/cookingrecipe/uploaded-images"; // 경로를 명확히 지정
 
         for (int i = 0; i < imageFileNames.size(); i++) {
             String imagePath = uploadDir + "/" + imageFileNames.get(i); // 업로드 경로로 변경
 
             // 파일 경로 검증
-            Path filePath = Path.of(imagePath);
+            Path filePath = Path.of(uploadDir, imageFileNames.get(i));
+            log.info("Checking file path: {}", filePath); // 디버깅 로그 추가
+
             if (!Files.exists(filePath)) {
                 throw new IllegalArgumentException("파일이 존재하지 않습니다: " + filePath);
             }
