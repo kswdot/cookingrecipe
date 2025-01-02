@@ -1,8 +1,7 @@
 package com.cookingrecipe.cookingrecipe.controller.api;
 
 import com.cookingrecipe.cookingrecipe.domain.User.User;
-import com.cookingrecipe.cookingrecipe.dto.Board.BoardWithImageDto;
-import com.cookingrecipe.cookingrecipe.dto.Board.BoardResponseDto;
+import com.cookingrecipe.cookingrecipe.dto.Board.BoardDto;
 import com.cookingrecipe.cookingrecipe.dto.User.UserResponseDto;
 import com.cookingrecipe.cookingrecipe.service.Board.BoardService;
 import com.cookingrecipe.cookingrecipe.service.User.UserService;
@@ -26,14 +25,11 @@ public class AdminApiController {
     // 게시글 목록 전체 조회
     @GetMapping("/boards")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<List<BoardResponseDto>> getAllBoards() {
+    public ResponseEntity<List<BoardDto>> getAllBoards() {
 
-        List<BoardWithImageDto> boards = boardService.findAll();
-        List<BoardResponseDto> response = boards.stream()
-                .map(BoardResponseDto::from)
-                .toList();
+        List<BoardDto> boards = boardService.findAll();
 
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(boards);
     }
 
 

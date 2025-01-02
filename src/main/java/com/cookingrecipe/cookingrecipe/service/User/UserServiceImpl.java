@@ -3,7 +3,7 @@ package com.cookingrecipe.cookingrecipe.service.User;
 import com.cookingrecipe.cookingrecipe.domain.Board.Board;
 import com.cookingrecipe.cookingrecipe.domain.User.Role;
 import com.cookingrecipe.cookingrecipe.domain.User.User;
-import com.cookingrecipe.cookingrecipe.dto.Board.BoardWithImageDto;
+import com.cookingrecipe.cookingrecipe.dto.Board.BoardDto;
 import com.cookingrecipe.cookingrecipe.dto.User.SocialSignupDto;
 import com.cookingrecipe.cookingrecipe.dto.User.UserSignupDto;
 import com.cookingrecipe.cookingrecipe.dto.User.UserUpdateDto;
@@ -184,19 +184,19 @@ public class UserServiceImpl implements UserService {
 
     // 마이 페이지 - 내가 쓴 글 조회
     @Override
-    public List<BoardWithImageDto> findByUserId(Long userId) {
+    public List<BoardDto> findByUserId(Long userId) {
         List<Board> boards = boardRepositoryCustom.findByUserId(userId);
 
-        return boardMapper.mapToBoardWithImageDto(boards);
+        return boardMapper.mapToBoardDto(boards);
     }
 
 
     // 마이 페이지 - 북마크한 글 조회
     @Override
-    public List<BoardWithImageDto> findBookmarkedRecipeByUser(Long userId) {
+    public List<BoardDto> findBookmarkedRecipeByUser(Long userId) {
         List<Board> boards = boardRepositoryCustom.findBookmarkedRecipeByUser(userId);
 
-        return boardMapper.mapToBoardWithImageDto(boards);
+        return boardMapper.mapToBoardDto(boards);
     }
 
 

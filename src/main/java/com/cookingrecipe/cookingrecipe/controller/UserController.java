@@ -2,7 +2,7 @@ package com.cookingrecipe.cookingrecipe.controller;
 
 import com.cookingrecipe.cookingrecipe.domain.User.CustomUserDetails;
 import com.cookingrecipe.cookingrecipe.domain.User.User;
-import com.cookingrecipe.cookingrecipe.dto.Board.BoardWithImageDto;
+import com.cookingrecipe.cookingrecipe.dto.Board.BoardDto;
 import com.cookingrecipe.cookingrecipe.dto.User.*;
 import com.cookingrecipe.cookingrecipe.exception.BadRequestException;
 import com.cookingrecipe.cookingrecipe.exception.UserNotFoundException;
@@ -317,7 +317,7 @@ public class UserController {
     public String boardList(@AuthenticationPrincipal CustomUserDetails userDetails,
                             Model model) {
 
-        List<BoardWithImageDto> boards = userService.findByUserId(userDetails.getId());
+        List<BoardDto> boards = userService.findByUserId(userDetails.getId());
 
         model.addAttribute("user", userDetails);
         model.addAttribute("boards", boards);
@@ -331,7 +331,7 @@ public class UserController {
     public String bookMark(@AuthenticationPrincipal CustomUserDetails userDetails,
                            Model model) {
 
-        List<BoardWithImageDto> boards = userService.findBookmarkedRecipeByUser(userDetails.getId());
+        List<BoardDto> boards = userService.findBookmarkedRecipeByUser(userDetails.getId());
 
         model.addAttribute("user", userDetails);
         model.addAttribute("boards", boards);

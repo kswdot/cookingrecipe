@@ -16,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.mock.web.MockMultipartFile;
@@ -31,13 +32,14 @@ import java.util.List;
 @Configuration
 @RequiredArgsConstructor
 @Slf4j
+@Profile("!docker")
 public class InitData implements CommandLineRunner {
 
     private final UserService userService;
     private final BoardService boardService;
     private final NotificationRepository notificationRepository;
 
-    @Value("${file.upload-dir}") // application.yml에서 경로를 읽어옴
+    @Value("${file.upload-dir}") // application.yml에서 경로를 읽음
     private String uploadDir;
 
 

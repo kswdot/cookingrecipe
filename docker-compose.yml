@@ -28,6 +28,7 @@ services:
       SPRING_DATASOURCE_PASSWORD: 0309
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
       FILE_UPLOAD_DIR: /app/uploaded-images  # 컨테이너 내부 경로
+      SPRING_PROFILES_ACTIVE: docker
     depends_on:
       - db                              # MySQL 컨테이너가 준비된 후 실행
     volumes:

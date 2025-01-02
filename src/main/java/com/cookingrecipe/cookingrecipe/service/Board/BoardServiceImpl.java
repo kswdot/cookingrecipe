@@ -5,9 +5,9 @@ import com.cookingrecipe.cookingrecipe.domain.Board.*;
 import com.cookingrecipe.cookingrecipe.domain.User.CustomUserDetails;
 import com.cookingrecipe.cookingrecipe.domain.User.User;
 import com.cookingrecipe.cookingrecipe.dto.*;
+import com.cookingrecipe.cookingrecipe.dto.Board.BoardDto;
 import com.cookingrecipe.cookingrecipe.dto.Board.BoardSaveDto;
 import com.cookingrecipe.cookingrecipe.dto.Board.BoardUpdateDto;
-import com.cookingrecipe.cookingrecipe.dto.Board.BoardWithImageDto;
 import com.cookingrecipe.cookingrecipe.exception.BadRequestException;
 import com.cookingrecipe.cookingrecipe.exception.UserNotFoundException;
 import com.cookingrecipe.cookingrecipe.repository.*;
@@ -16,6 +16,7 @@ import com.cookingrecipe.cookingrecipe.repository.Board.BoardRepositoryCustom;
 import com.cookingrecipe.cookingrecipe.service.RecipeStep.RecipeStepService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -118,14 +119,15 @@ public class BoardServiceImpl implements BoardService {
 
     // 게시글 검색 - 검색 조건 : 최신순
     @Override
-    public Page<BoardWithImageDto> searchBoards(String searchCriteria, String keyword, Pageable pageable) {
+    @Cacheable(value = "searchResults", key = "#searchCriteria + ':' + #keyword + ':' + #pageable.pageNumber")
+    public Page<BoardDto> searchBoards(String searchCriteria, String keyword, Pageable pageable) {
 
         log.info("Search Criteria: {}", searchCriteria);
         log.info("Keyword: {}", keyword);
 
         Page<Board> boards = boardRepositoryCustom.searchBoards(searchCriteria, keyword, pageable);
 
-        List<BoardWithImageDto> dtoList = boardMapper.mapToBoardWithImageDto(boards.getContent());
+        List<BoardDto> dtoList = boardMapper.mapToBoardDto(boards.getContent());
 
         return new PageImpl<>(dtoList, pageable, boards.getTotalElements());
     }
@@ -133,10 +135,11 @@ public class BoardServiceImpl implements BoardService {
 
     // 게시글 검색 - 검색 조건 : 좋아요 순
     @Override
-    public Page<BoardWithImageDto> searchBoardsOrderByLikes(String searchCriteria, String keyword, Pageable pageable) {
+    @Cacheable(value = "searchResultsByLikes", key = "#searchCriteria + ':' + #keyword + ':' + #pageable.pageNumber")
+    public Page<BoardDto> searchBoardsOrderByLikes(String searchCriteria, String keyword, Pageable pageable) {
         Page<Board> boards = boardRepositoryCustom.searchBoardsOrderByLikes(searchCriteria, keyword, pageable);
 
-        List<BoardWithImageDto> dtoList = boardMapper.mapToBoardWithImageDto(boards.getContent());
+        List<BoardDto> dtoList = boardMapper.mapToBoardDto(boards.getContent());
 
         return new PageImpl<>(dtoList, pageable, boards.getTotalElements());
     }
@@ -144,73 +147,73 @@ public class BoardServiceImpl implements BoardService {
 
     // 게시글 검색 - 카테고리 - 최신순
     @Override
-    public List<BoardWithImageDto> findByCategory(Category category) {
+    public List<BoardDto> findByCategory(Category category) {
         List<Board> boards = boardRepositoryCustom.findByCategory(category);
 
-        return boardMapper.mapToBoardWithImageDto(boards);
+        return boardMapper.mapToBoardDto(boards);
     }
 
 
     // 게시글 검색 - 카테고리 - 좋아요 순
     @Override
-    public List<BoardWithImageDto> findByCategoryOrderByLikes(Category category) {
+    public List<BoardDto> findByCategoryOrderByLikes(Category category) {
         List<Board> boards = boardRepositoryCustom.findByCategoryOrderByLikes(category);
 
-        return boardMapper.mapToBoardWithImageDto(boards);
+        return boardMapper.mapToBoardDto(boards);
     }
 
 
     // 게시글 검색 - 카테고리 - 최신순
     @Override
-    public List<BoardWithImageDto> findByMethod(Method method) {
+    public List<BoardDto> findByMethod(Method method) {
         List<Board> boards = boardRepositoryCustom.findByMethod(method);
 
-        return boardMapper.mapToBoardWithImageDto(boards);
+        return boardMapper.mapToBoardDto(boards);
     }
 
 
     // 게시글 검색 - 카테고리 - 좋아요 순
     @Override
-    public List<BoardWithImageDto> findByMethodOrderByLikes(Method method) {
+    public List<BoardDto> findByMethodOrderByLikes(Method method) {
         List<Board> boards = boardRepositoryCustom.findByMethodOrderByLikes(method);
 
-        return boardMapper.mapToBoardWithImageDto(boards);
+        return boardMapper.mapToBoardDto(boards);
     }
 
 
     // 인기 레시피 TOP10
     @Override
-    public List<BoardWithImageDto> findTopRecipesByLikes(int limit) {
+    public List<BoardDto> findTopRecipesByLikes(int limit) {
         List<Board> boards = boardRepositoryCustom.findTopRecipesByLikes(limit);
 
-        return boardMapper.mapToBoardWithImageDto(boards);
+        return boardMapper.mapToBoardDto(boards);
     }
 
 
     // 이 달(한 달)의 레시피 TOP10
     @Override
-    public List<BoardWithImageDto> findMonthlyRecipesByLikes(int limit) {
+    public List<BoardDto> findMonthlyRecipesByLikes(int limit) {
         List<Board> boards = boardRepositoryCustom.findMonthlyRecipesByLikes(limit);
 
-        return boardMapper.mapToBoardWithImageDto(boards);
+        return boardMapper.mapToBoardDto(boards);
     }
 
 
     // 모든 게시글 검색
     @Override
-    public List<BoardWithImageDto> findAll() {
+    public List<BoardDto> findAll() {
         List<Board> boards = boardRepository.findAll();
 
-        return boardMapper.mapToBoardWithImageDto(boards);
+        return boardMapper.mapToBoardDto(boards);
     }
 
 
     // 모든 게시글 검색 - 최신순
     @Override
-    public Page<BoardWithImageDto> findAllByDateDesc(Pageable pageable) {
+    public Page<BoardDto> findAllByDateDesc(Pageable pageable) {
         Page<Board> boardPage = boardRepositoryCustom.findAllByDateDesc(pageable);
 
-        List<BoardWithImageDto> boardDtos = boardMapper.mapToBoardWithImageDto(boardPage.getContent());
+        List<BoardDto> boardDtos = boardMapper.mapToBoardDto(boardPage.getContent());
 
         // Page 객체로 변환하여 반환
         return new PageImpl<>(boardDtos, pageable, boardPage.getTotalElements());
@@ -244,8 +247,6 @@ public class BoardServiceImpl implements BoardService {
     @Transactional
     public void deleteById(Long boardId) {
         boardRepository.deleteById(boardId);
-
-        log.warn("Deleting Board ID: {}", boardId);
     }
 
 

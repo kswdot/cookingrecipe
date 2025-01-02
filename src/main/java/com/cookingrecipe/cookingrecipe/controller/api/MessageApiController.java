@@ -49,19 +49,8 @@ public class MessageApiController {
         return ResponseEntity.ok("쪽지 전송 완료");
     }
 
-
-    // 읽지 않은 쪽지 개수 조회
-    @GetMapping("/unread-count")
-    public int getUnreadMessageCount() {
-        // 로그인된 사용자 가져오기
-        User sender = getCurrentUser();
-
-        return messageService.getUnreadMessageCount(sender.getId());
-    }
-
-
     // 보낸 쪽지 조회
-    @GetMapping("/sent")
+    @GetMapping("/send")
     public List<MessageDto> getSentMessages() {
         // 로그인된 사용자 가져오기
         User sender = getCurrentUser();
@@ -71,6 +60,7 @@ public class MessageApiController {
                 .map(MessageDto::entityToDto)
                 .collect(Collectors.toList());
     }
+
 
 
     // 받은 쪽지 조회
@@ -85,6 +75,16 @@ public class MessageApiController {
                 .collect(Collectors.toList());
     }
 
+
+    // 읽지 않은 쪽지 개수 조회
+    @GetMapping("/unread-count")
+    public int getUnreadMessageCount() {
+        // 로그인된 사용자 가져오기
+        User sender = getCurrentUser();
+
+        return messageService.getUnreadMessageCount(sender.getId());
+    }
+
     // 단일 메세지 조회
     @GetMapping("/{messageId}")
     public ResponseEntity<MessageDto> getMessageById(@PathVariable Long messageId) {
@@ -93,7 +93,7 @@ public class MessageApiController {
     }
 
     // 메세지 읽음으로 변경
-    @PatchMapping("/{messageId}/read")
+    @PatchMapping("/{messageId}")
     public ResponseEntity<String> markMessageAsRead(@PathVariable Long messageId) {
         messageService.markAsRead(messageId);
         return ResponseEntity.ok("메시지를 읽음 상태로 변경했습니다.");

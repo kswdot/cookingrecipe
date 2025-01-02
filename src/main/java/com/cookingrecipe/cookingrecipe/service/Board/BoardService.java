@@ -6,9 +6,9 @@ import com.cookingrecipe.cookingrecipe.domain.Board.Method;
 import com.cookingrecipe.cookingrecipe.domain.User.CustomUserDetails;
 import com.cookingrecipe.cookingrecipe.domain.User.User;
 import com.cookingrecipe.cookingrecipe.dto.*;
+import com.cookingrecipe.cookingrecipe.dto.Board.BoardDto;
 import com.cookingrecipe.cookingrecipe.dto.Board.BoardSaveDto;
 import com.cookingrecipe.cookingrecipe.dto.Board.BoardUpdateDto;
-import com.cookingrecipe.cookingrecipe.dto.Board.BoardWithImageDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -30,10 +30,10 @@ public interface BoardService {
     Long update(Long boardId, BoardUpdateDto boardUpdateDto, List<RecipeStepDto> recipeStepDto) throws IOException;
 
     // 모든 게시글 검색
-    List<BoardWithImageDto> findAll();
+    List<BoardDto> findAll();
 
     // 모든 게시글 검색 - 최신순
-    Page<BoardWithImageDto> findAllByDateDesc(Pageable pageable);
+    Page<BoardDto> findAllByDateDesc(Pageable pageable);
 
     // 게시글 검색 - 유저
     Optional<Board> findByIdWithUser(Long userId);
@@ -45,28 +45,28 @@ public interface BoardService {
     Board findBoardWithRecipeSteps(Long boardId);
 
     // 게시글 검색 - 검색 조건 - 최신순
-    Page<BoardWithImageDto> searchBoards(String searchCriteria, String keyword, Pageable pageable);
+    Page<BoardDto> searchBoards(String searchCriteria, String keyword, Pageable pageable);
 
     // 게시글 검색 -검색 조건 - 좋아요 순
-    Page<BoardWithImageDto> searchBoardsOrderByLikes(String searchCriteria, String keyword, Pageable pageable);
+    Page<BoardDto> searchBoardsOrderByLikes(String searchCriteria, String keyword, Pageable pageable);
 
     // 게시글 검색 - 카테고리 - 최신순
-    List<BoardWithImageDto> findByCategory(Category category);
+    List<BoardDto> findByCategory(Category category);
 
     // 게시글 검색 - 카테고리 - 좋아요 순
-    List<BoardWithImageDto> findByCategoryOrderByLikes(Category category);
+    List<BoardDto> findByCategoryOrderByLikes(Category category);
 
     // 게시글 검색 - 요리 방법 - 최신순
-    List<BoardWithImageDto> findByMethod(Method method);
+    List<BoardDto> findByMethod(Method method);
 
     // 게시글 검색 - 요리 방법 - 좋아요 순
-    List<BoardWithImageDto> findByMethodOrderByLikes(Method method);
+    List<BoardDto> findByMethodOrderByLikes(Method method);
 
     // 게시글 검색 - 인기 레시피 TOP 10
-    List<BoardWithImageDto> findTopRecipesByLikes(int limit);
+    List<BoardDto> findTopRecipesByLikes(int limit);
 
     // 게시글 검색 - 이 달(한 달)의 레시피 TOP10
-    List<BoardWithImageDto> findMonthlyRecipesByLikes(int limit);
+    List<BoardDto> findMonthlyRecipesByLikes(int limit);
 
     // 조회수 증가 - HTTP Session 사용
     void addViewCount(Long boardId);

@@ -2,11 +2,18 @@ package com.cookingrecipe.cookingrecipe.dto.Board;
 
 import com.cookingrecipe.cookingrecipe.domain.Board.Board;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+import java.io.Serializable;
+
+@Getter
+@Setter
 @AllArgsConstructor
-public class BoardResponseDto {
+// 대표 사진을 레시피의 마지막 사진으로 설정하기 위해 받는 DTO
+public class BoardDto implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private Long id;
     private String title;
@@ -15,14 +22,13 @@ public class BoardResponseDto {
     private String method;
     private String ingredient;
     private String content;
-    private String lastImagePath;
+    private String lastImagePath; // 대표 이미지 경로
     private int likeCount;
     private int bookmarkCount;
     private long view;
 
-    public static BoardResponseDto from(BoardWithImageDto boardWithImageDto) {
-        Board board = boardWithImageDto.getBoard();
-        return new BoardResponseDto(
+    public static BoardDto from(Board board, String lastImagePath) {
+        return new BoardDto(
                 board.getId(),
                 board.getTitle(),
                 board.getNickname(),
@@ -30,7 +36,7 @@ public class BoardResponseDto {
                 board.getMethod().name(),
                 board.getIngredient(),
                 board.getContent(),
-                boardWithImageDto.getLastImagePath(),
+                lastImagePath, // 대표 이미지 경로를 파라미터로 전달받음
                 board.getLikeCount(),
                 board.getBookmarkCount(),
                 board.getView()

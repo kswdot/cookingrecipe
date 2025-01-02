@@ -1,7 +1,7 @@
 package com.cookingrecipe.cookingrecipe.service.User;
 
 import com.cookingrecipe.cookingrecipe.domain.User.User;
-import com.cookingrecipe.cookingrecipe.dto.Board.BoardWithImageDto;
+import com.cookingrecipe.cookingrecipe.dto.Board.BoardDto;
 import com.cookingrecipe.cookingrecipe.dto.User.SocialSignupDto;
 import com.cookingrecipe.cookingrecipe.dto.User.UserSignupDto;
 import com.cookingrecipe.cookingrecipe.dto.User.UserUpdateDto;
@@ -47,10 +47,10 @@ public interface UserService {
     void updatePassword(Long userId, String currentPassword, String newPassword, String confirmPassword);
 
     // 마이 페이지 - 내가 쓴 글 조회
-    List<BoardWithImageDto> findByUserId(Long userId);
+    List<BoardDto> findByUserId(Long userId);
 
     // 마이 페이지 - 북마크한 글 조회
-    List<BoardWithImageDto> findBookmarkedRecipeByUser(Long userId);
+    List<BoardDto> findBookmarkedRecipeByUser(Long userId);
 
     // 아이디 찾기 - 이메일, 전화번호
     String findLoginIdByNumberAndBirth(String number, LocalDate birth);

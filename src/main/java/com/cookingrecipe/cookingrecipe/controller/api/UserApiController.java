@@ -2,8 +2,7 @@ package com.cookingrecipe.cookingrecipe.controller.api;
 
 import com.cookingrecipe.cookingrecipe.domain.User.CustomUserDetails;
 import com.cookingrecipe.cookingrecipe.domain.User.User;
-import com.cookingrecipe.cookingrecipe.dto.Board.BoardResponseDto;
-import com.cookingrecipe.cookingrecipe.dto.Board.BoardWithImageDto;
+import com.cookingrecipe.cookingrecipe.dto.Board.BoardDto;
 import com.cookingrecipe.cookingrecipe.dto.User.*;
 import com.cookingrecipe.cookingrecipe.exception.BadRequestException;
 import com.cookingrecipe.cookingrecipe.exception.UserNotFoundException;
@@ -204,13 +203,9 @@ public class UserApiController {
     public ResponseEntity<?> boardList(@AuthenticationPrincipal CustomUserDetails userDetails) {
 
         try {
-            List<BoardWithImageDto> boards = userService.findByUserId(userDetails.getId());
+            List<BoardDto> boards = userService.findByUserId(userDetails.getId());
 
-            List<BoardResponseDto> response = boards.stream()
-                    .map(BoardResponseDto::from)
-                    .toList();
-
-            return ResponseEntity.ok(response);
+            return ResponseEntity.ok(boards);
         } catch (Exception e){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "게시글을 조회하던 중 문제가 발생했습니다"));
@@ -223,13 +218,9 @@ public class UserApiController {
     public ResponseEntity<?> bookmark(@AuthenticationPrincipal CustomUserDetails userDetails) {
 
         try {
-            List<BoardWithImageDto> boards = userService.findBookmarkedRecipeByUser(userDetails.getId());
+            List<BoardDto> boards = userService.findBookmarkedRecipeByUser(userDetails.getId());
 
-            List<BoardResponseDto> response = boards.stream()
-                    .map(BoardResponseDto::from)
-                    .toList();
-
-            return ResponseEntity.ok().body(response);
+            return ResponseEntity.ok().body(boards);
         } catch (Exception e){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "북마크를 조회하던 중 문제가 발생했습니다."));

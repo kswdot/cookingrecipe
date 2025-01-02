@@ -5,9 +5,9 @@ import com.cookingrecipe.cookingrecipe.domain.Board.Category;
 import com.cookingrecipe.cookingrecipe.domain.User.CustomUserDetails;
 import com.cookingrecipe.cookingrecipe.domain.Board.Method;
 import com.cookingrecipe.cookingrecipe.dto.*;
+import com.cookingrecipe.cookingrecipe.dto.Board.BoardDto;
 import com.cookingrecipe.cookingrecipe.dto.Board.BoardSaveDto;
 import com.cookingrecipe.cookingrecipe.dto.Board.BoardUpdateDto;
-import com.cookingrecipe.cookingrecipe.dto.Board.BoardWithImageDto;
 import com.cookingrecipe.cookingrecipe.dto.Comment.CommentResponseDto;
 import com.cookingrecipe.cookingrecipe.exception.BadRequestException;
 import com.cookingrecipe.cookingrecipe.service.Board.BoardService;
@@ -280,7 +280,7 @@ public class BoardController {
             return "board/search";
         }
 
-        Page<BoardWithImageDto> boards;
+        Page<BoardDto> boards;
         if ("likes".equals(sort)) {
             boards = boardService.searchBoardsOrderByLikes(searchCriteria, keyword, pageable);
         } else {
@@ -310,7 +310,7 @@ public class BoardController {
     @GetMapping("/boards")
     public String all(@PageableDefault(size = 9, sort = "createdDate", direction = Sort.Direction.DESC) Pageable pageable,
                       Model model) {
-        Page<BoardWithImageDto> boardPage = boardService.findAllByDateDesc(pageable);
+        Page<BoardDto> boardPage = boardService.findAllByDateDesc(pageable);
 
         model.addAttribute("boards", boardPage.getContent()); // 게시글 데이터
         model.addAttribute("page", boardPage); // 페이징 정보
@@ -321,7 +321,7 @@ public class BoardController {
     // 전체 레시피 TOP 10
     @GetMapping("/boards/top")
     public String top(Model model) {
-        List<BoardWithImageDto> boards = boardService.findTopRecipesByLikes(10);
+        List<BoardDto> boards = boardService.findTopRecipesByLikes(10);
 
 
         model.addAttribute("boards", boards);
@@ -333,7 +333,7 @@ public class BoardController {
     @GetMapping("/boards/monthly")
     public String monthly(Model model) {
 
-        List<BoardWithImageDto> boards = boardService.findMonthlyRecipesByLikes(10);
+        List<BoardDto> boards = boardService.findMonthlyRecipesByLikes(10);
         model.addAttribute("boards", boards);
         return "board/monthly";
     }
@@ -345,7 +345,7 @@ public class BoardController {
                            @RequestParam(defaultValue = "date") String sort,
                            Model model) {
 
-        List<BoardWithImageDto> boards;
+        List<BoardDto> boards;
 
         if ("likes".equals(sort)) {
             boards = boardService.findByCategoryOrderByLikes(category);
@@ -366,7 +366,7 @@ public class BoardController {
                          @RequestParam(defaultValue = "date") String sort,
                          Model model) {
 
-        List<BoardWithImageDto> boards;
+        List<BoardDto> boards;
 
         if ("likes".equals(sort)) {
             boards = boardService.findByMethodOrderByLikes(method);

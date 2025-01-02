@@ -1,7 +1,7 @@
 package com.cookingrecipe.cookingrecipe.service.Board;
 
 import com.cookingrecipe.cookingrecipe.domain.Board.Board;
-import com.cookingrecipe.cookingrecipe.dto.Board.BoardWithImageDto;
+import com.cookingrecipe.cookingrecipe.dto.Board.BoardDto;
 import com.cookingrecipe.cookingrecipe.repository.RecipeStep.RecipeStepRepository;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -22,12 +22,21 @@ public class BoardMapper {
     private static final String DEFAULT_IMAGE_PATH = "/static/images/default-recipe.jpg"; // 기본 경로 상수화
 
     // 게시글 리스트를 BoardWithImageDto 리스트로 변환
-    public List<BoardWithImageDto> mapToBoardWithImageDto(List<Board> boards) {
+    public List<BoardDto> mapToBoardDto(List<Board> boards) {
         return boards.stream()
-                .map(board -> {
-                    String lastImagePath = getMainImage(board.getId());
-                    return new BoardWithImageDto(board, lastImagePath);
-                })
+                .map(board -> new BoardDto(
+                        board.getId(),
+                        board.getTitle(),
+                        board.getNickname(),
+                        board.getCategory().name(),
+                        board.getMethod().name(),
+                        board.getIngredient(),
+                        board.getContent(),
+                        getMainImage(board.getId()), // 대표 이미지 경로
+                        board.getLikeCount(),
+                        board.getBookmarkCount(),
+                        board.getView()
+                ))
                 .collect(Collectors.toList());
     }
 

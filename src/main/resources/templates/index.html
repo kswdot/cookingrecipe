@@ -72,20 +72,20 @@
             <h2 class="mb-4 text-center">레시피 저장소에 오신 것을 환영합니다!</h2>
             <div class="row">
                 <!-- 게시글 목록 -->
-                <div th:each="boardWithImage : ${boards}" class="col-md-4 mb-3">
+                <div th:each="boardDto : ${boards}" class="col-md-4 mb-3">
                     <div class="card">
                         <!-- 이미지 처리 -->
-                        <img th:src="${boardWithImage.lastImagePath}" alt="대표 이미지" class="card-img-top">
+                        <img th:src="${boardDto.lastImagePath}" alt="대표 이미지" class="card-img-top">
 
                         <!-- 카드 내용 -->
                         <div class="card-body">
-                            <h5 class="card-title" th:text="${boardWithImage.board.title}"></h5>
-                            <p class="author">작성자: <span th:text="${boardWithImage.board.user.nickname}"></span></p>
+                            <h5 class="card-title" th:text="${boardDto.title}"></h5>
+                            <p class="author">작성자: <span th:text="${boardDto.nickname}"></span></p>
                             <p class="stats">
-                                ❤️ <span th:text="${boardWithImage.board.likeCount}"></span> &nbsp;&nbsp;
-                                👁️ <span th:text="${boardWithImage.board.view}"></span>
+                                ❤️ <span th:text="${boardDto.likeCount}"></span> &nbsp;&nbsp;
+                                👁️ <span th:text="${boardDto.view}"></span>
                             </p>
-                            <a th:href="@{/boards/{id}(id=${boardWithImage.board.id})}" class="btn btn-light btn-detail">자세히 보기</a>
+                            <a th:href="@{/boards/{id}(id=${boardDto.id})}" class="btn btn-light btn-detail">자세히 보기</a>
                         </div>
                     </div>
                 </div>

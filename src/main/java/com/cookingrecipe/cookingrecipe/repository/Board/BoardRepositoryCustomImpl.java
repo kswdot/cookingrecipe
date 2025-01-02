@@ -72,19 +72,11 @@ public class BoardRepositoryCustomImpl implements BoardRepositoryCustom {
         // 게시글 리스트 조회 (페이징 적용)
         List<Board> boards = queryFactory
                 .selectFrom(board)
-                .leftJoin(board.recipeSteps, recipeStep).fetchJoin()
-                .where(condition != null ? condition.and(recipeStep.stepOrder.eq(
-                        queryFactory.select(recipeStep.stepOrder.max())
-                                .from(recipeStep)
-                                .where(recipeStep.board.eq(board))
-                )) : recipeStep.stepOrder.eq(
-                        queryFactory.select(recipeStep.stepOrder.max())
-                                .from(recipeStep)
-                                .where(recipeStep.board.eq(board))
-                ))
+                .leftJoin(board.recipeSteps, recipeStep)
+                .where(condition)
                 .orderBy(board.createdDate.desc())
-                .offset(pageable.getOffset())  // 시작 위치
-                .limit(pageable.getPageSize()) // 페이지 크기
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
                 .fetch();
 
         // 전체 게시글 개수 조회 (검색 조건 적용)
@@ -109,17 +101,9 @@ public class BoardRepositoryCustomImpl implements BoardRepositoryCustom {
         // 게시글 리스트 조회
         List<Board> boards = queryFactory
                 .selectFrom(board)
-                .leftJoin(board.recipeSteps, recipeStep).fetchJoin()
-                .where(condition != null ? condition.and(recipeStep.stepOrder.eq(
-                        queryFactory.select(recipeStep.stepOrder.max())
-                                .from(recipeStep)
-                                .where(recipeStep.board.eq(board))
-                )) : recipeStep.stepOrder.eq(
-                        queryFactory.select(recipeStep.stepOrder.max())
-                                .from(recipeStep)
-                                .where(recipeStep.board.eq(board))
-                ))
-                .orderBy(board.createdDate.desc())
+                .leftJoin(board.recipeSteps, recipeStep) // 연관 데이터 유지, fetchJoin 제거
+                .where(condition)
+                .orderBy(board.likeCount.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();

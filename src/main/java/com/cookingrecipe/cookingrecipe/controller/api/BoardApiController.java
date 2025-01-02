@@ -4,10 +4,9 @@ import com.cookingrecipe.cookingrecipe.domain.Board.Board;
 import com.cookingrecipe.cookingrecipe.domain.Board.Category;
 import com.cookingrecipe.cookingrecipe.domain.User.CustomUserDetails;
 import com.cookingrecipe.cookingrecipe.domain.Board.Method;
-import com.cookingrecipe.cookingrecipe.dto.Board.BoardResponseDto;
+import com.cookingrecipe.cookingrecipe.dto.Board.BoardDto;
 import com.cookingrecipe.cookingrecipe.dto.Board.BoardSaveDto;
 import com.cookingrecipe.cookingrecipe.dto.Board.BoardUpdateDto;
-import com.cookingrecipe.cookingrecipe.dto.Board.BoardWithImageDto;
 import com.cookingrecipe.cookingrecipe.dto.Comment.CommentResponseDto;
 import com.cookingrecipe.cookingrecipe.exception.BadRequestException;
 import com.cookingrecipe.cookingrecipe.service.Board.BoardService;
@@ -42,14 +41,10 @@ public class BoardApiController {
     @GetMapping("")
     public ResponseEntity<?> all(@PageableDefault(size = 10, sort = "createdDate", direction = Sort.Direction.DESC) Pageable pageable) {
         try {
-            Page<BoardWithImageDto> boardPage = boardService.findAllByDateDesc(pageable);
-
-            List<BoardResponseDto> response = boardPage.getContent().stream()
-                    .map(BoardResponseDto::from)
-                    .toList();
+            Page<BoardDto> boardPage = boardService.findAllByDateDesc(pageable);
 
             Map<String, Object> responseBody = Map.of(
-                    "content", response, // 게시글 데이터
+                    "content", boardPage.getContent(), // 게시글 데이터
                     "currentPage", boardPage.getNumber(),
                     "totalPages", boardPage.getTotalPages(),
                     "totalElements", boardPage.getTotalElements()
@@ -258,18 +253,13 @@ public class BoardApiController {
             Pageable pageable = PageRequest.of(page, size, Sort.by("date".equals(sort) ? "createdDate" : "likeCount").descending());
 
             // 페이징된 검색 결과 가져오기
-            Page<BoardWithImageDto> boards = "likes".equals(sort) ?
+            Page<BoardDto> boards = "likes".equals(sort) ?
                     boardService.searchBoardsOrderByLikes(searchCriteria, keyword, pageable) :
                     boardService.searchBoards(searchCriteria, keyword, pageable);
 
-            // 응답 DTO로 변환
-            List<BoardResponseDto> response = boards.getContent().stream()
-                    .map(BoardResponseDto::from)
-                    .toList();
-
             // 페이징 메타데이터 포함 반환
             return ResponseEntity.ok(Map.of(
-                    "content", response,
+                    "content", boards.getContent(),
                     "currentPage", boards.getNumber(),
                     "totalPages", boards.getTotalPages(),
                     "totalElements", boards.getTotalElements()
@@ -286,13 +276,9 @@ public class BoardApiController {
     public ResponseEntity<?> top() {
 
         try {
-            List<BoardWithImageDto> boards = boardService.findTopRecipesByLikes(10);
+            List<BoardDto> boards = boardService.findTopRecipesByLikes(10);
 
-            List<BoardResponseDto> response = boards.stream()
-                    .map(BoardResponseDto::from)
-                    .toList();
-
-            return ResponseEntity.ok(response);
+            return ResponseEntity.ok(boards);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("errorMessage", "검색 중 문제가 발생하였습니다. 다시 시도해주세요."));
@@ -305,13 +291,9 @@ public class BoardApiController {
     public ResponseEntity<?> monthly() {
 
         try {
-            List<BoardWithImageDto> boards = boardService.findMonthlyRecipesByLikes(10);
+            List<BoardDto> boards = boardService.findMonthlyRecipesByLikes(10);
 
-            List<BoardResponseDto> response = boards.stream()
-                    .map(BoardResponseDto::from)
-                    .toList();
-
-            return ResponseEntity.ok(response);
+            return ResponseEntity.ok(boards);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("errorMessage", "검색 중 문제가 발생하였습니다. 다시 시도해주세요."));
@@ -325,19 +307,11 @@ public class BoardApiController {
                                       @RequestParam(defaultValue = "date") String sort) {
 
         try {
-            List<BoardWithImageDto> boards;
+            List<BoardDto> boards = "likes".equals(sort) ?
+                    boardService.findByCategoryOrderByLikes(category) :
+                    boardService.findByCategory(category);
 
-            if ("likes".equals(sort)) {
-                boards = boardService.findByCategoryOrderByLikes(category);
-            } else {
-                boards = boardService.findByCategory(category);
-            }
-
-            List<BoardResponseDto> response = boards.stream()
-                    .map(BoardResponseDto::from)
-                    .toList();
-
-            return ResponseEntity.ok(response);
+            return ResponseEntity.ok(boards);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("errorMessage", "검색 중 문제가 발생하였습니다. 다시 시도해주세요."));
@@ -351,19 +325,11 @@ public class BoardApiController {
                                     @RequestParam(defaultValue = "date") String sort) {
 
         try {
-            List<BoardWithImageDto> boards;
+            List<BoardDto> boards = "likes".equals(sort) ?
+                    boardService.findByMethodOrderByLikes(method) :
+                    boardService.findByMethod(method);
 
-            if ("likes".equals(sort)) {
-                boards = boardService.findByMethodOrderByLikes(method);
-            } else {
-                boards = boardService.findByMethod(method);
-            }
-
-            List<BoardResponseDto> response = boards.stream()
-                    .map(BoardResponseDto::from)
-                    .toList();
-
-            return ResponseEntity.ok(response);
+            return ResponseEntity.ok(boards);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("errorMessage", "검색 중 문제가 발생하였습니다. 다시 시도해주세요."));

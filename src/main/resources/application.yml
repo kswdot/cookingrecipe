@@ -1,4 +1,6 @@
 spring:
+  profiles:
+    active: default # 기본 프로파일을 "default"로 설정
   jpa:
     hibernate:
       ddl-auto: create  # 운영 환경에서는 "update" 또는 "validate" 권장
@@ -7,6 +9,7 @@ spring:
       hibernate:
         use_reflection_optimizer: false
         format_sql: true  # SQL 포맷팅
+        default_batch_fetch_size: 10
   messages:
     basename: message, errors
   datasource:

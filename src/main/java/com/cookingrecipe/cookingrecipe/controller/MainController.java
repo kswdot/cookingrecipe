@@ -1,6 +1,6 @@
 package com.cookingrecipe.cookingrecipe.controller;
 
-import com.cookingrecipe.cookingrecipe.dto.Board.BoardWithImageDto;
+import com.cookingrecipe.cookingrecipe.dto.Board.BoardDto;
 import com.cookingrecipe.cookingrecipe.service.Board.BoardService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +22,7 @@ public class MainController {
     @GetMapping
     public String index(@PageableDefault(size = 9, sort = "createdDate", direction = Sort.Direction.DESC) Pageable pageable,
                         Model model) {
-        Page<BoardWithImageDto> boardPage = boardService.findAllByDateDesc(pageable);
+        Page<BoardDto> boardPage = boardService.findAllByDateDesc(pageable);
 
         model.addAttribute("boards", boardPage.getContent());
         model.addAttribute("page", boardPage);
