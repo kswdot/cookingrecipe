@@ -20,11 +20,13 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -41,6 +43,10 @@ public class BoardServiceImpl implements BoardService {
     private final LikeRepository likeRepository;
     private final BoardMapper boardMapper;
     private final RecipeStepService recipeStepService;
+    private final RedisTemplate<String, String> redisTemplate;
+
+    private static final String VIEWED_CACHE_PREFIX = "viewed:board:";
+    private static final Duration CACHE_EXPIRATION = Duration.ofHours(1); // Redis 캐시 만료 시간
 
 
     // 게시글 저장
@@ -238,7 +244,28 @@ public class BoardServiceImpl implements BoardService {
     // 조회수 증가 - Redis 사용
     @Override
     public boolean addViewCountWithRedis(Long boardId, Long userId) {
-        return boardRepositoryCustom.addViewCountWithRedis(boardId, userId);
+        try {
+            String redisKey = "viewed:board:" + boardId + ":user:" + userId; // 고유 키 생성
+
+            // Redis에 key 저장 (없으면 true 반환)
+            boolean isNewView = Boolean.TRUE
+                    .equals(redisTemplate.opsForValue().setIfAbsent(redisKey, "1", Duration.ofHours(1)));
+
+            if (isNewView) {
+                // Redis에서 처음 본 경우에만 DB 업데이트
+                System.out.println("New view detected for boardId: " + boardId);
+                boardRepository.updateViewCount(boardId);
+            } else {
+                System.out.println("View already counted for boardId: " + boardId);
+            }
+
+            return isNewView;
+
+        } catch (Exception e) {
+            // Redis 연결 실패 시 기본 동작: DB에서 조회수만 증가
+            boardRepository.updateViewCount(boardId);
+            return true; // 조회수 증가를 기본 동작으로 처리
+        }
     }
 
 

@@ -26,20 +26,4 @@ public class BoardDto implements Serializable {
     private int likeCount;
     private int bookmarkCount;
     private long view;
-
-    public static BoardDto from(Board board, String lastImagePath) {
-        return new BoardDto(
-                board.getId(),
-                board.getTitle(),
-                board.getNickname(),
-                board.getCategory().name(),
-                board.getMethod().name(),
-                board.getIngredient(),
-                board.getContent(),
-                lastImagePath, // 대표 이미지 경로를 파라미터로 전달받음
-                board.getLikeCount(),
-                board.getBookmarkCount(),
-                board.getView()
-        );
-    }
 }

@@ -3,6 +3,7 @@ package com.cookingrecipe.cookingrecipe.controller.api;
 import com.cookingrecipe.cookingrecipe.dto.User.LoginRequestDto;
 import com.cookingrecipe.cookingrecipe.util.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequestMapping("/api")
@@ -27,8 +29,10 @@ public class AuthController {
 
     private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider jwtTokenProvider;
+    private final RedisTemplate<String, Object> redisTemplate;
 
 
+    // JWT + Redis 로그인
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody @Validated LoginRequestDto loginRequestDto,
                                    BindingResult bindingResult) {
@@ -55,6 +59,14 @@ public class AuthController {
             // JWT 토큰 생성
             String token = jwtTokenProvider.generateToken(authentication.getName());
 
+            // Redis에 JWT 저장 (유효기간 설정)
+            redisTemplate.opsForValue().set(
+                    authentication.getName(),
+                    token,
+                    3600000,                  // 만료 시간: 1시간 (3600000ms)
+                    TimeUnit.MILLISECONDS
+            );
+
             // JWT 반환
             return ResponseEntity.ok(Map.of("token", token));
         } catch (AuthenticationException e) {
@@ -65,5 +77,18 @@ public class AuthController {
         }
     }
 
+    // JWT + Redis 로그아웃
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(@RequestBody Map<String, String> request) {
+        String token = request.get("token");
+
+        // 토큰에서 사용자 ID 추출
+        String username = jwtTokenProvider.getUsernameFromToken(token);
+
+        // Redis에서 토큰 삭제
+        redisTemplate.delete(username);
+
+        return ResponseEntity.ok(Map.of("message", "로그아웃이 완료되었습니다."));
+    }
 
 }
