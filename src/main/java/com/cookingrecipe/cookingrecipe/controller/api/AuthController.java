@@ -12,10 +12,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
@@ -32,7 +29,6 @@ public class AuthController {
     private final RedisTemplate<String, Object> redisTemplate;
 
 
-    // JWT + Redis 로그인
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody @Validated LoginRequestDto loginRequestDto,
                                    BindingResult bindingResult) {
@@ -49,17 +45,23 @@ public class AuthController {
             return ResponseEntity.badRequest().body(errorMessages);
         }
 
-
         try {
             // 사용자 인증
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(loginRequestDto.getLoginId(), loginRequestDto.getPassword())
             );
 
-            // JWT 토큰 생성
+            // Redis에서 기존 토큰 확인
+            String existingToken = (String) redisTemplate.opsForValue().get(authentication.getName());
+            if (existingToken != null) {
+                // 기존 토큰 반환
+                return ResponseEntity.ok(Map.of("token", existingToken));
+            }
+
+            // 기존 토큰이 없으면 새로 생성
             String token = jwtTokenProvider.generateToken(authentication.getName());
 
-            // Redis에 JWT 저장 (유효기간 설정)
+            // Redis에 새 JWT 저장 (유효기간 설정)
             redisTemplate.opsForValue().set(
                     authentication.getName(),
                     token,
@@ -67,7 +69,7 @@ public class AuthController {
                     TimeUnit.MILLISECONDS
             );
 
-            // JWT 반환
+            // 새 토큰 반환
             return ResponseEntity.ok(Map.of("token", token));
         } catch (AuthenticationException e) {
 
@@ -79,16 +81,13 @@ public class AuthController {
 
     // JWT + Redis 로그아웃
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(@RequestBody Map<String, String> request) {
-        String token = request.get("token");
+    public ResponseEntity<?> logout(@RequestHeader("Authorization") String token) {
+        // JWT에서 사용자 이름 추출
+        String username = jwtTokenProvider.getUsernameFromToken(token.replace("Bearer ", ""));
 
-        // 토큰에서 사용자 ID 추출
-        String username = jwtTokenProvider.getUsernameFromToken(token);
-
-        // Redis에서 토큰 삭제
-        redisTemplate.delete(username);
-
+        // Redis 작업 없이 로그아웃 완료 응답
         return ResponseEntity.ok(Map.of("message", "로그아웃이 완료되었습니다."));
     }
+
 
 }

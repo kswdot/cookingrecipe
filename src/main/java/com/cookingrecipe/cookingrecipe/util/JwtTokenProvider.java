@@ -29,13 +29,12 @@ public class JwtTokenProvider {
                 .signWith(SECRET_KEY) // 서명 알고리즘과 비밀 키 설정
                 .compact();
 
-        // Redis에 토큰 저장
-        redisTemplate.opsForValue().set(
-                username, // 키: 사용자 이름
-                token,    // 값: JWT 토큰
-                EXPIRATION_MS,
-                TimeUnit.MILLISECONDS
-        );
+        // Redis에 토큰 저장 + 로그아웃 상태 초기화
+        redisTemplate.opsForHash().put(username, "token", token);
+        redisTemplate.opsForHash().put(username, "loggedOut", false);
+
+        // Redis 만료 시간 설정
+        redisTemplate.expire(username, EXPIRATION_MS, TimeUnit.MILLISECONDS);
 
         return token;
     }
@@ -43,20 +42,23 @@ public class JwtTokenProvider {
     // JWT 유효성 검증 (Redis 연동)
     public boolean validateToken(String token) {
         try {
-            // Redis에서 토큰 확인
             String username = getUsernameFromToken(token);
+
+            // Redis에서 토큰 확인 (opsForValue 사용)
             String redisToken = (String) redisTemplate.opsForValue().get(username);
 
-            // Redis에 저장된 토큰과 일치하는지 확인
             if (token.equals(redisToken)) {
+                // 토큰의 유효성을 검증
                 Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token);
                 return true;
             }
+
             return false; // Redis에 토큰이 없거나 불일치
         } catch (JwtException | IllegalArgumentException e) {
             return false; // 유효하지 않은 토큰
         }
     }
+
 
     // JWT에서 사용자 이름 추출
     public String getUsernameFromToken(String token) {
